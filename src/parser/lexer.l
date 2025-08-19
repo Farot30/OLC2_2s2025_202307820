@@ -23,9 +23,9 @@ double                      { yylval.str = strdup("double"); return TOKEN_DOUBLE
 \/\/[^\n]*                  { /* Ignorar comentario de línea */ }
 \/\*([^*]|\*+[^*/])*\*+\/   { /* Ignorar comentario de bloque */ }
 
+
 "="                         { return TOKEN_IGUAL; }
 ";"                         { return TOKEN_DOBLEPUNTO; }
-
 [ \t]+                      { /* Espacios y tabs: solo actualiza columna */ }
 \n                          { yycolumn = 1; }
 

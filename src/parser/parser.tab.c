@@ -524,8 +524,8 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    31,    31,    38,    49,    59,    60,    63,    70,    76,
-      77,    78,    79,    80,    82,    83,    84,    85,    86,    87
+       0,    43,    43,    50,    61,    71,    72,    76,    83,    89,
+      90,    91,    92,    93,    95,    96,    97,    98,    99,   100
 };
 #endif
 
@@ -1483,7 +1483,7 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* s: Lista_expresiones  */
-#line 31 "src/parser/parser.y"
+#line 43 "src/parser/parser.y"
                      {
         verificarSemantica((yyvsp[0].nodo));
         imprimirAST((yyvsp[0].nodo), 0);
@@ -1493,7 +1493,7 @@ yyreduce:
     break;
 
   case 3: /* Lista_expresiones: Lista_expresiones expresion  */
-#line 38 "src/parser/parser.y"
+#line 50 "src/parser/parser.y"
                                                {
         if ((yyvsp[-1].nodo)->tipo != AST_LISTA) {
             NodoAST* lista = crearNodo(AST_LISTA, NULL);
@@ -1509,7 +1509,7 @@ yyreduce:
     break;
 
   case 4: /* Lista_expresiones: expresion  */
-#line 49 "src/parser/parser.y"
+#line 61 "src/parser/parser.y"
                 {
         (yyval.nodo) = (yyvsp[0].nodo);
     }
@@ -1517,7 +1517,7 @@ yyreduce:
     break;
 
   case 7: /* Declaracion: Tipos TOKEN_IDENTIFICADOR TOKEN_IGUAL expr TOKEN_DOBLEPUNTO  */
-#line 63 "src/parser/parser.y"
+#line 76 "src/parser/parser.y"
                                                                          {
     (yyval.nodo) = crearNodo(AST_DECLARACION, (yyvsp[-3].str)); 
     (yyval.nodo)->valor = strdup((yyvsp[-4].str));              
@@ -1528,7 +1528,7 @@ yyreduce:
     break;
 
   case 8: /* Asignacion: TOKEN_IDENTIFICADOR TOKEN_IGUAL expr TOKEN_DOBLEPUNTO  */
-#line 70 "src/parser/parser.y"
+#line 83 "src/parser/parser.y"
                                                                   {
     (yyval.nodo) = crearNodo(AST_ASIGNACION, (yyvsp[-3].str));
     agregarHijo((yyval.nodo), crearNodo(AST_IDENTIFICADOR, (yyvsp[-3].str)));
@@ -1538,67 +1538,67 @@ yyreduce:
     break;
 
   case 9: /* Tipos: TOKEN_DINT  */
-#line 76 "src/parser/parser.y"
+#line 89 "src/parser/parser.y"
                        { (yyval.str) = (yyvsp[0].str); }
 #line 1544 "src/parser/parser.tab.c"
     break;
 
   case 10: /* Tipos: TOKEN_DCHAR  */
-#line 77 "src/parser/parser.y"
+#line 90 "src/parser/parser.y"
                       { (yyval.str) = (yyvsp[0].str); }
 #line 1550 "src/parser/parser.tab.c"
     break;
 
   case 11: /* Tipos: TOKEN_DOUBLE  */
-#line 78 "src/parser/parser.y"
+#line 91 "src/parser/parser.y"
                       { (yyval.str) = (yyvsp[0].str); }
 #line 1556 "src/parser/parser.tab.c"
     break;
 
   case 12: /* Tipos: TOKEN_DFLOAT  */
-#line 79 "src/parser/parser.y"
+#line 92 "src/parser/parser.y"
                       { (yyval.str) = (yyvsp[0].str); }
 #line 1562 "src/parser/parser.tab.c"
     break;
 
   case 13: /* Tipos: TOKEN_DSTRING  */
-#line 80 "src/parser/parser.y"
+#line 93 "src/parser/parser.y"
                       { (yyval.str) = (yyvsp[0].str); }
 #line 1568 "src/parser/parser.tab.c"
     break;
 
   case 14: /* expr: TOKEN_NUMERO  */
-#line 82 "src/parser/parser.y"
+#line 95 "src/parser/parser.y"
                             { (yyval.nodo) = crearNodo(AST_NUMERO, (yyvsp[0].str)); }
 #line 1574 "src/parser/parser.tab.c"
     break;
 
   case 15: /* expr: TOKEN_FLOAT_LITERAL  */
-#line 83 "src/parser/parser.y"
+#line 96 "src/parser/parser.y"
                             { (yyval.nodo) = crearNodo(AST_NUMERO, (yyvsp[0].str)); }
 #line 1580 "src/parser/parser.tab.c"
     break;
 
   case 16: /* expr: TOKEN_DOUBLE_LITERAL  */
-#line 84 "src/parser/parser.y"
+#line 97 "src/parser/parser.y"
                             { (yyval.nodo) = crearNodo(AST_NUMERO, (yyvsp[0].str)); }
 #line 1586 "src/parser/parser.tab.c"
     break;
 
   case 17: /* expr: TOKEN_CADENA  */
-#line 85 "src/parser/parser.y"
+#line 98 "src/parser/parser.y"
                             { (yyval.nodo) = crearNodo(AST_CADENA, (yyvsp[0].str)); }
 #line 1592 "src/parser/parser.tab.c"
     break;
 
   case 18: /* expr: TOKEN_CARACTER  */
-#line 86 "src/parser/parser.y"
+#line 99 "src/parser/parser.y"
                             { (yyval.nodo) = crearNodo(AST_CARACTER, (yyvsp[0].str)); }
 #line 1598 "src/parser/parser.tab.c"
     break;
 
   case 19: /* expr: TOKEN_IDENTIFICADOR  */
-#line 87 "src/parser/parser.y"
+#line 100 "src/parser/parser.y"
                             { (yyval.nodo) = crearNodo(AST_IDENTIFICADOR, (yyvsp[0].str)); }
 #line 1604 "src/parser/parser.tab.c"
     break;
@@ -1833,7 +1833,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 89 "src/parser/parser.y"
+#line 102 "src/parser/parser.y"
 
 
 void yyerror(const char *s) {

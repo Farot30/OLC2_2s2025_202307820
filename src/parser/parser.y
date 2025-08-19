@@ -16,14 +16,26 @@
     NodoAST* nodo;
 }
 
-%token <str> TOKEN_IDENTIFICADOR TOKEN_DINT TOKEN_DFLOAT TOKEN_DSTRING TOKEN_DCHAR TOKEN_DOUBLE TOKEN_IGUAL TOKEN_DOBLEPUNTO TOKEN_NUMERO TOKEN_CADENA TOKEN_CARACTER TOKEN_FLOAT_LITERAL TOKEN_DOUBLE_LITERAL
+%token <str> TOKEN_IDENTIFICADOR
+%token <str> TOKEN_DINT
+%token <str> TOKEN_DFLOAT
+%token <str> TOKEN_DSTRING
+%token <str> TOKEN_DCHAR
+%token <str> TOKEN_DOUBLE
+%token <str> TOKEN_IGUAL
+%token <str> TOKEN_DOBLEPUNTO
+%token <str> TOKEN_NUMERO
+%token <str> TOKEN_CADENA
+%token <str> TOKEN_CARACTER
+%token <str> TOKEN_FLOAT_LITERAL
+%token <str> TOKEN_DOUBLE_LITERAL 
 
-%type <nodo> s Lista_expresiones Declaracion expresion expr Bloque Asignacion
+%type <nodo> s Lista_expresiones Declaracion expresion expr Bloque Asignacion Operaciones Operador
 %type <str> Tipos
 
 //precedencia
 %left '+' '-'
-%left '*' '/' 
+%left '*' '/' '%'
 %left NEG
 
 %%
@@ -58,6 +70,7 @@ Bloque: '{' Lista_expresiones '}' {
 
 expresion: Declaracion
     | Asignacion
+    
     ;
 
 Declaracion: Tipos TOKEN_IDENTIFICADOR TOKEN_IGUAL expr TOKEN_DOBLEPUNTO {
@@ -79,14 +92,28 @@ Tipos: TOKEN_DINT      { $$ = $1; }
     | TOKEN_DFLOAT    { $$ = $1; }
     | TOKEN_DSTRING   { $$ = $1; }
 
-expr: TOKEN_NUMERO          { $$ = crearNodo(AST_NUMERO, $1); }
+expr: expr '+' expr         { $$ = crearNodo(AST_OPERACION, "+");
+                            agregarHijo($$, $1); 
+                            agregarHijo($$, $3);}
+    | expr '-' expr         { $$ = crearNodo(AST_OPERACION, "-");
+                            agregarHijo($$, $1);
+                            agregarHijo($$, $3);}
+    | expr '*' expr         { $$ = crearNodo(AST_OPERACION, "*");
+                            agregarHijo($$, $1);
+                            agregarHijo($$, $3);}
+    | expr '/' expr         { $$ = crearNodo(AST_OPERACION, "/");
+                            agregarHijo($$, $1);
+                            agregarHijo($$, $3);}
+    | expr '%' expr         { $$ = crearNodo(AST_OPERACION, "%");
+                            agregarHijo($$, $1);
+                            agregarHijo($$, $3);}
+    | TOKEN_NUMERO          { $$ = crearNodo(AST_NUMERO, $1); }
     | TOKEN_FLOAT_LITERAL   { $$ = crearNodo(AST_NUMERO, $1); }
     | TOKEN_DOUBLE_LITERAL  { $$ = crearNodo(AST_NUMERO, $1); }
     | TOKEN_CADENA          { $$ = crearNodo(AST_CADENA, $1); }
     | TOKEN_CARACTER        { $$ = crearNodo(AST_CARACTER, $1); }
     | TOKEN_IDENTIFICADOR   { $$ = crearNodo(AST_IDENTIFICADOR, $1); }
 
-%%
 
 void yyerror(const char *s) {
     extern YYLTYPE yylloc;

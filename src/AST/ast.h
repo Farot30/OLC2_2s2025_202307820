@@ -10,6 +10,8 @@ typedef enum {
     AST_ASIGNACION,
     AST_CADENA,
     AST_CARACTER,
+    AST_OPERACION,
+
     // Por si se me olvida, aquí es agregar más tipos
 } TipoNodoAST;
 
