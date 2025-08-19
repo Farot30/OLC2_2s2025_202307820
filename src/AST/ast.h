@@ -1,6 +1,7 @@
 #ifndef AST_H
 #define AST_H
 
+#include <stdio.h>
 typedef enum {
     AST_NUMERO,
     AST_IDENTIFICADOR,
@@ -27,5 +28,8 @@ NodoAST* crearNodo(TipoNodoAST tipo, char* valor);
 void agregarHijo(NodoAST* padre, NodoAST* hijo);
 void liberarAST(NodoAST* nodo);
 void imprimirAST(NodoAST* nodo, int nivel);
+void graphvizAST(NodoAST* nodo);
+void graphvizAST_ToFile(NodoAST* nodo, FILE* f);
+int exportarAST(NodoAST* nodo, const char* rutaDot, const char* rutaPNG);
 
 #endif

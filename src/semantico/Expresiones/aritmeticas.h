@@ -2,6 +2,6 @@
 #define ARITMETICAS_H
 
 #include "../../AST/ast.h"
-int VerificarOperacion(NodoAST* nodo);
+int verificacionAritmetico(NodoAST* nodo);
 
 #endif

@@ -875,23 +875,23 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 30 "src/parser/lexer.l"
+#line 29 "src/parser/lexer.l"
 { /* Espacios y tabs: solo actualiza columna */ }
 	YY_BREAK
 case 17:
 /* rule 17 can match eol */
 YY_RULE_SETUP
-#line 31 "src/parser/lexer.l"
+#line 30 "src/parser/lexer.l"
 { yycolumn = 1; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 33 "src/parser/lexer.l"
+#line 32 "src/parser/lexer.l"
 { return yytext[0]; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 35 "src/parser/lexer.l"
+#line 34 "src/parser/lexer.l"
 ECHO;
 	YY_BREAK
 #line 898 "src/parser/lexer.c"
@@ -1911,7 +1911,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 35 "src/parser/lexer.l"
+#line 34 "src/parser/lexer.l"
 
 
 int yywrap(void) {

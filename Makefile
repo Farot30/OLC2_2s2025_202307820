@@ -16,7 +16,8 @@ parser: $(SRC_DIR)/main.c \
     	$(SRC_DIR)/semantico/tipos.c \
     	$(SRC_DIR)/semantico/tabla_simbolo.c \
     	$(SRC_DIR)/semantico/Instrucciones/asignacion.c \
-    	$(SRC_DIR)/semantico/Instrucciones/declaracion.c
+    	$(SRC_DIR)/semantico/Instrucciones/declaracion.c \
+		$(SRC_DIR)/semantico/Expresiones/aritmeticas.c
 	$(CC) -o parser $(SRC_DIR)/main.c \
     	$(PARSER_DIR)/parser.tab.c \
     	$(PARSER_DIR)/lexer.c \
@@ -25,7 +26,8 @@ parser: $(SRC_DIR)/main.c \
     	$(SRC_DIR)/semantico/tipos.c \
     	$(SRC_DIR)/semantico/tabla_simbolo.c \
     	$(SRC_DIR)/semantico/Instrucciones/asignacion.c \
-    	$(SRC_DIR)/semantico/Instrucciones/declaracion.c -lfl
+    	$(SRC_DIR)/semantico/Instrucciones/declaracion.c \
+		$(SRC_DIR)/semantico/Expresiones/aritmeticas.c -lfl
 
 $(PARSER_DIR)/parser.tab.c $(PARSER_DIR)/parser.tab.h: $(PARSER_DIR)/parser.y
 	$(BISON) -d -o $(PARSER_DIR)/parser.tab.c $(PARSER_DIR)/parser.y
@@ -35,5 +37,10 @@ $(PARSER_DIR)/lexer.c: $(PARSER_DIR)/lexer.l $(PARSER_DIR)/parser.tab.h
 
 clean:
 	rm -f parser $(PARSER_DIR)/parser.tab.c $(PARSER_DIR)/parser.tab.h $(PARSER_DIR)/lexer.c parser
+
+
+ast.png: parser ast.dot
+	dot -Tpng ast.dot -o ast.png
+
 
 .PHONY: all clean

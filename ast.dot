@@ -1,0 +1,36 @@
+digraph AST {
+  node [shape=record,fontname="Helvetica"];
+  n0x5d4bf97abf00 [label="{Tipo: LISTA|Valor: Arbol AST}"];
+  n0x5d4bf97abf00 -> n0x5d4bf97abbf0;
+  n0x5d4bf97abbf0 [label="{Tipo: DECL|Valor: int}"];
+  n0x5d4bf97abbf0 -> n0x5d4bf97abc40;
+  n0x5d4bf97abc40 [label="{Tipo: IDENT|Valor: a}"];
+  n0x5d4bf97abbf0 -> n0x5d4bf97abba0;
+  n0x5d4bf97abba0 [label="{Tipo: NUMERO|Valor: 5}"];
+  n0x5d4bf97abf00 -> n0x5d4bf97abe40;
+  n0x5d4bf97abe40 [label="{Tipo: DECL|Valor: int}"];
+  n0x5d4bf97abe40 -> n0x5d4bf97abe90;
+  n0x5d4bf97abe90 [label="{Tipo: IDENT|Valor: b}"];
+  n0x5d4bf97abe40 -> n0x5d4bf97abdd0;
+  n0x5d4bf97abdd0 [label="{Tipo: OP|Valor: +}"];
+  n0x5d4bf97abdd0 -> n0x5d4bf97abd10;
+  n0x5d4bf97abd10 [label="{Tipo: IDENT|Valor: a}"];
+  n0x5d4bf97abdd0 -> n0x5d4bf97abd80;
+  n0x5d4bf97abd80 [label="{Tipo: NUMERO|Valor: 3}"];
+  n0x5d4bf97abf00 -> n0x5d4bf97ac020;
+  n0x5d4bf97ac020 [label="{Tipo: DECL|Valor: string}"];
+  n0x5d4bf97ac020 -> n0x5d4bf97ac070;
+  n0x5d4bf97ac070 [label="{Tipo: IDENT|Valor: c}"];
+  n0x5d4bf97ac020 -> n0x5d4bf97abfd0;
+  n0x5d4bf97abfd0 [label="{Tipo: CADENA|Valor: \"hola\"}"];
+  n0x5d4bf97abf00 -> n0x5d4bf97ac270;
+  n0x5d4bf97ac270 [label="{Tipo: DECL|Valor: int}"];
+  n0x5d4bf97ac270 -> n0x5d4bf97ac2c0;
+  n0x5d4bf97ac2c0 [label="{Tipo: IDENT|Valor: d}"];
+  n0x5d4bf97ac270 -> n0x5d4bf97ac200;
+  n0x5d4bf97ac200 [label="{Tipo: OP|Valor: +}"];
+  n0x5d4bf97ac200 -> n0x5d4bf97ac140;
+  n0x5d4bf97ac140 [label="{Tipo: IDENT|Valor: a}"];
+  n0x5d4bf97ac200 -> n0x5d4bf97ac1b0;
+  n0x5d4bf97ac1b0 [label="{Tipo: IDENT|Valor: b}"];
+}

@@ -30,7 +30,7 @@
 %token <str> TOKEN_FLOAT_LITERAL
 %token <str> TOKEN_DOUBLE_LITERAL 
 
-%type <nodo> s Lista_expresiones Declaracion expresion expr Bloque Asignacion Operaciones Operador
+%type <nodo> s Lista_expresiones Declaracion expresion expr Bloque Asignacion 
 %type <str> Tipos
 
 //precedencia
@@ -43,13 +43,14 @@
 s: Lista_expresiones {
         verificarSemantica($1);
         imprimirAST($1, 0);
+        exportarAST($1, "ast.dot", "ast.png");
         liberarAST($1);
     }
     ;
 
 Lista_expresiones: Lista_expresiones expresion {
         if ($1->tipo != AST_LISTA) {
-            NodoAST* lista = crearNodo(AST_LISTA, NULL);
+            NodoAST* lista = crearNodo(AST_LISTA, "Arbol AST");
             agregarHijo(lista, $1);
             agregarHijo(lista, $2);
             $$ = lista;
@@ -74,7 +75,7 @@ expresion: Declaracion
     ;
 
 Declaracion: Tipos TOKEN_IDENTIFICADOR TOKEN_IGUAL expr TOKEN_DOBLEPUNTO {
-    $$ = crearNodo(AST_DECLARACION, $2); 
+    $$ = crearNodo(AST_DECLARACION, NULL); 
     $$->valor = strdup($1);              
     agregarHijo($$, crearNodo(AST_IDENTIFICADOR, $2));
     agregarHijo($$, $4);
@@ -113,7 +114,7 @@ expr: expr '+' expr         { $$ = crearNodo(AST_OPERACION, "+");
     | TOKEN_CADENA          { $$ = crearNodo(AST_CADENA, $1); }
     | TOKEN_CARACTER        { $$ = crearNodo(AST_CARACTER, $1); }
     | TOKEN_IDENTIFICADOR   { $$ = crearNodo(AST_IDENTIFICADOR, $1); }
-
+%%
 
 void yyerror(const char *s) {
     extern YYLTYPE yylloc;

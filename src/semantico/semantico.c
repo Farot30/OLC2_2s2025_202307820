@@ -5,6 +5,7 @@
 #include <string.h>
 #include "Instrucciones/declaracion.h"
 #include "Instrucciones/asignacion.h"
+#include "Expresiones/aritmeticas.h"
 
 int error_semantico = 0;
 
@@ -29,17 +30,24 @@ int verificarSemantica(NodoAST* nodo) {
             }
             return 1;
         case AST_DECLARACION: {
-            return verificarDeclaracion(nodo);
+            if (!verificarDeclaracion(nodo)) { error_semantico = 1; return 0; }
+            return 1;
         }
         case AST_ASIGNACION: {
-            return verificarAsignacion(nodo);
+            if (!verificarAsignacion(nodo)) { error_semantico = 1; return 0; }
+            return 1;
+        }
+        case AST_OPERACION: {
+            if (!verificacionAritmetico(nodo)) { error_semantico = 1; return 0; }
+            return 1;
         }
         case AST_IDENTIFICADOR: {
             if (!buscarSimbolo(nodo->valor)) {
                 printf("Error: Variable '%s' no declarada.\n", nodo->valor);
+                error_semantico = 1;
                 return 0;
             }
-            break;
+            return 1;
         }
         default:
             break;

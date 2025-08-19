@@ -35,6 +35,15 @@ TipoDato deducirTipoExpr(NodoAST* expr) {
             if (sim) return sim->tipo;
             return TIPO_DESCONOCIDO;
         }
+        case AST_OPERACION: {
+            if (expr->num_hijos != 2) return TIPO_DESCONOCIDO;
+            TipoDato tipoIzq = deducirTipoExpr(expr->hijos[0]);
+            TipoDato tipoDer = deducirTipoExpr(expr->hijos[1]);
+            if (tipoIzq == TIPO_DOUBLE || tipoDer == TIPO_DOUBLE) return TIPO_DOUBLE;
+            if (tipoIzq == TIPO_FLOAT || tipoDer == TIPO_FLOAT) return TIPO_FLOAT;
+            if (tipoIzq == TIPO_INT || tipoDer == TIPO_INT || tipoIzq == TIPO_CHAR || tipoDer == TIPO_CHAR) return TIPO_INT;
+            return TIPO_DESCONOCIDO;
+        }
         default:
             return TIPO_DESCONOCIDO;
     }
