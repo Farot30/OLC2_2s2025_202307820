@@ -1,0 +1,209 @@
+#include "Gtk.h"
+#include "../frontend/parserApi.h"
+#include <string.h>
+
+static char* get_code(GtkTextBuffer* b){
+    GtkTextIter s,e;
+    gtk_text_buffer_get_start_iter(b,&s);
+    gtk_text_buffer_get_end_iter(b,&e);
+    return gtk_text_buffer_get_text(b,&s,&e,FALSE);
+}
+
+void ui_set_text(GtkTextBuffer* b, const char* txt){
+    gtk_text_buffer_set_text(b, txt?txt:"", -1);
+}
+
+void on_parse(GtkButton* btn, gpointer data){
+    (void)btn;
+    AppUI* ui = (AppUI*)data;
+    char* code = get_code(ui->buf_code);
+    ParseResult r = parse_source(code);
+    g_free(code);
+
+    ui_set_text(ui->buf_ast, r.astDot);
+    ui_set_text(ui->buf_symbols, r.simbolos);
+    ui_set_text(ui->buf_errors, r.errores);
+    ui_set_text(ui->buf_output, r.salida);
+
+    if(g_file_test("ast.png", G_FILE_TEST_EXISTS)){
+        gtk_image_set_from_file(ui->img_ast, "ast.png");
+    } else {
+        gtk_image_clear(ui->img_ast);
+    }
+    free_parse_result(&r);
+}
+
+void on_clear(GtkButton* btn, gpointer data){
+    (void)btn;
+    AppUI* ui = (AppUI*)data;
+    ui_set_text(ui->buf_code,"");
+    ui_set_text(ui->buf_ast,"");
+    ui_set_text(ui->buf_symbols,"");
+    ui_set_text(ui->buf_errors,"");
+    ui_set_text(ui->buf_output,"");
+    gtk_image_clear(ui->img_ast);
+}
+
+void on_load_file(GtkButton* btn, gpointer data){
+    (void)btn;
+    AppUI* ui = (AppUI*)data;
+    
+    // Crear diálogo de selección de archivo
+    GtkWidget* dialog = gtk_file_chooser_dialog_new(
+        "Cargar archivo USL",
+        GTK_WINDOW(ui->window),
+        GTK_FILE_CHOOSER_ACTION_OPEN,
+        "_Cancelar", GTK_RESPONSE_CANCEL,
+        "_Abrir", GTK_RESPONSE_ACCEPT,
+        NULL
+    );
+
+    // Filtro para archivos .usl
+    GtkFileFilter* filter = gtk_file_filter_new();
+    gtk_file_filter_set_name(filter, "Archivos USL (*.usl)");
+    gtk_file_filter_add_pattern(filter, "*.usl");
+    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter);
+
+    // Filtro para todos los archivos
+    GtkFileFilter* filter_all = gtk_file_filter_new();
+    gtk_file_filter_set_name(filter_all, "Todos los archivos");
+    gtk_file_filter_add_pattern(filter_all, "*");
+    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter_all);
+
+    // Mostrar diálogo
+    gint result = gtk_dialog_run(GTK_DIALOG(dialog));
+    
+    if (result == GTK_RESPONSE_ACCEPT) {
+        char* filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+        
+        // Verificar extensión .usl
+        if (filename) {
+            size_t len = strlen(filename);
+            if (len >= 4 && strcmp(filename + len - 4, ".usl") == 0) {
+                // Leer contenido del archivo
+                FILE* file = fopen(filename, "r");
+                if (file) {
+                    // Obtener tamaño del archivo
+                    fseek(file, 0, SEEK_END);
+                    long file_size = ftell(file);
+                    fseek(file, 0, SEEK_SET);
+                    
+                    // Leer contenido
+                    char* content = malloc(file_size + 1);
+                    if (content) {
+                        size_t bytes_read = fread(content, 1, file_size, file);
+                        content[bytes_read] = '\0';
+                        
+                        // Cargar contenido en el editor
+                        ui_set_text(ui->buf_code, content);
+                        
+                        free(content);
+                    }
+                    fclose(file);
+                } else {
+                    // Mostrar error si no se puede abrir el archivo
+                    GtkWidget* error_dialog = gtk_message_dialog_new(
+                        GTK_WINDOW(ui->window),
+                        GTK_DIALOG_DESTROY_WITH_PARENT,
+                        GTK_MESSAGE_ERROR,
+                        GTK_BUTTONS_OK,
+                        "Error al abrir el archivo:\n%s", filename
+                    );
+                    gtk_dialog_run(GTK_DIALOG(error_dialog));
+                    gtk_widget_destroy(error_dialog);
+                }
+            } else {
+                // Mostrar error si no es archivo .usl
+                GtkWidget* error_dialog = gtk_message_dialog_new(
+                    GTK_WINDOW(ui->window),
+                    GTK_DIALOG_DESTROY_WITH_PARENT,
+                    GTK_MESSAGE_ERROR,
+                    GTK_BUTTONS_OK,
+                    "Por favor seleccione un archivo con extensión .usl"
+                );
+                gtk_dialog_run(GTK_DIALOG(error_dialog));
+                gtk_widget_destroy(error_dialog);
+            }
+            g_free(filename);
+        }
+    }
+    
+    gtk_widget_destroy(dialog);
+}
+
+void ui_build(AppUI* ui){
+    ui->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title(GTK_WINDOW(ui->window),"OLC2 IDE");
+    gtk_window_set_default_size(GTK_WINDOW(ui->window),1200,700);
+
+    GtkWidget* vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,4);
+    gtk_container_add(GTK_CONTAINER(ui->window), vbox);
+
+    GtkWidget* hbar = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,4);
+    GtkWidget* bParse = gtk_button_new_with_label("Parsear");
+    GtkWidget* bClear = gtk_button_new_with_label("Limpiar");
+    GtkWidget* bLoad = gtk_button_new_with_label("Cargar");
+    gtk_box_pack_start(GTK_BOX(hbar), bParse, FALSE,FALSE,0);
+    gtk_box_pack_start(GTK_BOX(hbar), bClear, FALSE,FALSE,0);
+    gtk_box_pack_start(GTK_BOX(hbar), bLoad, FALSE,FALSE,0);
+    gtk_box_pack_start(GTK_BOX(vbox), hbar, FALSE,FALSE,0);
+
+    GtkWidget* paned = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
+    gtk_box_pack_start(GTK_BOX(vbox), paned, TRUE,TRUE,0);
+
+    // Panel código
+    GtkWidget* frameCode = gtk_frame_new("Código");
+    GtkWidget* scCode = gtk_scrolled_window_new(NULL,NULL);
+    GtkWidget* tvCode = gtk_text_view_new();
+    gtk_container_add(GTK_CONTAINER(scCode), tvCode);
+    gtk_container_add(GTK_CONTAINER(frameCode), scCode);
+    gtk_paned_add1(GTK_PANED(paned), frameCode);
+
+    // Panel derecho (notebook)
+    GtkWidget* nb = gtk_notebook_new();
+    gtk_paned_add2(GTK_PANED(paned), nb);
+
+    GtkWidget* scOutput = gtk_scrolled_window_new(NULL,NULL);
+    GtkWidget* tvOutput = gtk_text_view_new();
+    gtk_text_view_set_editable(GTK_TEXT_VIEW(tvOutput), FALSE);
+    gtk_container_add(GTK_CONTAINER(scOutput), tvOutput);
+    gtk_notebook_append_page(GTK_NOTEBOOK(nb), scOutput, gtk_label_new("Salida"));
+
+    // AST DOT
+    GtkWidget* scAst = gtk_scrolled_window_new(NULL,NULL);
+    GtkWidget* tvAst = gtk_text_view_new();
+    gtk_text_view_set_editable(GTK_TEXT_VIEW(tvAst), FALSE);
+    gtk_container_add(GTK_CONTAINER(scAst), tvAst);
+    gtk_notebook_append_page(GTK_NOTEBOOK(nb), scAst, gtk_label_new("AST DOT"));
+
+    // Símbolos
+    GtkWidget* scSym = gtk_scrolled_window_new(NULL,NULL);
+    GtkWidget* tvSym = gtk_text_view_new();
+    gtk_text_view_set_editable(GTK_TEXT_VIEW(tvSym), FALSE);
+    gtk_container_add(GTK_CONTAINER(scSym), tvSym);
+    gtk_notebook_append_page(GTK_NOTEBOOK(nb), scSym, gtk_label_new("Símbolos"));
+
+    // Errores
+    GtkWidget* scErr = gtk_scrolled_window_new(NULL,NULL);
+    GtkWidget* tvErr = gtk_text_view_new();
+    gtk_text_view_set_editable(GTK_TEXT_VIEW(tvErr), FALSE);
+    gtk_container_add(GTK_CONTAINER(scErr), tvErr);
+    gtk_notebook_append_page(GTK_NOTEBOOK(nb), scErr, gtk_label_new("Errores"));
+
+    // Imagen
+    GtkWidget* scImg = gtk_scrolled_window_new(NULL,NULL);
+    ui->img_ast = GTK_IMAGE(gtk_image_new());
+    gtk_container_add(GTK_CONTAINER(scImg), GTK_WIDGET(ui->img_ast));
+    gtk_notebook_append_page(GTK_NOTEBOOK(nb), scImg, gtk_label_new("AST Img"));
+
+    ui->buf_code     = gtk_text_view_get_buffer(GTK_TEXT_VIEW(tvCode));
+    ui->buf_output   = gtk_text_view_get_buffer(GTK_TEXT_VIEW(tvOutput));
+    ui->buf_ast      = gtk_text_view_get_buffer(GTK_TEXT_VIEW(tvAst));
+    ui->buf_symbols  = gtk_text_view_get_buffer(GTK_TEXT_VIEW(tvSym));
+    ui->buf_errors   = gtk_text_view_get_buffer(GTK_TEXT_VIEW(tvErr));
+
+    g_signal_connect(ui->window,"destroy",G_CALLBACK(gtk_main_quit),NULL);
+    g_signal_connect(bLoad,"clicked",G_CALLBACK(on_load_file),ui);
+    g_signal_connect(bParse,"clicked",G_CALLBACK(on_parse),ui);
+    g_signal_connect(bClear,"clicked",G_CALLBACK(on_clear),ui);
+}

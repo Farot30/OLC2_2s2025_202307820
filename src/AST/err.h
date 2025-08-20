@@ -13,6 +13,9 @@ typedef struct ErrorSem {
     struct ErrorSem* sig;
 } ErrorSem;
 
+extern ErrorSem* lista;
+extern int contador;
+
 void initErrores();
 void addError(const char* descripcion, const char* ambito, int linea, int columna);
 int hayErrores();

@@ -4,6 +4,7 @@
 #include "../semantico.h"
 #include <stdio.h>
 #include "../../AST/err.h"  
+#include "../../AST/errorTIpos.h"
 #include "../../simbolos/Evaluador.h"
 
 const char* nombreTipo(TipoDato tipo);
@@ -22,6 +23,10 @@ int verificarAsignacion(NodoAST* nodo) {
         char msg[128];
         snprintf(msg, sizeof(msg), "Variable '%s' no declarada", identificador->valor);
         addError(msg, "global", identificador->linea, identificador->columna);
+        addErrorSintactico(ERROR_SEMANTICO_VARIABLE_NO_DECLARADA,
+                          msg, identificador->valor,
+                          "Declarar la variable antes de usarla", 
+                          identificador->linea, identificador->columna);
         printf("%s\n", msg);
         return 0;
     }
@@ -32,6 +37,10 @@ int verificarAsignacion(NodoAST* nodo) {
             snprintf(msg, sizeof(msg), "Tipo incompatible en asignación '%s': %s vs %s",
                      identificador->valor, nombreTipo(sim->tipo), nombreTipo(tipoValor));
             addError(msg, "global", identificador->linea, identificador->columna);
+            addErrorSintactico(ERROR_SEMANTICO_TIPO_INCOMPATIBLE,
+                              msg, identificador->valor,
+                              "Verificar tipos compatibles o hacer cast explícito",
+                              identificador->linea, identificador->columna);
             printf("%s\n", msg);
             return 0;
         }

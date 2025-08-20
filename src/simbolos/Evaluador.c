@@ -1,5 +1,5 @@
 #include "Evaluador.h"
-#include "semantico/semantico.h"
+#include "../semantico/semantico.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>

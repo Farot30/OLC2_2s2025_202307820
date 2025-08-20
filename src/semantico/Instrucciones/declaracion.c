@@ -3,6 +3,7 @@
 #include "../tabla_simbolo.h"
 #include "../semantico.h"
 #include "../../AST/err.h"
+#include "../../AST/errorTIpos.h"
 #include "../../simbolos/Evaluador.h" 
 #include <stdio.h>
 
@@ -21,6 +22,10 @@ int verificarDeclaracion(NodoAST* nodo) {
         char msg[128];
         snprintf(msg, sizeof(msg), "Variable '%s' ya declarada", identificador->valor);
         addError(msg, "global", identificador->linea, identificador->columna);
+        addErrorSintactico(ERROR_SEMANTICO_VARIABLE_YA_DECLARADA,
+                          msg, identificador->valor, 
+                          "Cambiar nombre de variable",
+                          identificador->linea, identificador->columna);
         printf("%s\n", msg);
         return 0;
     }
@@ -32,6 +37,10 @@ int verificarDeclaracion(NodoAST* nodo) {
             snprintf(msg, sizeof(msg), "Tipo incompatible en declaración '%s': %s vs %s",
                      identificador->valor, nombreTipo(tipoDeclarado), nombreTipo(tipoValor));
             addError(msg, "global", identificador->linea, identificador->columna);
+            addErrorSintactico(ERROR_SEMANTICO_TIPO_INCOMPATIBLE,
+                    msg, identificador->valor, 
+                    "Verificar tipos compatibles o hacer cast explícito",
+                    identificador->linea, identificador->columna);
             printf("%s\n", msg);
             return 0;
         }

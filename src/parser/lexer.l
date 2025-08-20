@@ -7,7 +7,12 @@
 #include <stdio.h>
 
 int yycolumn = 1;
-#define YY_USER_ACTION yylloc.first_column = yycolumn; yylloc.last_column = yycolumn + yyleng - 1; yycolumn += yyleng;
+#define YY_USER_ACTION \
+    yylloc.first_line = yylineno; \
+    yylloc.first_column = yycolumn; \
+    yylloc.last_line = yylineno; \
+    yylloc.last_column = yycolumn + yyleng - 1; \
+    yycolumn += yyleng;
 
 static char map_escape(char c){
     switch(c){
@@ -96,7 +101,10 @@ false                       { yylval.str = strdup("false"); return TOKEN_BOOLEAN
 [ \t]+                      { }
 \n                          { yycolumn = 1; }
 
-.                           { return yytext[0]; }
+.                           { fprintf(stderr, "Carácter no reconocido '%c' en línea %d, columna %d\n", 
+                              yytext[0], yylineno, yycolumn);
+                              return yytext[0];  
+                            }
 
 %%
 

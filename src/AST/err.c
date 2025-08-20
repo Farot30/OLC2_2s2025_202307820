@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-static ErrorSem* lista = NULL;
-static int contador = 0;
+ErrorSem* lista = NULL;
+int contador = 0;
 
 void initErrores(){ lista = NULL; contador = 0; }
 

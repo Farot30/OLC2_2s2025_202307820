@@ -1,0 +1,14 @@
+// Código correcto
+int a = 10;
+float b = 2.5f;
+System.out.println(a);
+
+// Errores sintácticos
+int c = 15  // Falta ;
+xyz d = 20; // Tipo inválido
+System.out.println(a  )
+
+// Errores semánticos
+int a = 25; // Variable ya declarada
+z = 30;     // Variable no declarada
+System.out.println(w); // Variable no declarada

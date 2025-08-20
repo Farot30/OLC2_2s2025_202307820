@@ -563,7 +563,12 @@ char *yytext;
 #include <stdio.h>
 
 int yycolumn = 1;
-#define YY_USER_ACTION yylloc.first_column = yycolumn; yylloc.last_column = yycolumn + yyleng - 1; yycolumn += yyleng;
+#define YY_USER_ACTION \
+    yylloc.first_line = yylineno; \
+    yylloc.first_column = yycolumn; \
+    yylloc.last_line = yylineno; \
+    yylloc.last_column = yycolumn + yyleng - 1; \
+    yycolumn += yyleng;
 
 static char map_escape(char c){
     switch(c){
@@ -595,9 +600,9 @@ static char* unescape(const char* yytext){
     out[j] = 0;
     return out;
 }
-#line 599 "src/parser/lexer.c"
+#line 604 "src/parser/lexer.c"
 #define YY_NO_INPUT 1
-#line 601 "src/parser/lexer.c"
+#line 606 "src/parser/lexer.c"
 
 #define INITIAL 0
 
@@ -812,9 +817,9 @@ YY_DECL
 		}
 
 	{
-#line 46 "src/parser/lexer.l"
+#line 51 "src/parser/lexer.l"
 
-#line 818 "src/parser/lexer.c"
+#line 823 "src/parser/lexer.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -883,67 +888,67 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 47 "src/parser/lexer.l"
+#line 52 "src/parser/lexer.l"
 { yylval.str = strdup("System.out.println"); return TOKEN_PRINT;}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 48 "src/parser/lexer.l"
+#line 53 "src/parser/lexer.l"
 { yylval.str = strdup("int");    return TOKEN_DINT; }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 49 "src/parser/lexer.l"
+#line 54 "src/parser/lexer.l"
 { yylval.str = strdup("float");  return TOKEN_DFLOAT; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 50 "src/parser/lexer.l"
+#line 55 "src/parser/lexer.l"
 { yylval.str = strdup("string"); return TOKEN_DSTRING; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 51 "src/parser/lexer.l"
+#line 56 "src/parser/lexer.l"
 { yylval.str = strdup("char");   return TOKEN_DCHAR; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 52 "src/parser/lexer.l"
+#line 57 "src/parser/lexer.l"
 { yylval.str = strdup("double"); return TOKEN_DOUBLE; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 53 "src/parser/lexer.l"
+#line 58 "src/parser/lexer.l"
 { yylval.str = strdup("boolean"); return TOKEN_DBOOLEAN; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 54 "src/parser/lexer.l"
+#line 59 "src/parser/lexer.l"
 { yylval.str = strdup("true"); return TOKEN_BOOLEANO; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 55 "src/parser/lexer.l"
+#line 60 "src/parser/lexer.l"
 { yylval.str = strdup("false"); return TOKEN_BOOLEANO; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 57 "src/parser/lexer.l"
+#line 62 "src/parser/lexer.l"
 { yylval.str = strdup(yytext); return TOKEN_NUMERO; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 58 "src/parser/lexer.l"
+#line 63 "src/parser/lexer.l"
 { yylval.str = strdup(yytext); return TOKEN_FLOAT_LITERAL; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 59 "src/parser/lexer.l"
+#line 64 "src/parser/lexer.l"
 { yylval.str = strdup(yytext); return TOKEN_DOUBLE_LITERAL; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 62 "src/parser/lexer.l"
+#line 67 "src/parser/lexer.l"
 {
     yylval.str = unescape(yytext);
     return TOKEN_CADENA;
@@ -951,7 +956,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 68 "src/parser/lexer.l"
+#line 73 "src/parser/lexer.l"
 {
     char* tmp = unescape(yytext);
     if(strlen(tmp) != 1){
@@ -966,87 +971,90 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 80 "src/parser/lexer.l"
+#line 85 "src/parser/lexer.l"
 { yylval.str = strdup(yytext); return TOKEN_IDENTIFICADOR; }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 82 "src/parser/lexer.l"
+#line 87 "src/parser/lexer.l"
 { }
 	YY_BREAK
 case 17:
 /* rule 17 can match eol */
 YY_RULE_SETUP
-#line 83 "src/parser/lexer.l"
+#line 88 "src/parser/lexer.l"
 { }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 85 "src/parser/lexer.l"
+#line 90 "src/parser/lexer.l"
 { return TOKEN_IGUAL; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 86 "src/parser/lexer.l"
+#line 91 "src/parser/lexer.l"
 { return TOKEN_DOBLEPUNTO; }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 87 "src/parser/lexer.l"
+#line 92 "src/parser/lexer.l"
 { return TOKEN_MAS_IGUAL; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 88 "src/parser/lexer.l"
+#line 93 "src/parser/lexer.l"
 { return TOKEN_MENOS_IGUAL; }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 89 "src/parser/lexer.l"
+#line 94 "src/parser/lexer.l"
 { return TOKEN_POR_IGUAL; }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 90 "src/parser/lexer.l"
+#line 95 "src/parser/lexer.l"
 { return TOKEN_DIV_IGUAL; }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 91 "src/parser/lexer.l"
+#line 96 "src/parser/lexer.l"
 { return TOKEN_MOD_IGUAL; }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 92 "src/parser/lexer.l"
+#line 97 "src/parser/lexer.l"
 { return TOKEN_PARIZQ; }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 93 "src/parser/lexer.l"
+#line 98 "src/parser/lexer.l"
 { return TOKEN_PARDER; }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 96 "src/parser/lexer.l"
+#line 101 "src/parser/lexer.l"
 { }
 	YY_BREAK
 case 28:
 /* rule 28 can match eol */
 YY_RULE_SETUP
-#line 97 "src/parser/lexer.l"
+#line 102 "src/parser/lexer.l"
 { yycolumn = 1; }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 99 "src/parser/lexer.l"
-{ return yytext[0]; }
+#line 104 "src/parser/lexer.l"
+{ fprintf(stderr, "Carácter no reconocido '%c' en línea %d, columna %d\n", 
+                              yytext[0], yylineno, yycolumn);
+                              return yytext[0];  
+                            }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 101 "src/parser/lexer.l"
+#line 109 "src/parser/lexer.l"
 ECHO;
 	YY_BREAK
-#line 1050 "src/parser/lexer.c"
+#line 1058 "src/parser/lexer.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2022,7 +2030,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 101 "src/parser/lexer.l"
+#line 109 "src/parser/lexer.l"
 
 
 int yywrap(void){ return 1; }
