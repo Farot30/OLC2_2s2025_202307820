@@ -12,8 +12,10 @@ NodoAST* crearNodo(TipoNodoAST tipo, char* valor) {
     nodo->num_hijos = 0;
     nodo->linea = -1;
     nodo->columna = -1;
+    nodo->valido = 1;
     return nodo;
 }
+
 
 void agregarHijo(NodoAST* padre, NodoAST* hijo) {
     padre->hijos = (NodoAST**)realloc(padre->hijos, sizeof(NodoAST*) * (padre->num_hijos + 1));
@@ -56,6 +58,8 @@ static const char* nombreNodoTipo(TipoNodoAST t){
         case AST_OPERACION: return "OP";
         case AST_CAST: return "CAST";
         case AST_PRINT: return "PRINT";
+        case AST_BOOLEAN: return "BOOLEAN";
+        case AST_ERROR: return "ERROR";
         default: return "UNK";
     }
 }
@@ -70,15 +74,19 @@ static void escapar(const char* src, char* dst, size_t max){
     dst[j]=0;
 }
 
-static void graphvizRec(NodoAST* n){
-    if(!n) return;
+static void graphvizRec(NodoAST* n, FILE* f) {
+    if (!n || !n->valido) return;  // No mostrar nodos inválidos
+    
     char valorEsc[128];
     escapar(n->valor ? n->valor : "NULL", valorEsc, sizeof(valorEsc));
-    printf("  n%p [label=\"{Tipo: %s|Valor: %s}\"];\n",
-           (void*)n, nombreNodoTipo(n->tipo), valorEsc);
-    for(int i=0;i<n->num_hijos;++i){
-        printf("  n%p -> n%p;\n", (void*)n, (void*)n->hijos[i]);
-        graphvizRec(n->hijos[i]);
+    fprintf(f, "  n%p [label=\"{Tipo: %s|Valor: %s}\"];\n",
+            (void*)n, nombreNodoTipo(n->tipo), valorEsc);
+    
+    for (int i = 0; i < n->num_hijos; ++i) {
+        if (n->hijos[i] && n->hijos[i]->valido) {  // Solo hijos válidos
+            fprintf(f, "  n%p -> n%p;\n", (void*)n, (void*)n->hijos[i]);
+            graphvizRec(n->hijos[i], f);
+        }
     }
 }
 
@@ -89,19 +97,23 @@ void graphvizAST(NodoAST* raiz){
     }
     printf("digraph AST {\n");
     printf("  node [shape=record,fontname=\"Helvetica\"];\n");
-    graphvizRec(raiz);
+    graphvizRec(raiz, stdout);
     printf("}\n");
 }
 
 static void graphvizRecFile(NodoAST* n, FILE* f){
-    if(!n) return;
+    if(!n || !n->valido) return;  // ← AÑADIR ESTA VERIFICACIÓN
+    
     char valorEsc[128];
     escapar(n->valor ? n->valor : "NULL", valorEsc, sizeof(valorEsc));
     fprintf(f, "  n%p [label=\"{Tipo: %s|Valor: %s}\"];\n",
             (void*)n, nombreNodoTipo(n->tipo), valorEsc);
-    for(int i=0;i<n->num_hijos;++i){
-        fprintf(f, "  n%p -> n%p;\n", (void*)n, (void*)n->hijos[i]);
-        graphvizRecFile(n->hijos[i], f);
+    
+    for(int i=0; i<n->num_hijos; ++i){
+        if(n->hijos[i] && n->hijos[i]->valido) {  // ← AÑADIR ESTA VERIFICACIÓN
+            fprintf(f, "  n%p -> n%p;\n", (void*)n, (void*)n->hijos[i]);
+            graphvizRecFile(n->hijos[i], f);
+        }
     }
 }
 

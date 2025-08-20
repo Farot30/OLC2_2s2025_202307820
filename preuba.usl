@@ -12,3 +12,8 @@ System.out.println(a  )
 int a = 25; // Variable ya declarada
 z = 30;     // Variable no declarada
 System.out.println(w); // Variable no declarada
+
+a = 7;        // Error: no se graficará
+int b = 8;    // Correcto: SÍ se graficará
+int c = "h";  // Error de tipo: no se graficará
+float d = 2;  // Correcto: SÍ se graficará

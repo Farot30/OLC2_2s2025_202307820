@@ -26,30 +26,53 @@ const char* nombreTipo(TipoDato tipo) {
 int verificarSemantica(NodoAST* nodo) {
     if (!nodo) return 1;
 
+    int resultado = 1;
     switch (nodo->tipo) {
         case AST_LISTA:
+            // Verificar cada instrucción independientemente
             for (int i = 0; i < nodo->num_hijos; ++i) {
-                if (!verificarSemantica(nodo->hijos[i])) return 0;
+                // Si una instrucción falla, no la marcamos como inválida
+                // pero tampoco propagamos su invalidez al nodo lista
+                if (!verificarSemantica(nodo->hijos[i])) {
+                    resultado = 0;
+                }
+            }
+            return resultado;
+            
+        case AST_DECLARACION: {
+            if (!verificarDeclaracion(nodo)) { 
+                error_semantico = 1; 
+                nodo->valido = 0;  // Marcar declaración completa como inválida
+                return 0; 
             }
             return 1;
-        case AST_DECLARACION: {
-            if (!verificarDeclaracion(nodo)) { error_semantico = 1; return 0; }
-            return 1;
         }
+        
         case AST_ASIGNACION: {
-            if (!verificarAsignacion(nodo)) { error_semantico = 1; return 0; }
+            if (!verificarAsignacion(nodo)) { 
+                error_semantico = 1; 
+                nodo->valido = 0;  // Marcar asignación completa como inválida
+                return 0; 
+            }
             return 1;
         }
+        
         case AST_OPERACION: {
-            if (!verificacionAritmetico(nodo)) { error_semantico = 1; return 0; }
+            if (!verificacionAritmetico(nodo)) { 
+                error_semantico = 1; 
+                nodo->valido = 0;  // Marcar operación como inválida
+                return 0; 
+            }
             return 1;
         }
+        
         case AST_IDENTIFICADOR: {
             if (!buscarSimbolo(nodo->valor)) {
                 char msg[128];
                 snprintf(msg,sizeof(msg),"Variable '%s' no declarada", nodo->valor);
                 addError(msg,"global",nodo->linea,nodo->columna);
                 error_semantico = 1;
+                nodo->valido = 0;  // Marcar nodo como inválido
                 return 0;
             }
             return 1;
@@ -79,7 +102,8 @@ int verificarSemantica(NodoAST* nodo) {
     }
 
     for (int i = 0; i < nodo->num_hijos; ++i) {
-        if (!verificarSemantica(nodo->hijos[i])) return 0;
+        if (!verificarSemantica(nodo->hijos[i])) resultado = 0;
     }
-    return 1;
+    return resultado;
+
 }

@@ -97,6 +97,15 @@ Bloque: '{' Lista_expresiones '}' {
 expresion: Declaracion
     | Asignacion
     | PRINT
+    | error TOKEN_IGUAL expr TOKEN_DOBLEPUNTO {
+         addErrorSintactico(ERROR_SEMANTICO_VARIABLE_NO_DECLARADA,
+                           "Asignación sin declaración de tipo",
+                           "variable",
+                           "Declarar primero la variable con su tipo (ej: int variable;)",
+                           @1.first_line, @1.first_column);
+         $$ = crearNodo(AST_ERROR, "ASIGNACION_SIN_DECLARACION");
+         yyerrok;
+      }
     ;
 
 Declaracion:

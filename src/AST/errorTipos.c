@@ -149,6 +149,7 @@ const char* nombreTipoError(TipoErrorSintactico tipo) {
         case ERROR_SEMANTICO_TIPO_INCOMPATIBLE: return "Semántico Tipo Incompatible";
         case ERROR_SEMANTICO_CAST_INVALIDO: return "Semántico Cast Inválido";
         case ERROR_SEMANTICO_OPERACION_INVALIDA: return "Semántico Operación Inválida";
+        
         default: return "Desconocido";
     }
 }

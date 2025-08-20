@@ -16,17 +16,19 @@ typedef enum {
     AST_CAST,
     AST_PRINT,
     AST_BOOLEAN,
+    AST_ERROR,  
 
     // Por si se me olvida, aquí es agregar más tipos
 } TipoNodoAST;
 
 typedef struct NodoAST {
     TipoNodoAST tipo;
-    char* valor; // Para números, identificadores
+    char* valor;
     struct NodoAST** hijos;
     int num_hijos;
     int linea;
     int columna;
+    int valido;  // 1 = nodo válido, 0 = nodo con errores
 } NodoAST;
 
 // Funciones para crear nodos

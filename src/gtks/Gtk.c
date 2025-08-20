@@ -2,6 +2,169 @@
 #include "../frontend/parserApi.h"
 #include <string.h>
 
+void clear_treeview(GtkListStore* store) {
+    gtk_list_store_clear(store);
+}
+
+// Función para llenar la tabla de errores desde texto formateado
+void fill_error_treeview(GtkListStore* store, const char* error_text) {
+    clear_treeview(store);
+    
+    if (!error_text || !strlen(error_text))
+        return;
+    
+    // Buscar la línea que comienza con "=== REPORTE"
+    const char* start = strstr(error_text, "=== REPORTE");
+    if (!start) return;
+    
+    // Saltar la cabecera
+    start = strchr(start, '\n');
+    if (!start) return;
+    start++;
+    
+    // Saltar la línea de formato
+    start = strchr(start, '\n');
+    if (!start) return;
+    start++;
+    
+    // Saltar la línea de separadores
+    start = strchr(start, '\n');
+    if (!start) return;
+    start++;
+    
+    // Procesar hasta encontrar la línea de ===
+    const char* end = strstr(start, "===================================");
+    if (!end) end = start + strlen(start);
+    
+    // Extraer líneas con errores
+    char line[1024];
+    const char* line_start = start;
+    const char* line_end;
+    
+    while (line_start < end) {
+        line_end = strchr(line_start, '\n');
+        if (!line_end) line_end = end;
+        
+        size_t line_len = line_end - line_start;
+        if (line_len > 0 && line_len < sizeof(line) - 1) {
+            strncpy(line, line_start, line_len);
+            line[line_len] = '\0';
+            
+            // Parsear la línea con formato "ID | Categoría | Descripción | Contexto | Línea | Col | Sugerencia"
+            char id[10] = "";
+            char categoria[50] = "";
+            char descripcion[100] = "";
+            char contexto[50] = "";
+            char linea[10] = "";
+            char columna[10] = "";
+            char sugerencia[100] = "";
+            
+            // Extraer valores usando sscanf con formato fijo
+            sscanf(line, "%9[^|] | %49[^|] | %99[^|] | %49[^|] | %9[^|] | %9[^|] | %99[^\n]",
+                   id, categoria, descripcion, contexto, linea, columna, sugerencia);
+            
+            // Eliminar espacios extras
+            g_strstrip(id);
+            g_strstrip(categoria);
+            g_strstrip(descripcion);
+            g_strstrip(contexto);
+            g_strstrip(linea);
+            g_strstrip(columna);
+            g_strstrip(sugerencia);
+            
+            // Agregar a la tabla
+            GtkTreeIter iter;
+            gtk_list_store_append(store, &iter);
+            gtk_list_store_set(store, &iter, 
+                               0, id,
+                               1, categoria,
+                               2, descripcion,
+                               3, contexto,
+                               4, linea,
+                               5, columna,
+                               6, sugerencia,
+                               -1);
+        }
+        
+        line_start = line_end + 1;
+    }
+}
+
+// Función para llenar la tabla de símbolos desde texto formateado
+void fill_symbol_treeview(GtkListStore* store, const char* symbol_text) {
+    clear_treeview(store);
+    
+    if (!symbol_text || !strlen(symbol_text))
+        return;
+    
+    // Buscar la línea que comienza con "=== Tabla"
+    const char* start = strstr(symbol_text, "=== Tabla de Símbolos");
+    if (!start) return;
+    
+    // Saltar la cabecera
+    start = strchr(start, '\n');
+    if (!start) return;
+    start++;
+    
+    // Saltar la línea de formato
+    start = strchr(start, '\n');
+    if (!start) return;
+    start++;
+    
+    // Saltar la línea de separadores
+    start = strchr(start, '\n');
+    if (!start) return;
+    start++;
+    
+    // Procesar hasta encontrar la línea de ===
+    const char* end = strstr(start, "=======================");
+    if (!end) end = start + strlen(start);
+    
+    // Extraer líneas con símbolos
+    char line[1024];
+    const char* line_start = start;
+    const char* line_end;
+    
+    while (line_start < end) {
+        line_end = strchr(line_start, '\n');
+        if (!line_end) line_end = end;
+        
+        size_t line_len = line_end - line_start;
+        if (line_len > 0 && line_len < sizeof(line) - 1) {
+            strncpy(line, line_start, line_len);
+            line[line_len] = '\0';
+            
+            // Parsear la línea con formato "ID Nombre Clase TipoDato Ambito Linea Col"
+            char id[10] = "";
+            char nombre[50] = "";
+            char clase[20] = "";
+            char tipo[20] = "";
+            char ambito[30] = "";
+            char linea[10] = "";
+            char columna[10] = "";
+            
+            // Extraer valores usando sscanf con formato fijo
+            sscanf(line, "%9s %49s %19s %19s %29s %9s %9s",
+                   id, nombre, clase, tipo, ambito, linea, columna);
+            
+            // Agregar a la tabla
+            GtkTreeIter iter;
+            gtk_list_store_append(store, &iter);
+            gtk_list_store_set(store, &iter, 
+                               0, id,
+                               1, nombre,
+                               2, clase,
+                               3, tipo,
+                               4, ambito,
+                               5, linea,
+                               6, columna,
+                               -1);
+        }
+        
+        line_start = line_end + 1;
+    }
+}
+
 static char* get_code(GtkTextBuffer* b){
     GtkTextIter s,e;
     gtk_text_buffer_get_start_iter(b,&s);
@@ -20,16 +183,23 @@ void on_parse(GtkButton* btn, gpointer data){
     ParseResult r = parse_source(code);
     g_free(code);
 
-    ui_set_text(ui->buf_ast, r.astDot);
-    ui_set_text(ui->buf_symbols, r.simbolos);
-    ui_set_text(ui->buf_errors, r.errores);
+    // Llenar siempre la salida
     ui_set_text(ui->buf_output, r.salida);
+    
+    // Llenar tablas de símbolos y errores
+    fill_symbol_treeview(ui->store_simbolos, r.simbolos);
+    fill_error_treeview(ui->store_errores, r.errores);
 
+    // Siempre mostrar el AST, incluso si hay errores
+    ui_set_text(ui->buf_ast, r.astDot);
+    
+    // Mostrar imagen si existe
     if(g_file_test("ast.png", G_FILE_TEST_EXISTS)){
         gtk_image_set_from_file(ui->img_ast, "ast.png");
     } else {
         gtk_image_clear(ui->img_ast);
     }
+    
     free_parse_result(&r);
 }
 
@@ -38,9 +208,12 @@ void on_clear(GtkButton* btn, gpointer data){
     AppUI* ui = (AppUI*)data;
     ui_set_text(ui->buf_code,"");
     ui_set_text(ui->buf_ast,"");
-    ui_set_text(ui->buf_symbols,"");
-    ui_set_text(ui->buf_errors,"");
     ui_set_text(ui->buf_output,"");
+    
+    // Limpiar tablas
+    clear_treeview(ui->store_simbolos);
+    clear_treeview(ui->store_errores);
+    
     gtk_image_clear(ui->img_ast);
 }
 
@@ -176,18 +349,93 @@ void ui_build(AppUI* ui){
     gtk_container_add(GTK_CONTAINER(scAst), tvAst);
     gtk_notebook_append_page(GTK_NOTEBOOK(nb), scAst, gtk_label_new("AST DOT"));
 
-    // Símbolos
-    GtkWidget* scSym = gtk_scrolled_window_new(NULL,NULL);
-    GtkWidget* tvSym = gtk_text_view_new();
-    gtk_text_view_set_editable(GTK_TEXT_VIEW(tvSym), FALSE);
-    gtk_container_add(GTK_CONTAINER(scSym), tvSym);
+    // TABLA DE SÍMBOLOS
+    GtkWidget* scSym = gtk_scrolled_window_new(NULL, NULL);
+    
+    // Crear modelo para la tabla de símbolos
+    ui->store_simbolos = gtk_list_store_new(7, 
+                                           G_TYPE_STRING,  // ID
+                                           G_TYPE_STRING,  // Nombre
+                                           G_TYPE_STRING,  // Clase
+                                           G_TYPE_STRING,  // Tipo
+                                           G_TYPE_STRING,  // Ámbito
+                                           G_TYPE_STRING,  // Línea
+                                           G_TYPE_STRING); // Columna
+    
+    // Crear vista de tabla para símbolos
+    ui->tree_simbolos = gtk_tree_view_new_with_model(GTK_TREE_MODEL(ui->store_simbolos));
+    
+    // Agregar columnas
+    GtkCellRenderer* renderer = gtk_cell_renderer_text_new();
+    GtkTreeViewColumn* column;
+    
+    column = gtk_tree_view_column_new_with_attributes("ID", renderer, "text", 0, NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(ui->tree_simbolos), column);
+    
+    column = gtk_tree_view_column_new_with_attributes("Nombre", renderer, "text", 1, NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(ui->tree_simbolos), column);
+    
+    column = gtk_tree_view_column_new_with_attributes("Clase", renderer, "text", 2, NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(ui->tree_simbolos), column);
+    
+    column = gtk_tree_view_column_new_with_attributes("Tipo", renderer, "text", 3, NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(ui->tree_simbolos), column);
+    
+    column = gtk_tree_view_column_new_with_attributes("Ámbito", renderer, "text", 4, NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(ui->tree_simbolos), column);
+    
+    column = gtk_tree_view_column_new_with_attributes("Línea", renderer, "text", 5, NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(ui->tree_simbolos), column);
+    
+    column = gtk_tree_view_column_new_with_attributes("Columna", renderer, "text", 6, NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(ui->tree_simbolos), column);
+    
+    gtk_container_add(GTK_CONTAINER(scSym), ui->tree_simbolos);
     gtk_notebook_append_page(GTK_NOTEBOOK(nb), scSym, gtk_label_new("Símbolos"));
 
-    // Errores
-    GtkWidget* scErr = gtk_scrolled_window_new(NULL,NULL);
-    GtkWidget* tvErr = gtk_text_view_new();
-    gtk_text_view_set_editable(GTK_TEXT_VIEW(tvErr), FALSE);
-    gtk_container_add(GTK_CONTAINER(scErr), tvErr);
+    // TABLA DE ERRORES
+    GtkWidget* scErr = gtk_scrolled_window_new(NULL, NULL);
+    
+    // Crear modelo para la tabla de errores
+    ui->store_errores = gtk_list_store_new(7, 
+                                          G_TYPE_STRING,  // ID
+                                          G_TYPE_STRING,  // Categoría
+                                          G_TYPE_STRING,  // Descripción
+                                          G_TYPE_STRING,  // Contexto
+                                          G_TYPE_STRING,  // Línea
+                                          G_TYPE_STRING,  // Columna
+                                          G_TYPE_STRING); // Sugerencia
+    
+    // Crear vista de tabla para errores
+    ui->tree_errores = gtk_tree_view_new_with_model(GTK_TREE_MODEL(ui->store_errores));
+    
+    // Agregar columnas
+    renderer = gtk_cell_renderer_text_new();
+    
+    column = gtk_tree_view_column_new_with_attributes("ID", renderer, "text", 0, NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(ui->tree_errores), column);
+    
+    column = gtk_tree_view_column_new_with_attributes("Categoría", renderer, "text", 1, NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(ui->tree_errores), column);
+    
+    column = gtk_tree_view_column_new_with_attributes("Descripción", renderer, "text", 2, NULL);
+    gtk_tree_view_column_set_min_width(column, 250);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(ui->tree_errores), column);
+    
+    column = gtk_tree_view_column_new_with_attributes("Contexto", renderer, "text", 3, NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(ui->tree_errores), column);
+    
+    column = gtk_tree_view_column_new_with_attributes("Línea", renderer, "text", 4, NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(ui->tree_errores), column);
+    
+    column = gtk_tree_view_column_new_with_attributes("Col", renderer, "text", 5, NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(ui->tree_errores), column);
+    
+    column = gtk_tree_view_column_new_with_attributes("Sugerencia", renderer, "text", 6, NULL);
+    gtk_tree_view_column_set_min_width(column, 200);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(ui->tree_errores), column);
+    
+    gtk_container_add(GTK_CONTAINER(scErr), ui->tree_errores);
     gtk_notebook_append_page(GTK_NOTEBOOK(nb), scErr, gtk_label_new("Errores"));
 
     // Imagen
@@ -199,8 +447,6 @@ void ui_build(AppUI* ui){
     ui->buf_code     = gtk_text_view_get_buffer(GTK_TEXT_VIEW(tvCode));
     ui->buf_output   = gtk_text_view_get_buffer(GTK_TEXT_VIEW(tvOutput));
     ui->buf_ast      = gtk_text_view_get_buffer(GTK_TEXT_VIEW(tvAst));
-    ui->buf_symbols  = gtk_text_view_get_buffer(GTK_TEXT_VIEW(tvSym));
-    ui->buf_errors   = gtk_text_view_get_buffer(GTK_TEXT_VIEW(tvErr));
 
     g_signal_connect(ui->window,"destroy",G_CALLBACK(gtk_main_quit),NULL);
     g_signal_connect(bLoad,"clicked",G_CALLBACK(on_load_file),ui);

@@ -133,16 +133,16 @@ ParseResult parse_source(const char* code){
     yyparse();
     yy_delete_buffer(buf);
 
-    // leer ast.dot
-    FILE* f = fopen("ast.dot","r");
+    // Siempre leer el AST generado, tenga errores o no
+    FILE* f = fopen("ast.dot", "r");
     if(f){
-        fseek(f,0,SEEK_END);
+        fseek(f, 0, SEEK_END);
         long n = ftell(f);
-        fseek(f,0,SEEK_SET);
+        fseek(f, 0, SEEK_SET);
         res.astDot = malloc(n+1);
         if(res.astDot){
-            fread(res.astDot,1,n,f);
-            res.astDot[n]=0;
+            fread(res.astDot, 1, n, f);
+            res.astDot[n] = 0;
         }
         fclose(f);
     } else {
@@ -150,9 +150,12 @@ ParseResult parse_source(const char* code){
     }
 
     res.simbolos = capture_symbols();
-    res.errores  = capture_unified_errors();
+    res.errores = capture_unified_errors();
     res.salida = get_captured_output();
-    res.ok = (!error_semantico && !hayErrores());
+    
+    // Verificar si hay errores solo para el campo ok
+    int hayErrores = error_semantico || hayErroresSintacticos() || hayErroresSemanticos();
+    res.ok = !hayErrores;
 
     liberarTabla();
     liberarErrores();

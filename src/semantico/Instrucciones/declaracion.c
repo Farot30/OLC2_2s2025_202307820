@@ -22,11 +22,9 @@ int verificarDeclaracion(NodoAST* nodo) {
         char msg[128];
         snprintf(msg, sizeof(msg), "Variable '%s' ya declarada", identificador->valor);
         addError(msg, "global", identificador->linea, identificador->columna);
-        addErrorSintactico(ERROR_SEMANTICO_VARIABLE_YA_DECLARADA,
-                          msg, identificador->valor, 
-                          "Cambiar nombre de variable",
-                          identificador->linea, identificador->columna);
         printf("%s\n", msg);
+        identificador->valido = 0;  // Marcar identificador como inválido
+        nodo->valido = 0;           // Marcar declaración completa como inválida
         return 0;
     }
 
@@ -37,11 +35,9 @@ int verificarDeclaracion(NodoAST* nodo) {
             snprintf(msg, sizeof(msg), "Tipo incompatible en declaración '%s': %s vs %s",
                      identificador->valor, nombreTipo(tipoDeclarado), nombreTipo(tipoValor));
             addError(msg, "global", identificador->linea, identificador->columna);
-            addErrorSintactico(ERROR_SEMANTICO_TIPO_INCOMPATIBLE,
-                    msg, identificador->valor, 
-                    "Verificar tipos compatibles o hacer cast explícito",
-                    identificador->linea, identificador->columna);
             printf("%s\n", msg);
+            valor->valido = 0;      // Marcar el valor como inválido
+            nodo->valido = 0;       // Marcar declaración completa como inválida
             return 0;
         }
     }

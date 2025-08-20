@@ -17,35 +17,41 @@ int verificarAsignacion(NodoAST* nodo) {
     TipoDato tipoValor = deducirTipoExpr(valor);
 
     printf("[DEBUG] Asignando a '%s': tipo variable=%s, tipo valor=%s\n",
-           identificador->valor, sim ? nombreTipo(sim->tipo) : "no declarada", nombreTipo(tipoValor));
+           identificador->valor, sim ? nombreTipo(sim->tipo) : "NO DECLARADA", nombreTipo(tipoValor));
 
+    // ERROR CRÍTICO: Variable no declarada
     if (!sim) {
         char msg[128];
-        snprintf(msg, sizeof(msg), "Variable '%s' no declarada", identificador->valor);
+        snprintf(msg, sizeof(msg), "Variable '%s' no declarada. Debe declararse primero con su tipo (ej: int %s;)", 
+                identificador->valor, identificador->valor);
+        
+        // Sistema antiguo
         addError(msg, "global", identificador->linea, identificador->columna);
-        addErrorSintactico(ERROR_SEMANTICO_VARIABLE_NO_DECLARADA,
-                          msg, identificador->valor,
-                          "Declarar la variable antes de usarla", 
-                          identificador->linea, identificador->columna);
+
         printf("%s\n", msg);
+        identificador->valido = 0;  // ← AÑADIR ESTA LÍNEA
+        nodo->valido = 0;           // ← AÑADIR ESTA LÍNEA
         return 0;
     }
 
+    // Verificar compatibilidad de tipos
     if (sim->tipo != tipoValor && tipoValor != TIPO_DESCONOCIDO) {
         if (!esWidening(tipoValor, sim->tipo)) {
             char msg[160];
-            snprintf(msg, sizeof(msg), "Tipo incompatible en asignación '%s': %s vs %s",
+            snprintf(msg, sizeof(msg), "Tipo incompatible en asignación '%s': se esperaba %s, se recibió %s",
                      identificador->valor, nombreTipo(sim->tipo), nombreTipo(tipoValor));
+            
+            // Sistema antiguo
             addError(msg, "global", identificador->linea, identificador->columna);
-            addErrorSintactico(ERROR_SEMANTICO_TIPO_INCOMPATIBLE,
-                              msg, identificador->valor,
-                              "Verificar tipos compatibles o hacer cast explícito",
-                              identificador->linea, identificador->columna);
+
             printf("%s\n", msg);
+            identificador->valido = 0;  // ← AÑADIR ESTA LÍNEA
+            nodo->valido = 0;           // ← AÑADIR ESTA LÍNEA
             return 0;
         }
     }
     
+    // Asignar valor si todo está correcto
     ValorSimbolo v = evaluarExpr(valor);
     if(v.inicializado){
         setValorSimbolo(sim, sim->tipo, v);

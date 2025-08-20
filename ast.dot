@@ -1,0 +1,16 @@
+digraph AST {
+  node [shape=record,fontname="Helvetica"];
+  n0x5b52346b89d0 [label="{Tipo: LISTA|Valor: Arbol AST}"];
+  n0x5b52346b89d0 -> n0x5b52347dec00;
+  n0x5b52347dec00 [label="{Tipo: DECL|Valor: int}"];
+  n0x5b52347dec00 -> n0x5b5234441630;
+  n0x5b5234441630 [label="{Tipo: IDENT|Valor: b}"];
+  n0x5b52347dec00 -> n0x5b5234709e20;
+  n0x5b5234709e20 [label="{Tipo: NUMERO|Valor: 8}"];
+  n0x5b52346b89d0 -> n0x5b52343c8b10;
+  n0x5b52343c8b10 [label="{Tipo: DECL|Valor: float}"];
+  n0x5b52343c8b10 -> n0x5b52346b8800;
+  n0x5b52346b8800 [label="{Tipo: IDENT|Valor: d}"];
+  n0x5b52343c8b10 -> n0x5b52347f3630;
+  n0x5b52347f3630 [label="{Tipo: NUMERO|Valor: 2}"];
+}
