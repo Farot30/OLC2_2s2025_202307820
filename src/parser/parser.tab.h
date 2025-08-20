@@ -60,20 +60,30 @@ extern int yydebug;
     YYEOF = 0,                     /* "end of file"  */
     YYerror = 256,                 /* error  */
     YYUNDEF = 257,                 /* "invalid token"  */
-    TOKEN_IDENTIFICADOR = 258,     /* TOKEN_IDENTIFICADOR  */
-    TOKEN_DINT = 259,              /* TOKEN_DINT  */
-    TOKEN_DFLOAT = 260,            /* TOKEN_DFLOAT  */
-    TOKEN_DSTRING = 261,           /* TOKEN_DSTRING  */
-    TOKEN_DCHAR = 262,             /* TOKEN_DCHAR  */
-    TOKEN_DOUBLE = 263,            /* TOKEN_DOUBLE  */
-    TOKEN_IGUAL = 264,             /* TOKEN_IGUAL  */
-    TOKEN_DOBLEPUNTO = 265,        /* TOKEN_DOBLEPUNTO  */
-    TOKEN_NUMERO = 266,            /* TOKEN_NUMERO  */
-    TOKEN_CADENA = 267,            /* TOKEN_CADENA  */
-    TOKEN_CARACTER = 268,          /* TOKEN_CARACTER  */
-    TOKEN_FLOAT_LITERAL = 269,     /* TOKEN_FLOAT_LITERAL  */
-    TOKEN_DOUBLE_LITERAL = 270,    /* TOKEN_DOUBLE_LITERAL  */
-    NEG = 271                      /* NEG  */
+    TOKEN_DBOOLEAN = 258,          /* TOKEN_DBOOLEAN  */
+    TOKEN_BOOLEANO = 259,          /* TOKEN_BOOLEANO  */
+    TOKEN_IDENTIFICADOR = 260,     /* TOKEN_IDENTIFICADOR  */
+    TOKEN_DINT = 261,              /* TOKEN_DINT  */
+    TOKEN_DFLOAT = 262,            /* TOKEN_DFLOAT  */
+    TOKEN_DSTRING = 263,           /* TOKEN_DSTRING  */
+    TOKEN_DCHAR = 264,             /* TOKEN_DCHAR  */
+    TOKEN_DOUBLE = 265,            /* TOKEN_DOUBLE  */
+    TOKEN_IGUAL = 266,             /* TOKEN_IGUAL  */
+    TOKEN_DOBLEPUNTO = 267,        /* TOKEN_DOBLEPUNTO  */
+    TOKEN_NUMERO = 268,            /* TOKEN_NUMERO  */
+    TOKEN_CADENA = 269,            /* TOKEN_CADENA  */
+    TOKEN_CARACTER = 270,          /* TOKEN_CARACTER  */
+    TOKEN_FLOAT_LITERAL = 271,     /* TOKEN_FLOAT_LITERAL  */
+    TOKEN_DOUBLE_LITERAL = 272,    /* TOKEN_DOUBLE_LITERAL  */
+    TOKEN_MAS_IGUAL = 273,         /* TOKEN_MAS_IGUAL  */
+    TOKEN_MENOS_IGUAL = 274,       /* TOKEN_MENOS_IGUAL  */
+    TOKEN_POR_IGUAL = 275,         /* TOKEN_POR_IGUAL  */
+    TOKEN_DIV_IGUAL = 276,         /* TOKEN_DIV_IGUAL  */
+    TOKEN_MOD_IGUAL = 277,         /* TOKEN_MOD_IGUAL  */
+    TOKEN_PRINT = 278,             /* TOKEN_PRINT  */
+    TOKEN_PARIZQ = 279,            /* TOKEN_PARIZQ  */
+    TOKEN_PARDER = 280,            /* TOKEN_PARDER  */
+    NEG = 281                      /* NEG  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -82,12 +92,12 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 14 "src/parser/parser.y"
+#line 16 "src/parser/parser.y"
 
     char* str;
     NodoAST* nodo;
 
-#line 91 "src/parser/parser.tab.h"
+#line 101 "src/parser/parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

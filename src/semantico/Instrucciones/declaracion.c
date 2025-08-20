@@ -2,6 +2,8 @@
 #include "../tipos.h"
 #include "../tabla_simbolo.h"
 #include "../semantico.h"
+#include "../../AST/err.h"
+#include "../../simbolos/Evaluador.h" 
 #include <stdio.h>
 
 const char* nombreTipo(TipoDato tipo);
@@ -16,14 +18,41 @@ int verificarDeclaracion(NodoAST* nodo) {
            identificador->valor, nombreTipo(tipoDeclarado), nombreTipo(tipoValor));
 
     if (buscarSimbolo(identificador->valor)) {
-        printf("Error: Variable '%s' ya declarada.\n", identificador->valor);
+        char msg[128];
+        snprintf(msg, sizeof(msg), "Variable '%s' ya declarada", identificador->valor);
+        addError(msg, "global", identificador->linea, identificador->columna);
+        printf("%s\n", msg);
         return 0;
     }
+
     if (tipoDeclarado != tipoValor && tipoValor != TIPO_DESCONOCIDO) {
-        printf("Error: Tipo incompatible en declaración de '%s'. Esperado %s, encontrado %s\n",
-            identificador->valor, nombreTipo(tipoDeclarado), nombreTipo(tipoValor));
-        return 0;
+        // Permitir widening implícito
+        if (!esWidening(tipoValor, tipoDeclarado)) {
+            char msg[160];
+            snprintf(msg, sizeof(msg), "Tipo incompatible en declaración '%s': %s vs %s",
+                     identificador->valor, nombreTipo(tipoDeclarado), nombreTipo(tipoValor));
+            addError(msg, "global", identificador->linea, identificador->columna);
+            printf("%s\n", msg);
+            return 0;
+        }
     }
-    agregarSimbolo(identificador->valor, tipoDeclarado);
+
+    agregarSimboloDetallado(
+        identificador->valor,
+        SIMBOLO_VARIABLE,
+        tipoDeclarado,
+        "global",
+        identificador->linea,
+        identificador->columna
+    );
+
+    Simbolo* sim = buscarSimbolo(identificador->valor);
+    if(sim && nodo->num_hijos > 1){
+        ValorSimbolo v = evaluarExpr(nodo->hijos[1]);
+        if(v.inicializado){
+            setValorSimbolo(sim, sim->tipo, v);
+        }
+    }
+    
     return 1;
 }

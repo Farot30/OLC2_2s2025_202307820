@@ -10,6 +10,8 @@ NodoAST* crearNodo(TipoNodoAST tipo, char* valor) {
     nodo->valor = valor ? strdup(valor) : NULL;
     nodo->hijos = NULL;
     nodo->num_hijos = 0;
+    nodo->linea = -1;
+    nodo->columna = -1;
     return nodo;
 }
 
@@ -52,6 +54,8 @@ static const char* nombreNodoTipo(TipoNodoAST t){
         case AST_CADENA: return "CADENA";
         case AST_CARACTER: return "CARACTER";
         case AST_OPERACION: return "OP";
+        case AST_CAST: return "CAST";
+        case AST_PRINT: return "PRINT";
         default: return "UNK";
     }
 }

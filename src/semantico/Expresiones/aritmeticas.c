@@ -3,6 +3,7 @@
 #include "../tabla_simbolo.h"
 #include "../semantico.h"
 #include <stdio.h>
+#include "../../AST/err.h"  
 
 
 const char* nombreTipo(TipoDato tipo);
@@ -20,8 +21,11 @@ int verificacionAritmetico(NodoAST* nodo){
     int numDer = (tipoDerecho == TIPO_INT || tipoDerecho == TIPO_FLOAT || tipoDerecho == TIPO_DOUBLE || tipoDerecho == TIPO_CHAR);
 
     if (!numIzq || !numDer) {
-        printf("Error: Operación aritmética inválida entre %s y %s.\n",
-               nombreTipo(tipoIzquierdo), nombreTipo(tipoDerecho));
+        char msg[160];
+        snprintf(msg, sizeof(msg), "Operación inválida entre %s y %s",
+                 nombreTipo(tipoIzquierdo), nombreTipo(tipoDerecho));
+        addError(msg, "global", nodo->linea, nodo->columna);
+        printf("%s\n", msg);
         return 0;
     }
     return 1;

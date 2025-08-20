@@ -10,7 +10,32 @@ TipoDato obtenerTipoDesdeString(const char* tipoStr) {
     if (strcmp(tipoStr, "double") == 0) return TIPO_DOUBLE;
     if (strcmp(tipoStr, "char") == 0) return TIPO_CHAR;
     if (strcmp(tipoStr, "string") == 0) return TIPO_STRING;
+    if (strcmp(tipoStr, "boolean") == 0) return TIPO_BOOLEAN;
     return TIPO_DESCONOCIDO;
+}
+
+static int rankTipo(TipoDato t){
+    switch(t){
+        case TIPO_CHAR: return 0;
+        case TIPO_INT: return 1;
+        case TIPO_FLOAT: return 2;
+        case TIPO_DOUBLE: return 3;
+        default: return -1;
+    }
+}
+
+static int esNumerico(TipoDato t){
+    return t==TIPO_CHAR || t==TIPO_INT || t==TIPO_FLOAT || t==TIPO_DOUBLE;
+}
+
+int esWidening(TipoDato origen, TipoDato destino){
+    if(!esNumerico(origen) || !esNumerico(destino)) return 0;
+    return rankTipo(origen) <= rankTipo(destino);
+}
+
+int esNarrowing(TipoDato origen, TipoDato destino){
+    if(!esNumerico(origen) || !esNumerico(destino)) return 0;
+    return rankTipo(origen) > rankTipo(destino);
 }
 
 TipoDato deducirTipoExpr(NodoAST* expr) {
@@ -30,6 +55,8 @@ TipoDato deducirTipoExpr(NodoAST* expr) {
             return TIPO_STRING;
         case AST_CARACTER:
             return TIPO_CHAR;
+        case AST_BOOLEAN:
+            return TIPO_BOOLEAN;
         case AST_IDENTIFICADOR: {
             Simbolo* sim = buscarSimbolo(expr->valor);
             if (sim) return sim->tipo;
@@ -42,9 +69,30 @@ TipoDato deducirTipoExpr(NodoAST* expr) {
             if (tipoIzq == TIPO_DOUBLE || tipoDer == TIPO_DOUBLE) return TIPO_DOUBLE;
             if (tipoIzq == TIPO_FLOAT || tipoDer == TIPO_FLOAT) return TIPO_FLOAT;
             if (tipoIzq == TIPO_INT || tipoDer == TIPO_INT || tipoIzq == TIPO_CHAR || tipoDer == TIPO_CHAR) return TIPO_INT;
+            return TIPO_DESCONOCIDO;  
+        }
+        case AST_CAST: {
+            // valor guarda el string del tipo destino
+            TipoDato destino = obtenerTipoDesdeString(expr->valor);
+            TipoDato original = deducirTipoExpr(expr->hijos[0]);
+            // Si es cast válido numérico, regresar destino, sino desconocido
+            if(esNumerico(original) && esNumerico(destino)) return destino;
+            if(destino == original) return destino;
             return TIPO_DESCONOCIDO;
         }
         default:
             return TIPO_DESCONOCIDO;
+    }
+}
+
+const char* valorPorDefectoTipo(TipoDato t){
+    switch(t){
+        case TIPO_INT: return "0";
+        case TIPO_FLOAT: return "0.0f";
+        case TIPO_DOUBLE: return "0.0";
+        case TIPO_CHAR: return "\\u0000";
+        case TIPO_STRING: return "null";
+        case TIPO_BOOLEAN: return "false";
+        default: return "?";
     }
 }

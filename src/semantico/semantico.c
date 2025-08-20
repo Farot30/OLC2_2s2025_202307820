@@ -6,6 +6,8 @@
 #include "Instrucciones/declaracion.h"
 #include "Instrucciones/asignacion.h"
 #include "Expresiones/aritmeticas.h"
+#include "Instrucciones/Print.h"
+#include "../AST/err.h"
 
 int error_semantico = 0;
 
@@ -16,6 +18,7 @@ const char* nombreTipo(TipoDato tipo) {
         case TIPO_DOUBLE: return "double";
         case TIPO_CHAR: return "char";
         case TIPO_STRING: return "string";
+        case TIPO_BOOLEAN: return "boolean";
         default: return "desconocido";
     }
 }
@@ -43,11 +46,33 @@ int verificarSemantica(NodoAST* nodo) {
         }
         case AST_IDENTIFICADOR: {
             if (!buscarSimbolo(nodo->valor)) {
-                printf("Error: Variable '%s' no declarada.\n", nodo->valor);
+                char msg[128];
+                snprintf(msg,sizeof(msg),"Variable '%s' no declarada", nodo->valor);
+                addError(msg,"global",nodo->linea,nodo->columna);
                 error_semantico = 1;
                 return 0;
             }
             return 1;
+        }
+        case AST_PRINT: {
+            if(nodo->num_hijos==1){
+                imprimirEvaluado(nodo->hijos[0]);
+                return 1;
+            }
+            return 0;
+        }
+        case AST_CAST: {
+            TipoDato dest = obtenerTipoDesdeString(nodo->valor);
+            TipoDato orig = deducirTipoExpr(nodo->hijos[0]);
+            int ok = (dest!=TIPO_DESCONOCIDO)&&(orig!=TIPO_DESCONOCIDO);
+            if(!ok){
+                char msg[128];
+                snprintf(msg,sizeof(msg),"Cast inválido (%s)", nodo->valor?nodo->valor:"?");
+                addError(msg,"global",nodo->linea,nodo->columna);
+                error_semantico=1;
+                return 0;
+            }
+            return verificarSemantica(nodo->hijos[0]);
         }
         default:
             break;

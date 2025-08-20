@@ -2,6 +2,7 @@
 #define AST_H
 
 #include <stdio.h>
+#include "../comun/strutil.h"
 typedef enum {
     AST_NUMERO,
     AST_IDENTIFICADOR,
@@ -12,6 +13,9 @@ typedef enum {
     AST_CADENA,
     AST_CARACTER,
     AST_OPERACION,
+    AST_CAST,
+    AST_PRINT,
+    AST_BOOLEAN,
 
     // Por si se me olvida, aquí es agregar más tipos
 } TipoNodoAST;
@@ -21,6 +25,8 @@ typedef struct NodoAST {
     char* valor; // Para números, identificadores
     struct NodoAST** hijos;
     int num_hijos;
+    int linea;
+    int columna;
 } NodoAST;
 
 // Funciones para crear nodos
