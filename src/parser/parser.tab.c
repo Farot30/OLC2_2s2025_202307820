@@ -67,7 +67,7 @@
 
 
 /* First part of user prologue.  */
-#line 7 "src/parser/parser.y"
+#line 9 "src/parser/parser.y"
 
     #include "../comun/strutil.h"
     #include <stdio.h>
@@ -545,12 +545,12 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,    64,    64,    72,    74,    85,    97,    98,    99,   100,
-     112,   121,   131,   140,   149,   158,   171,   179,   193,   207,
-     221,   235,   249,   258,   267,   278,   279,   280,   281,   282,
-     283,   287,   288,   289,   290,   291,   292,   293,   294,   295,
-     296,   297,   298,   299,   300,   309,   320,   325,   334,   345,
-     350,   359,   368,   377
+       0,    66,    66,    92,    94,   105,   117,   118,   119,   120,
+     132,   141,   151,   160,   169,   178,   191,   199,   213,   227,
+     241,   255,   269,   278,   287,   298,   299,   300,   301,   302,
+     303,   307,   308,   309,   310,   311,   312,   313,   314,   315,
+     316,   317,   318,   319,   320,   329,   340,   345,   354,   365,
+     373,   382,   391,   400
 };
 #endif
 
@@ -1593,24 +1593,43 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* s: Programa  */
-#line 64 "src/parser/parser.y"
+#line 66 "src/parser/parser.y"
             {
-    verificarSemantica((yyvsp[0].nodo));
+    printf("[DEBUG] AST construido, iniciando procesamiento...\n");
+    
+    
+    // 2. Mostrar AST para debugging
+    printf("\n=== ESTRUCTURA DEL AST ===\n");
     imprimirAST((yyvsp[0].nodo), 0);
+    
+    
+    // 4. EJECUTAR/INTERPRETAR el programa (ANTES de liberar)
+    printf("\n=== INICIANDO INTERPRETACIÓN ===\n");
+    interpretarPrograma((yyvsp[0].nodo));
+    
+    printf("ejecutando exportarAST\n");
     exportarAST((yyvsp[0].nodo), "ast.dot", "ast.png");
+
+    //printf("verificando la semantica\n");
+    //verificarSemantica($1);
+
+    // 5. Liberar memoria AL FINAL
+    printf("\n=== LIBERANDO MEMORIA ===\n");
     liberarAST((yyvsp[0].nodo));
-    }
-#line 1604 "src/parser/parser.tab.c"
+    
+    printf("[DEBUG] Procesamiento completado.\n");
+}
+#line 1623 "src/parser/parser.tab.c"
     break;
 
   case 3: /* Programa: Lista_expresiones  */
-#line 72 "src/parser/parser.y"
+#line 92 "src/parser/parser.y"
                             { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 1610 "src/parser/parser.tab.c"
+#line 1629 "src/parser/parser.tab.c"
     break;
 
   case 4: /* Lista_expresiones: Lista_expresiones expresion  */
-#line 74 "src/parser/parser.y"
+#line 94 "src/parser/parser.y"
                                                {
         if ((yyvsp[-1].nodo)->tipo != AST_LISTA) {
             NodoAST* lista = crearNodo(AST_LISTA, "Arbol AST");
@@ -1622,19 +1641,19 @@ yyreduce:
             (yyval.nodo) = (yyvsp[-1].nodo);
         }
     }
-#line 1626 "src/parser/parser.tab.c"
+#line 1645 "src/parser/parser.tab.c"
     break;
 
   case 5: /* Lista_expresiones: expresion  */
-#line 85 "src/parser/parser.y"
+#line 105 "src/parser/parser.y"
                 {
         (yyval.nodo) = (yyvsp[0].nodo);
     }
-#line 1634 "src/parser/parser.tab.c"
+#line 1653 "src/parser/parser.tab.c"
     break;
 
   case 9: /* expresion: error TOKEN_IGUAL expr TOKEN_DOBLEPUNTO  */
-#line 100 "src/parser/parser.y"
+#line 120 "src/parser/parser.y"
                                               {
          addErrorSintactico(ERROR_SEMANTICO_VARIABLE_NO_DECLARADA,
                            "Asignación sin declaración de tipo",
@@ -1644,11 +1663,11 @@ yyreduce:
          (yyval.nodo) = crearNodo(AST_ERROR, "ASIGNACION_SIN_DECLARACION");
          yyerrok;
       }
-#line 1648 "src/parser/parser.tab.c"
+#line 1667 "src/parser/parser.tab.c"
     break;
 
   case 10: /* Declaracion: Tipos TOKEN_IDENTIFICADOR TOKEN_IGUAL expr TOKEN_DOBLEPUNTO  */
-#line 112 "src/parser/parser.y"
+#line 132 "src/parser/parser.y"
                                                                   {
          (yyval.nodo) = crearNodo(AST_DECLARACION, NULL);
          (yyval.nodo)->valor = strdup((yyvsp[-4].str));
@@ -1658,11 +1677,11 @@ yyreduce:
          agregarHijo((yyval.nodo), id);
          agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
       }
-#line 1662 "src/parser/parser.tab.c"
+#line 1681 "src/parser/parser.tab.c"
     break;
 
   case 11: /* Declaracion: Tipos TOKEN_IDENTIFICADOR TOKEN_DOBLEPUNTO  */
-#line 121 "src/parser/parser.y"
+#line 141 "src/parser/parser.y"
                                                  {
          (yyval.nodo) = crearNodo(AST_DECLARACION, NULL);
          (yyval.nodo)->valor = strdup((yyvsp[-2].str));
@@ -1673,11 +1692,11 @@ yyreduce:
          agregarHijo((yyval.nodo), id);
          agregarHijo((yyval.nodo), def);
       }
-#line 1677 "src/parser/parser.tab.c"
+#line 1696 "src/parser/parser.tab.c"
     break;
 
   case 12: /* Declaracion: Tipos TOKEN_IDENTIFICADOR error TOKEN_DOBLEPUNTO  */
-#line 131 "src/parser/parser.y"
+#line 151 "src/parser/parser.y"
                                                        {
          addErrorSintactico(ERROR_SINTACTICO_DECLARACION,
                             "Expresión de inicialización inválida",
@@ -1687,11 +1706,11 @@ yyreduce:
          (yyval.nodo) = crearNodo(AST_DECLARACION, "ERROR");
          yyerrok;
       }
-#line 1691 "src/parser/parser.tab.c"
+#line 1710 "src/parser/parser.tab.c"
     break;
 
   case 13: /* Declaracion: Tipos TOKEN_IDENTIFICADOR TOKEN_IGUAL error  */
-#line 140 "src/parser/parser.y"
+#line 160 "src/parser/parser.y"
                                                   {
          addErrorSintactico(ERROR_SINTACTICO_DECLARACION,
                            "Falta punto y coma al final de la declaración",
@@ -1701,11 +1720,11 @@ yyreduce:
          (yyval.nodo) = crearNodo(AST_DECLARACION, "ERROR");
          yyerrok;
       }
-#line 1705 "src/parser/parser.tab.c"
+#line 1724 "src/parser/parser.tab.c"
     break;
 
   case 14: /* Declaracion: Tipos error TOKEN_DOBLEPUNTO  */
-#line 149 "src/parser/parser.y"
+#line 169 "src/parser/parser.y"
                                    {
          addErrorSintactico(ERROR_SINTACTICO_DECLARACION,
                            "Identificador inválido en declaración",
@@ -1715,11 +1734,11 @@ yyreduce:
          (yyval.nodo) = crearNodo(AST_DECLARACION, "ERROR");
          yyerrok;
       }
-#line 1719 "src/parser/parser.tab.c"
+#line 1738 "src/parser/parser.tab.c"
     break;
 
   case 15: /* Declaracion: error TOKEN_IDENTIFICADOR TOKEN_IGUAL expr TOKEN_DOBLEPUNTO  */
-#line 158 "src/parser/parser.y"
+#line 178 "src/parser/parser.y"
                                                                   {
          addErrorSintactico(ERROR_SINTACTICO_DECLARACION,
                            "Tipo de dato inválido en declaración",
@@ -1729,26 +1748,26 @@ yyreduce:
          (yyval.nodo) = crearNodo(AST_DECLARACION, "ERROR");
          yyerrok;
       }
-#line 1733 "src/parser/parser.tab.c"
+#line 1752 "src/parser/parser.tab.c"
     break;
 
   case 16: /* Asignacion: TOKEN_IDENTIFICADOR TOKEN_IGUAL expr TOKEN_DOBLEPUNTO  */
-#line 171 "src/parser/parser.y"
+#line 191 "src/parser/parser.y"
                                                             {
-          (yyval.nodo) = crearNodo(AST_ASIGNACION, NULL);
+          (yyval.nodo) = crearNodo(AST_ASIGNACION, "");
           (yyval.nodo)->linea = (yylsp[-3]).first_line; (yyval.nodo)->columna = (yylsp[-3]).first_column;
           NodoAST* id = crearNodo(AST_IDENTIFICADOR, (yyvsp[-3].str));
           id->linea = (yylsp[-3]).first_line; id->columna = (yylsp[-3]).first_column;
           agregarHijo((yyval.nodo), id);
           agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
       }
-#line 1746 "src/parser/parser.tab.c"
+#line 1765 "src/parser/parser.tab.c"
     break;
 
   case 17: /* Asignacion: TOKEN_IDENTIFICADOR TOKEN_MAS_IGUAL expr TOKEN_DOBLEPUNTO  */
-#line 179 "src/parser/parser.y"
+#line 199 "src/parser/parser.y"
                                                                 {
-          (yyval.nodo) = crearNodo(AST_ASIGNACION, NULL);
+          (yyval.nodo) = crearNodo(AST_ASIGNACION, "");
           (yyval.nodo)->linea = (yylsp[-3]).first_line; (yyval.nodo)->columna = (yylsp[-3]).first_column;
           NodoAST* idRef = crearNodo(AST_IDENTIFICADOR, (yyvsp[-3].str));
           idRef->linea = (yylsp[-3]).first_line; idRef->columna = (yylsp[-3]).first_column;
@@ -1761,13 +1780,13 @@ yyreduce:
           agregarHijo((yyval.nodo), idRef);
           agregarHijo((yyval.nodo), op);
       }
-#line 1765 "src/parser/parser.tab.c"
+#line 1784 "src/parser/parser.tab.c"
     break;
 
   case 18: /* Asignacion: TOKEN_IDENTIFICADOR TOKEN_MENOS_IGUAL expr TOKEN_DOBLEPUNTO  */
-#line 193 "src/parser/parser.y"
+#line 213 "src/parser/parser.y"
                                                                   {
-          (yyval.nodo) = crearNodo(AST_ASIGNACION, NULL);
+          (yyval.nodo) = crearNodo(AST_ASIGNACION, "");
           (yyval.nodo)->linea = (yylsp[-3]).first_line; (yyval.nodo)->columna = (yylsp[-3]).first_column;
           NodoAST* idRef = crearNodo(AST_IDENTIFICADOR, (yyvsp[-3].str));
           idRef->linea = (yylsp[-3]).first_line; idRef->columna = (yylsp[-3]).first_column;
@@ -1780,13 +1799,13 @@ yyreduce:
           agregarHijo((yyval.nodo), idRef);
           agregarHijo((yyval.nodo), op);
       }
-#line 1784 "src/parser/parser.tab.c"
+#line 1803 "src/parser/parser.tab.c"
     break;
 
   case 19: /* Asignacion: TOKEN_IDENTIFICADOR TOKEN_POR_IGUAL expr TOKEN_DOBLEPUNTO  */
-#line 207 "src/parser/parser.y"
+#line 227 "src/parser/parser.y"
                                                                 {
-          (yyval.nodo) = crearNodo(AST_ASIGNACION, NULL);
+          (yyval.nodo) = crearNodo(AST_ASIGNACION, "");
           (yyval.nodo)->linea = (yylsp[-3]).first_line; (yyval.nodo)->columna = (yylsp[-3]).first_column;
           NodoAST* idRef = crearNodo(AST_IDENTIFICADOR, (yyvsp[-3].str));
           idRef->linea = (yylsp[-3]).first_line; idRef->columna = (yylsp[-3]).first_column;
@@ -1799,13 +1818,13 @@ yyreduce:
           agregarHijo((yyval.nodo), idRef);
           agregarHijo((yyval.nodo), op);
       }
-#line 1803 "src/parser/parser.tab.c"
+#line 1822 "src/parser/parser.tab.c"
     break;
 
   case 20: /* Asignacion: TOKEN_IDENTIFICADOR TOKEN_DIV_IGUAL expr TOKEN_DOBLEPUNTO  */
-#line 221 "src/parser/parser.y"
+#line 241 "src/parser/parser.y"
                                                                 {
-          (yyval.nodo) = crearNodo(AST_ASIGNACION, NULL);
+          (yyval.nodo) = crearNodo(AST_ASIGNACION, "");
           (yyval.nodo)->linea = (yylsp[-3]).first_line; (yyval.nodo)->columna = (yylsp[-3]).first_column;
           NodoAST* idRef = crearNodo(AST_IDENTIFICADOR, (yyvsp[-3].str));
           idRef->linea = (yylsp[-3]).first_line; idRef->columna = (yylsp[-3]).first_column;
@@ -1818,13 +1837,13 @@ yyreduce:
           agregarHijo((yyval.nodo), idRef);
           agregarHijo((yyval.nodo), op);
       }
-#line 1822 "src/parser/parser.tab.c"
+#line 1841 "src/parser/parser.tab.c"
     break;
 
   case 21: /* Asignacion: TOKEN_IDENTIFICADOR TOKEN_MOD_IGUAL expr TOKEN_DOBLEPUNTO  */
-#line 235 "src/parser/parser.y"
+#line 255 "src/parser/parser.y"
                                                                 {
-          (yyval.nodo) = crearNodo(AST_ASIGNACION, NULL);
+          (yyval.nodo) = crearNodo(AST_ASIGNACION, "");
           (yyval.nodo)->linea = (yylsp[-3]).first_line; (yyval.nodo)->columna = (yylsp[-3]).first_column;
           NodoAST* idRef = crearNodo(AST_IDENTIFICADOR, (yyvsp[-3].str));
           idRef->linea = (yylsp[-3]).first_line; idRef->columna = (yylsp[-3]).first_column;
@@ -1837,11 +1856,11 @@ yyreduce:
           agregarHijo((yyval.nodo), idRef);
           agregarHijo((yyval.nodo), op);
       }
-#line 1841 "src/parser/parser.tab.c"
+#line 1860 "src/parser/parser.tab.c"
     break;
 
   case 22: /* Asignacion: TOKEN_IDENTIFICADOR TOKEN_IGUAL error TOKEN_DOBLEPUNTO  */
-#line 249 "src/parser/parser.y"
+#line 269 "src/parser/parser.y"
                                                              {
          addErrorSintactico(ERROR_SINTACTICO_ASIGNACION,
                            "Expresión de asignación inválida",
@@ -1851,11 +1870,11 @@ yyreduce:
          (yyval.nodo) = crearNodo(AST_ASIGNACION, "ERROR");
          yyerrok;
       }
-#line 1855 "src/parser/parser.tab.c"
+#line 1874 "src/parser/parser.tab.c"
     break;
 
   case 23: /* Asignacion: TOKEN_IDENTIFICADOR TOKEN_IGUAL expr error  */
-#line 258 "src/parser/parser.y"
+#line 278 "src/parser/parser.y"
                                                  {
          addErrorSintactico(ERROR_SINTACTICO_ASIGNACION,
                            "Falta punto y coma al final de la asignación",
@@ -1865,11 +1884,11 @@ yyreduce:
          (yyval.nodo) = crearNodo(AST_ASIGNACION, "ERROR");
          yyerrok;
       }
-#line 1869 "src/parser/parser.tab.c"
+#line 1888 "src/parser/parser.tab.c"
     break;
 
   case 24: /* Asignacion: TOKEN_IDENTIFICADOR error expr TOKEN_DOBLEPUNTO  */
-#line 267 "src/parser/parser.y"
+#line 287 "src/parser/parser.y"
                                                       {
          addErrorSintactico(ERROR_SINTACTICO_ASIGNACION,
                            "Operador de asignación inválido",
@@ -1879,119 +1898,119 @@ yyreduce:
          (yyval.nodo) = crearNodo(AST_ASIGNACION, "ERROR");
          yyerrok;
       }
-#line 1883 "src/parser/parser.tab.c"
+#line 1902 "src/parser/parser.tab.c"
     break;
 
   case 25: /* Tipos: TOKEN_DINT  */
-#line 278 "src/parser/parser.y"
+#line 298 "src/parser/parser.y"
                        { (yyval.str) = (yyvsp[0].str); }
-#line 1889 "src/parser/parser.tab.c"
+#line 1908 "src/parser/parser.tab.c"
     break;
 
   case 26: /* Tipos: TOKEN_DCHAR  */
-#line 279 "src/parser/parser.y"
+#line 299 "src/parser/parser.y"
                       { (yyval.str) = (yyvsp[0].str); }
-#line 1895 "src/parser/parser.tab.c"
+#line 1914 "src/parser/parser.tab.c"
     break;
 
   case 27: /* Tipos: TOKEN_DOUBLE  */
-#line 280 "src/parser/parser.y"
+#line 300 "src/parser/parser.y"
                       { (yyval.str) = (yyvsp[0].str); }
-#line 1901 "src/parser/parser.tab.c"
+#line 1920 "src/parser/parser.tab.c"
     break;
 
   case 28: /* Tipos: TOKEN_DFLOAT  */
-#line 281 "src/parser/parser.y"
+#line 301 "src/parser/parser.y"
                       { (yyval.str) = (yyvsp[0].str); }
-#line 1907 "src/parser/parser.tab.c"
+#line 1926 "src/parser/parser.tab.c"
     break;
 
   case 29: /* Tipos: TOKEN_DSTRING  */
-#line 282 "src/parser/parser.y"
+#line 302 "src/parser/parser.y"
                       { (yyval.str) = (yyvsp[0].str); }
-#line 1913 "src/parser/parser.tab.c"
+#line 1932 "src/parser/parser.tab.c"
     break;
 
   case 30: /* Tipos: TOKEN_DBOOLEAN  */
-#line 283 "src/parser/parser.y"
+#line 303 "src/parser/parser.y"
                       { (yyval.str) = (yyvsp[0].str); }
-#line 1919 "src/parser/parser.tab.c"
+#line 1938 "src/parser/parser.tab.c"
     break;
 
   case 31: /* expr: expr '+' expr  */
-#line 287 "src/parser/parser.y"
+#line 307 "src/parser/parser.y"
                     { (yyval.nodo) = crearNodo(AST_OPERACION, "+"); (yyval.nodo)->linea=(yylsp[-1]).first_line; (yyval.nodo)->columna=(yylsp[-1]).first_column; agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo)); }
-#line 1925 "src/parser/parser.tab.c"
+#line 1944 "src/parser/parser.tab.c"
     break;
 
   case 32: /* expr: expr '-' expr  */
-#line 288 "src/parser/parser.y"
+#line 308 "src/parser/parser.y"
                     { (yyval.nodo) = crearNodo(AST_OPERACION, "-"); (yyval.nodo)->linea=(yylsp[-1]).first_line; (yyval.nodo)->columna=(yylsp[-1]).first_column; agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo)); }
-#line 1931 "src/parser/parser.tab.c"
+#line 1950 "src/parser/parser.tab.c"
     break;
 
   case 33: /* expr: expr '*' expr  */
-#line 289 "src/parser/parser.y"
+#line 309 "src/parser/parser.y"
                     { (yyval.nodo) = crearNodo(AST_OPERACION, "*"); (yyval.nodo)->linea=(yylsp[-1]).first_line; (yyval.nodo)->columna=(yylsp[-1]).first_column; agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo)); }
-#line 1937 "src/parser/parser.tab.c"
+#line 1956 "src/parser/parser.tab.c"
     break;
 
   case 34: /* expr: expr '/' expr  */
-#line 290 "src/parser/parser.y"
+#line 310 "src/parser/parser.y"
                     { (yyval.nodo) = crearNodo(AST_OPERACION, "/"); (yyval.nodo)->linea=(yylsp[-1]).first_line; (yyval.nodo)->columna=(yylsp[-1]).first_column; agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo)); }
-#line 1943 "src/parser/parser.tab.c"
+#line 1962 "src/parser/parser.tab.c"
     break;
 
   case 35: /* expr: expr '%' expr  */
-#line 291 "src/parser/parser.y"
+#line 311 "src/parser/parser.y"
                     { (yyval.nodo) = crearNodo(AST_OPERACION, "%"); (yyval.nodo)->linea=(yylsp[-1]).first_line; (yyval.nodo)->columna=(yylsp[-1]).first_column; agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo)); }
-#line 1949 "src/parser/parser.tab.c"
+#line 1968 "src/parser/parser.tab.c"
     break;
 
   case 37: /* expr: TOKEN_NUMERO  */
-#line 293 "src/parser/parser.y"
+#line 313 "src/parser/parser.y"
                            { (yyval.nodo) = crearNodo(AST_NUMERO, (yyvsp[0].str)); (yyval.nodo)->linea=(yylsp[0]).first_line; (yyval.nodo)->columna=(yylsp[0]).first_column; }
-#line 1955 "src/parser/parser.tab.c"
+#line 1974 "src/parser/parser.tab.c"
     break;
 
   case 38: /* expr: TOKEN_FLOAT_LITERAL  */
-#line 294 "src/parser/parser.y"
+#line 314 "src/parser/parser.y"
                            { (yyval.nodo) = crearNodo(AST_NUMERO, (yyvsp[0].str)); (yyval.nodo)->linea=(yylsp[0]).first_line; (yyval.nodo)->columna=(yylsp[0]).first_column; }
-#line 1961 "src/parser/parser.tab.c"
+#line 1980 "src/parser/parser.tab.c"
     break;
 
   case 39: /* expr: TOKEN_DOUBLE_LITERAL  */
-#line 295 "src/parser/parser.y"
+#line 315 "src/parser/parser.y"
                            { (yyval.nodo) = crearNodo(AST_NUMERO, (yyvsp[0].str)); (yyval.nodo)->linea=(yylsp[0]).first_line; (yyval.nodo)->columna=(yylsp[0]).first_column; }
-#line 1967 "src/parser/parser.tab.c"
+#line 1986 "src/parser/parser.tab.c"
     break;
 
   case 40: /* expr: TOKEN_CADENA  */
-#line 296 "src/parser/parser.y"
+#line 316 "src/parser/parser.y"
                            { (yyval.nodo) = crearNodo(AST_CADENA, (yyvsp[0].str)); (yyval.nodo)->linea=(yylsp[0]).first_line; (yyval.nodo)->columna=(yylsp[0]).first_column; }
-#line 1973 "src/parser/parser.tab.c"
+#line 1992 "src/parser/parser.tab.c"
     break;
 
   case 41: /* expr: TOKEN_CARACTER  */
-#line 297 "src/parser/parser.y"
+#line 317 "src/parser/parser.y"
                            { (yyval.nodo) = crearNodo(AST_CARACTER, (yyvsp[0].str)); (yyval.nodo)->linea=(yylsp[0]).first_line; (yyval.nodo)->columna=(yylsp[0]).first_column; }
-#line 1979 "src/parser/parser.tab.c"
+#line 1998 "src/parser/parser.tab.c"
     break;
 
   case 42: /* expr: TOKEN_IDENTIFICADOR  */
-#line 298 "src/parser/parser.y"
+#line 318 "src/parser/parser.y"
                            { (yyval.nodo) = crearNodo(AST_IDENTIFICADOR, (yyvsp[0].str)); (yyval.nodo)->linea=(yylsp[0]).first_line; (yyval.nodo)->columna=(yylsp[0]).first_column; }
-#line 1985 "src/parser/parser.tab.c"
+#line 2004 "src/parser/parser.tab.c"
     break;
 
   case 43: /* expr: TOKEN_BOOLEANO  */
-#line 299 "src/parser/parser.y"
+#line 319 "src/parser/parser.y"
                            { (yyval.nodo) = crearNodo(AST_BOOLEAN, (yyvsp[0].str)); (yyval.nodo)->linea=(yylsp[0]).first_line; (yyval.nodo)->columna=(yylsp[0]).first_column; }
-#line 1991 "src/parser/parser.tab.c"
+#line 2010 "src/parser/parser.tab.c"
     break;
 
   case 44: /* expr: expr '+' error  */
-#line 300 "src/parser/parser.y"
+#line 320 "src/parser/parser.y"
                      {
          addErrorSintactico(ERROR_SINTACTICO_EXPRESION,
                            "Operando derecho faltante en suma",
@@ -2001,11 +2020,11 @@ yyreduce:
          (yyval.nodo) = (yyvsp[-2].nodo);
          yyerrok;
       }
-#line 2005 "src/parser/parser.tab.c"
+#line 2024 "src/parser/parser.tab.c"
     break;
 
   case 45: /* expr: expr '*' error  */
-#line 309 "src/parser/parser.y"
+#line 329 "src/parser/parser.y"
                      {
          addErrorSintactico(ERROR_SINTACTICO_EXPRESION,
                            "Operando derecho faltante en multiplicación",
@@ -2015,21 +2034,21 @@ yyreduce:
          (yyval.nodo) = (yyvsp[-2].nodo);
          yyerrok;
       }
-#line 2019 "src/parser/parser.tab.c"
+#line 2038 "src/parser/parser.tab.c"
     break;
 
   case 46: /* Cast: '(' Tipos ')' expr  */
-#line 320 "src/parser/parser.y"
+#line 340 "src/parser/parser.y"
                          {
     (yyval.nodo) = crearNodo(AST_CAST, (yyvsp[-2].str));
     (yyval.nodo)->linea = (yylsp[-3]).first_line; (yyval.nodo)->columna=(yylsp[-3]).first_column;
     agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 2029 "src/parser/parser.tab.c"
+#line 2048 "src/parser/parser.tab.c"
     break;
 
   case 47: /* Cast: '(' Tipos error expr  */
-#line 325 "src/parser/parser.y"
+#line 345 "src/parser/parser.y"
                            {
          addErrorSintactico(ERROR_SINTACTICO_CAST,
                            "Falta paréntesis de cierre en cast",
@@ -2039,11 +2058,11 @@ yyreduce:
          (yyval.nodo) = crearNodo(AST_CAST, "ERROR");
          yyerrok;
       }
-#line 2043 "src/parser/parser.tab.c"
+#line 2062 "src/parser/parser.tab.c"
     break;
 
   case 48: /* Cast: '(' error ')' expr  */
-#line 334 "src/parser/parser.y"
+#line 354 "src/parser/parser.y"
                          {
          addErrorSintactico(ERROR_SINTACTICO_CAST,
                            "Tipo inválido en cast",
@@ -2053,21 +2072,24 @@ yyreduce:
          (yyval.nodo) = crearNodo(AST_CAST, "ERROR");
          yyerrok;
       }
-#line 2057 "src/parser/parser.tab.c"
+#line 2076 "src/parser/parser.tab.c"
     break;
 
   case 49: /* PRINT: TOKEN_PRINT TOKEN_PARIZQ expr TOKEN_PARDER TOKEN_DOBLEPUNTO  */
-#line 345 "src/parser/parser.y"
+#line 365 "src/parser/parser.y"
                                                                    {
-    (yyval.nodo) = crearNodo(AST_PRINT, (yyvsp[-4].str));
-    (yyval.nodo)->linea = (yylsp[-4]).first_line; (yyval.nodo)->columna = (yylsp[-4]).first_column;
+    (yyval.nodo) = crearNodo(AST_PRINT, "System.out.println");
+    (yyval.nodo)->linea = (yylsp[-4]).first_line;
+    (yyval.nodo)->columna = (yylsp[-4]).first_column;
+
+    // Agregar el nodo evaluado como hijo
     agregarHijo((yyval.nodo), (yyvsp[-2].nodo));
-    }
-#line 2067 "src/parser/parser.tab.c"
+}
+#line 2089 "src/parser/parser.tab.c"
     break;
 
   case 50: /* PRINT: TOKEN_PRINT TOKEN_PARIZQ expr error TOKEN_DOBLEPUNTO  */
-#line 350 "src/parser/parser.y"
+#line 373 "src/parser/parser.y"
                                                            {
          addErrorSintactico(ERROR_SINTACTICO_PRINT,
                            "Falta paréntesis de cierre en System.out.println",
@@ -2077,11 +2099,11 @@ yyreduce:
          (yyval.nodo) = crearNodo(AST_PRINT, "ERROR");
          yyerrok;
       }
-#line 2081 "src/parser/parser.tab.c"
+#line 2103 "src/parser/parser.tab.c"
     break;
 
   case 51: /* PRINT: TOKEN_PRINT TOKEN_PARIZQ error TOKEN_PARDER TOKEN_DOBLEPUNTO  */
-#line 359 "src/parser/parser.y"
+#line 382 "src/parser/parser.y"
                                                                    {
          addErrorSintactico(ERROR_SINTACTICO_PRINT,
                            "Expresión inválida en System.out.println", 
@@ -2091,11 +2113,11 @@ yyreduce:
          (yyval.nodo) = crearNodo(AST_PRINT, "ERROR");
          yyerrok;
       }
-#line 2095 "src/parser/parser.tab.c"
+#line 2117 "src/parser/parser.tab.c"
     break;
 
   case 52: /* PRINT: TOKEN_PRINT TOKEN_PARIZQ expr TOKEN_PARDER error  */
-#line 368 "src/parser/parser.y"
+#line 391 "src/parser/parser.y"
                                                        {
          addErrorSintactico(ERROR_SINTACTICO_PRINT,
                            "Falta punto y coma al final de System.out.println",
@@ -2105,11 +2127,11 @@ yyreduce:
          (yyval.nodo) = crearNodo(AST_PRINT, "ERROR");
          yyerrok;
       }
-#line 2109 "src/parser/parser.tab.c"
+#line 2131 "src/parser/parser.tab.c"
     break;
 
   case 53: /* PRINT: TOKEN_PRINT error  */
-#line 377 "src/parser/parser.y"
+#line 400 "src/parser/parser.y"
                         {
          addErrorSintactico(ERROR_SINTACTICO_PRINT,
                            "Sintaxis incorrecta en System.out.println",
@@ -2119,11 +2141,11 @@ yyreduce:
          (yyval.nodo) = crearNodo(AST_PRINT, "ERROR");
          yyerrok;
       }
-#line 2123 "src/parser/parser.tab.c"
+#line 2145 "src/parser/parser.tab.c"
     break;
 
 
-#line 2127 "src/parser/parser.tab.c"
+#line 2149 "src/parser/parser.tab.c"
 
       default: break;
     }
@@ -2352,7 +2374,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 387 "src/parser/parser.y"
+#line 410 "src/parser/parser.y"
 
 
 void yyerror(const char *s) {

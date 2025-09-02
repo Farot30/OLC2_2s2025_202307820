@@ -75,15 +75,22 @@ static void escapar(const char* src, char* dst, size_t max){
 }
 
 static void graphvizRec(NodoAST* n, FILE* f) {
-    if (!n || !n->valido) return;  // No mostrar nodos inválidos
-    
+    if (!n || !n->valido) return;
+
     char valorEsc[128];
     escapar(n->valor ? n->valor : "NULL", valorEsc, sizeof(valorEsc));
-    fprintf(f, "  n%p [label=\"{Tipo: %s|Valor: %s}\"];\n",
-            (void*)n, nombreNodoTipo(n->tipo), valorEsc);
-    
+
+    // Mostrar el valor evaluado en el nodo PRINT
+    if (n->tipo == AST_PRINT) {
+        fprintf(f, "  n%p [label=\"{Tipo: %s|Valor Evaluado: %s}\"];\n",
+                (void*)n, nombreNodoTipo(n->tipo), valorEsc);
+    } else {
+        fprintf(f, "  n%p [label=\"{Tipo: %s|Valor: %s}\"];\n",
+                (void*)n, nombreNodoTipo(n->tipo), valorEsc);
+    }
+
     for (int i = 0; i < n->num_hijos; ++i) {
-        if (n->hijos[i] && n->hijos[i]->valido) {  // Solo hijos válidos
+        if (n->hijos[i] && n->hijos[i]->valido) {
             fprintf(f, "  n%p -> n%p;\n", (void*)n, (void*)n->hijos[i]);
             graphvizRec(n->hijos[i], f);
         }
@@ -149,3 +156,4 @@ int exportarAST(NodoAST* raiz, const char* rutaDot, const char* rutaPNG){
     }
     return 0;
 }
+

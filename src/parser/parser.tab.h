@@ -49,8 +49,10 @@ extern int yydebug;
 
     #include "../AST/ast.h"
     #include "../AST/errorTIpos.h" 
+    #include "../semantico/Instrucciones/Print.h"
+    #include "../AST/ejecutar_ast.h"
 
-#line 54 "src/parser/parser.tab.h"
+#line 56 "src/parser/parser.tab.h"
 
 /* Token kinds.  */
 #ifndef YYTOKENTYPE
@@ -93,12 +95,12 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 20 "src/parser/parser.y"
+#line 22 "src/parser/parser.y"
 
     char* str;
     NodoAST* nodo;
 
-#line 102 "src/parser/parser.tab.h"
+#line 104 "src/parser/parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

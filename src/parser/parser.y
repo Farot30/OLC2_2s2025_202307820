@@ -1,6 +1,8 @@
 %code requires {
     #include "../AST/ast.h"
     #include "../AST/errorTIpos.h" 
+    #include "../semantico/Instrucciones/Print.h"
+    #include "../AST/ejecutar_ast.h"
 }
 %define parse.error verbose
 %locations
@@ -62,12 +64,30 @@
 
 
 s: Programa {
-    verificarSemantica($1);
+    printf("[DEBUG] AST construido, iniciando procesamiento...\n");
+    
+    
+    // 2. Mostrar AST para debugging
+    printf("\n=== ESTRUCTURA DEL AST ===\n");
     imprimirAST($1, 0);
+    
+    
+    // 4. EJECUTAR/INTERPRETAR el programa (ANTES de liberar)
+    printf("\n=== INICIANDO INTERPRETACIÓN ===\n");
+    interpretarPrograma($1);
+    
+    printf("ejecutando exportarAST\n");
     exportarAST($1, "ast.dot", "ast.png");
+
+    //printf("verificando la semantica\n");
+    //verificarSemantica($1);
+
+    // 5. Liberar memoria AL FINAL
+    printf("\n=== LIBERANDO MEMORIA ===\n");
     liberarAST($1);
-    }
-  ;
+    
+    printf("[DEBUG] Procesamiento completado.\n");
+}
 
 Programa: Lista_expresiones { $$ = $1; };
 
@@ -169,7 +189,7 @@ Declaracion:
 
 Asignacion:
       TOKEN_IDENTIFICADOR TOKEN_IGUAL expr TOKEN_DOBLEPUNTO {
-          $$ = crearNodo(AST_ASIGNACION, NULL);
+          $$ = crearNodo(AST_ASIGNACION, "");
           $$->linea = @1.first_line; $$->columna = @1.first_column;
           NodoAST* id = crearNodo(AST_IDENTIFICADOR, $1);
           id->linea = @1.first_line; id->columna = @1.first_column;
@@ -177,7 +197,7 @@ Asignacion:
           agregarHijo($$, $3);
       }
     | TOKEN_IDENTIFICADOR TOKEN_MAS_IGUAL expr TOKEN_DOBLEPUNTO {
-          $$ = crearNodo(AST_ASIGNACION, NULL);
+          $$ = crearNodo(AST_ASIGNACION, "");
           $$->linea = @1.first_line; $$->columna = @1.first_column;
           NodoAST* idRef = crearNodo(AST_IDENTIFICADOR, $1);
           idRef->linea = @1.first_line; idRef->columna = @1.first_column;
@@ -191,7 +211,7 @@ Asignacion:
           agregarHijo($$, op);
       }
     | TOKEN_IDENTIFICADOR TOKEN_MENOS_IGUAL expr TOKEN_DOBLEPUNTO {
-          $$ = crearNodo(AST_ASIGNACION, NULL);
+          $$ = crearNodo(AST_ASIGNACION, "");
           $$->linea = @1.first_line; $$->columna = @1.first_column;
           NodoAST* idRef = crearNodo(AST_IDENTIFICADOR, $1);
           idRef->linea = @1.first_line; idRef->columna = @1.first_column;
@@ -205,7 +225,7 @@ Asignacion:
           agregarHijo($$, op);
       }
     | TOKEN_IDENTIFICADOR TOKEN_POR_IGUAL expr TOKEN_DOBLEPUNTO {
-          $$ = crearNodo(AST_ASIGNACION, NULL);
+          $$ = crearNodo(AST_ASIGNACION, "");
           $$->linea = @1.first_line; $$->columna = @1.first_column;
           NodoAST* idRef = crearNodo(AST_IDENTIFICADOR, $1);
           idRef->linea = @1.first_line; idRef->columna = @1.first_column;
@@ -219,7 +239,7 @@ Asignacion:
           agregarHijo($$, op);
       }
     | TOKEN_IDENTIFICADOR TOKEN_DIV_IGUAL expr TOKEN_DOBLEPUNTO {
-          $$ = crearNodo(AST_ASIGNACION, NULL);
+          $$ = crearNodo(AST_ASIGNACION, "");
           $$->linea = @1.first_line; $$->columna = @1.first_column;
           NodoAST* idRef = crearNodo(AST_IDENTIFICADOR, $1);
           idRef->linea = @1.first_line; idRef->columna = @1.first_column;
@@ -233,7 +253,7 @@ Asignacion:
           agregarHijo($$, op);
       }
     | TOKEN_IDENTIFICADOR TOKEN_MOD_IGUAL expr TOKEN_DOBLEPUNTO {
-          $$ = crearNodo(AST_ASIGNACION, NULL);
+          $$ = crearNodo(AST_ASIGNACION, "");
           $$->linea = @1.first_line; $$->columna = @1.first_column;
           NodoAST* idRef = crearNodo(AST_IDENTIFICADOR, $1);
           idRef->linea = @1.first_line; idRef->columna = @1.first_column;
@@ -343,10 +363,13 @@ Cast: '(' Tipos ')' expr {
     ;
 
 PRINT: TOKEN_PRINT TOKEN_PARIZQ expr TOKEN_PARDER TOKEN_DOBLEPUNTO {
-    $$ = crearNodo(AST_PRINT, $1);
-    $$->linea = @1.first_line; $$->columna = @1.first_column;
+    $$ = crearNodo(AST_PRINT, "System.out.println");
+    $$->linea = @1.first_line;
+    $$->columna = @1.first_column;
+
+    // Agregar el nodo evaluado como hijo
     agregarHijo($$, $3);
-    }
+}
     | TOKEN_PRINT TOKEN_PARIZQ expr error TOKEN_DOBLEPUNTO {
          addErrorSintactico(ERROR_SINTACTICO_PRINT,
                            "Falta paréntesis de cierre en System.out.println",

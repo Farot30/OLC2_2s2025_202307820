@@ -11,7 +11,7 @@ PKG_LIBS   := $(shell pkg-config --libs gtk+-3.0)
 
 CFLAGS = -Wall -Wextra -std=c11 -Isrc -D_POSIX_C_SOURCE=200809L
 LEXLIB = -lfl
-SYSTEM_LDFLAGS = -Wl,-rpath,/usr/lib/x86_64-linux-gnu -Wl,-rpath,/lib/x86_64-linux-gnu
+SYSTEM_LDFLAGS = -Wl,-rpath,/lib/x86_64-linux-gnu -Wl,-rpath,/usr/lib/x86_64-linux-gnu
 
 # Fuentes backend (parser consola)
 BACKEND_SRC = \
@@ -19,6 +19,7 @@ BACKEND_SRC = \
 	$(PARSER_DIR)/parser.tab.c \
 	$(PARSER_DIR)/lexer.c \
 	$(AST_DIR)/ast.c \
+	$(SRC_DIR)/AST/ejecutar_ast.c \
 	$(SRC_DIR)/AST/err.c \
 	$(SRC_DIR)/AST/errorTipos.c \
 	$(SRC_DIR)/semantico/semantico.c \
@@ -40,6 +41,7 @@ GUI_SRC = \
 	$(PARSER_DIR)/parser.tab.c \
 	$(PARSER_DIR)/lexer.c \
 	$(AST_DIR)/ast.c \
+	$(SRC_DIR)/AST/ejecutar_ast.c \
 	$(SRC_DIR)/AST/err.c \
 	$(SRC_DIR)/AST/errorTipos.c \
 	$(SRC_DIR)/semantico/semantico.c \

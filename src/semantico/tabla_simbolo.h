@@ -29,6 +29,7 @@ typedef struct Simbolo {
     int columna;
     ValorSimbolo valor;        // <- nuevo
     struct Simbolo* siguiente;
+    int inicializado;   
 } Simbolo;
 
 void inicializarTabla();

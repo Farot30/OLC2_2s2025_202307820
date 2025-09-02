@@ -9,84 +9,132 @@
 
 extern void capture_print_output(const char* text);
 
+static void procesarSecuenciasEscape(const char* src, char* dst, size_t max) {
+    size_t j = 0;
+    for (size_t i = 0; src && src[i] && j + 1 < max; ++i) {
+        if (src[i] == '\\' && src[i+1]) {
+            switch (src[i+1]) {
+                case 'n': dst[j++] = '\n'; i++; break;
+                case 'r': dst[j++] = '\n'; i++; break; // Unificar \r como salto de línea
+                case 't': dst[j++] = '\t'; i++; break;
+                case '\\': dst[j++] = '\\'; i++; break;
+                case '"': dst[j++] = '"'; i++; break;
+                default: dst[j++] = src[i]; break;
+            }
+        } else {
+            dst[j++] = src[i];
+        }
+    }
+    dst[j] = 0;
+}
+
+
 void imprimirTexto(const char* mensaje){
     if (mensaje) {
-        printf("%s\n", mensaje);
-        // NUEVO: Capturar para GUI
-        char buffer[1024];
-        snprintf(buffer, sizeof(buffer), "%s\n", mensaje);
-        capture_print_output(buffer);
+        char procesada[1024];
+        procesarSecuenciasEscape(mensaje, procesada, sizeof(procesada));
+        printf("%s", procesada);
+        capture_print_output(procesada);
     }
 }
+
 void imprimirValor(TipoDato tipo, const char* literal){
     if(!literal){ 
-        printf("null\n"); 
-        capture_print_output("null\n");  // NUEVO
+        printf("null");
+        capture_print_output("null");
         return; 
     }
-    char buffer[256];
+    char procesada[256];
+    procesarSecuenciasEscape(literal, procesada, sizeof(procesada));
     switch(tipo){
         case TIPO_STRING: 
-            snprintf(buffer, sizeof(buffer), "\"%s\"\n", literal);
-            printf("%s", buffer);
-            capture_print_output(buffer);  // NUEVO
+            printf("\"%s\"", procesada);
+            capture_print_output(procesada);
             break;
         case TIPO_CHAR:   
-            snprintf(buffer, sizeof(buffer), "'%s'\n", literal);
-            printf("%s", buffer);
-            capture_print_output(buffer);  // NUEVO
+            printf("'%s'", procesada);
+            capture_print_output(procesada);
             break;
         default:          
-            snprintf(buffer, sizeof(buffer), "%s\n", literal);
-            printf("%s", buffer);
-            capture_print_output(buffer);  // NUEVO
+            printf("%s", procesada);
+            capture_print_output(procesada);
             break;
     }
 }
 
-void imprimirEvaluado(NodoAST* expr){
-    ValorSimbolo v = evaluarExpr(expr);
-    if(!v.inicializado){
-        printf("[PRINT] (sin valor)\n");
-        capture_print_output("[PRINT] (sin valor)\n");  // NUEVO
+
+void imprimirEvaluado(NodoAST* expr) {
+    printf("[DEBUG] imprimirEvaluado() llamado\n");
+    
+    if (!expr) {
+        printf("[DEBUG] expr es NULL\n");
+        printf("[PRINT] (expresión nula)");
+        capture_print_output("[PRINT] (expresión nula)");
         return;
     }
     
+    printf("[DEBUG] Tipo de expresión: %d\n", expr->tipo);
+    if (expr->valor) {
+        printf("[DEBUG] Valor de expresión: '%s'\n", expr->valor);
+    }
+    
+    if (expr->tipo == AST_IDENTIFICADOR) {
+        Simbolo* sim = buscarSimbolo(expr->valor);
+        if (sim) {
+            printf("[DEBUG] Símbolo '%s' encontrado - inicializado: %d\n", 
+                   expr->valor, sim->valor.inicializado);
+        } else {
+            printf("[DEBUG] Símbolo '%s' NO encontrado\n", expr->valor);
+        }
+    }
+    
+    ValorSimbolo v = evaluarExpr(expr);
+    printf("[DEBUG] Resultado evaluación - inicializado: %d, tipo: %d\n", 
+           v.inicializado, v.tipo);
+    
+    if (!v.inicializado) {
+        printf("[PRINT] (sin valor)");
+        capture_print_output("[PRINT] (sin valor)");
+        return;
+    }
+
     char buffer[256];
-    switch(v.tipo){
-        case TIPO_INT:    
-            snprintf(buffer, sizeof(buffer), "%d\n", v.v.i);
-            printf("%s", buffer);
-            capture_print_output(buffer);  // NUEVO
+    switch (v.tipo) {
+        case TIPO_INT:
+            snprintf(buffer, sizeof(buffer), "%d", v.v.i);
+            printf("[DEBUG] Imprimiendo int: %d\n", v.v.i);
             break;
-        case TIPO_FLOAT:  
-            snprintf(buffer, sizeof(buffer), "%f\n", v.v.f);
-            printf("%s", buffer);
-            capture_print_output(buffer);  // NUEVO
+        case TIPO_FLOAT:
+            snprintf(buffer, sizeof(buffer), "%f", v.v.f);
+            printf("[DEBUG] Imprimiendo float: %f\n", v.v.f);
             break;
-        case TIPO_DOUBLE: 
-            snprintf(buffer, sizeof(buffer), "%lf\n", v.v.d);
-            printf("%s", buffer);
-            capture_print_output(buffer);  // NUEVO
+        case TIPO_DOUBLE:
+            snprintf(buffer, sizeof(buffer), "%lf", v.v.d);
+            printf("[DEBUG] Imprimiendo double: %lf\n", v.v.d);
             break;
-        case TIPO_CHAR:   
-            snprintf(buffer, sizeof(buffer), "%c\n", v.v.c);
-            printf("%s", buffer);
-            capture_print_output(buffer);  // NUEVO
+        case TIPO_CHAR:
+            snprintf(buffer, sizeof(buffer), "%c", v.v.c);
+            printf("[DEBUG] Imprimiendo char: %c\n", v.v.c);
             break;
         case TIPO_BOOLEAN:
-            snprintf(buffer, sizeof(buffer), "%s\n", v.v.b?"true":"false");
-            printf("%s", buffer);
-            capture_print_output(buffer);  // NUEVO
+            snprintf(buffer, sizeof(buffer), "%s", v.v.b ? "true" : "false");
+            printf("[DEBUG] Imprimiendo boolean: %s\n", v.v.b ? "true" : "false");
             break;
-        case TIPO_STRING: 
-            snprintf(buffer, sizeof(buffer), "%s\n", v.v.s? v.v.s : "null");
-            printf("%s", buffer);
-            capture_print_output(buffer);  // NUEVO
+        case TIPO_STRING:
+            procesarSecuenciasEscape(v.v.s ? v.v.s : "null", buffer, sizeof(buffer));
+            printf("[DEBUG] Imprimiendo string: %s\n", buffer);
             break;
-        default:          
-            printf("?\n"); 
-            capture_print_output("?\n");  // NUEVO
+        default:
+            snprintf(buffer, sizeof(buffer), "?");
+            printf("[DEBUG] Tipo desconocido: %d\n", v.tipo);
             break;
     }
+
+    // Actualizar el valor del nodo AST con el valor evaluado
+    if (expr->valor) free(expr->valor);
+    expr->valor = strdup(buffer);
+
+    // Imprimir el valor sin salto de línea extra
+    printf("%s", buffer);
+    capture_print_output(buffer);
 }

@@ -98,6 +98,7 @@ false                       { yylval.str = strdup("false"); return TOKEN_BOOLEAN
 ")"              { return TOKEN_PARDER; }
 
 
+
 [ \t]+                      { }
 \n                          { yycolumn = 1; }
 

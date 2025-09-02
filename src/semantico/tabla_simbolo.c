@@ -20,6 +20,9 @@ void liberarTabla() {
         actual = actual->siguiente;
         free(temp->nombre);
         if (temp->ambito) free(temp->ambito);
+        if (temp->tipo == TIPO_STRING && temp->valor.v.s) {
+            free(temp->valor.v.s);
+        }
         free(temp);
     }
     tabla = NULL;
@@ -51,13 +54,19 @@ static Simbolo* crearSimbolo(const char* nombre, TipoSimbolo clase, TipoDato tip
     }
     return nuevo;
 }
-
 void agregarSimboloDetallado(const char* nombre, TipoSimbolo clase, TipoDato tipo,
                              const char* ambito, int linea, int columna) {
     Simbolo* nuevo = crearSimbolo(nombre, clase, tipo, ambito, linea, columna);
-    nuevo->siguiente = tabla;
-    tabla = nuevo;
-    
+    nuevo->siguiente = NULL;
+    if (!tabla) {
+        tabla = nuevo;
+    } else {
+        Simbolo* actual = tabla;
+        while (actual->siguiente) {
+            actual = actual->siguiente;
+        }
+        actual->siguiente = nuevo;
+    }
 }
 
 
@@ -97,42 +106,85 @@ static const char* nombreClase(TipoSimbolo c){
     }
 }
 
-void setValorSimbolo(Simbolo* sim, TipoDato tipo, ValorSimbolo val){
-    if(!sim) return;
-    if(sim->tipo != tipo && tipo != TIPO_DESCONOCIDO) {
-        // asumir conversión simple numérica
-        if((sim->tipo==TIPO_DOUBLE||sim->tipo==TIPO_FLOAT||sim->tipo==TIPO_INT||sim->tipo==TIPO_CHAR) &&
-           (val.tipo==TIPO_DOUBLE||val.tipo==TIPO_FLOAT||val.tipo==TIPO_INT||val.tipo==TIPO_CHAR)) {
-            // convertir
-            double base;
-            switch(val.tipo){
-                case TIPO_DOUBLE: base = val.v.d; break;
-                case TIPO_FLOAT:  base = val.v.f; break;
-                case TIPO_INT:    base = val.v.i; break;
-                case TIPO_CHAR:   base = (unsigned char)val.v.c; break;
-                default: base = 0;
-            }
-            switch(sim->tipo){
-                case TIPO_DOUBLE: sim->valor.v.d = base; break;
-                case TIPO_FLOAT:  sim->valor.v.f = (float)base; break;
-                case TIPO_INT:    sim->valor.v.i = (int)base; break;
-                case TIPO_CHAR:   sim->valor.v.c = (char)base; break;
-                default: break;
-            }
-            sim->valor.tipo = sim->tipo;
-            sim->valor.inicializado = 1;
-            return;
+void setValorSimbolo(Simbolo* sim, TipoDato tipoValor, ValorSimbolo val) {
+    if (!sim) return;
+
+    // Widening casting automático (char -> int -> float -> double)
+    if (esWidening(tipoValor, sim->tipo)) {
+        double base = 0;
+        switch (tipoValor) {
+            case TIPO_CHAR:   base = (unsigned char)val.v.c; break;
+            case TIPO_INT:    base = val.v.i; break;
+            case TIPO_FLOAT:  base = val.v.f; break;
+            case TIPO_DOUBLE: base = val.v.d; break;
+            default: break;
         }
+        switch (sim->tipo) {
+            case TIPO_DOUBLE: sim->valor.v.d = base; break;
+            case TIPO_FLOAT:  sim->valor.v.f = (float)base; break;
+            case TIPO_INT:    sim->valor.v.i = (int)base; break;
+            case TIPO_CHAR:   sim->valor.v.c = (char)base; break;
+            default: break;
+        }
+        sim->valor.tipo = sim->tipo;
+        sim->valor.inicializado = 1;
+        return;
     }
-    // strings / boolean directos
-    if(sim->tipo == TIPO_STRING){
-        if(sim->valor.v.s) free(sim->valor.v.s);
-        sim->valor.v.s = val.v.s ? strdup(val.v.s) : NULL;
-    } else {
+
+    // Narrowing casting manual (double -> float -> int -> char)
+    if (esNarrowing(tipoValor, sim->tipo)) {
+        // Solo permitir si el usuario lo especifica con un cast explícito en el AST
+        // Ejemplo: int counter2 = (int) counter;
+        // Aquí puedes verificar si el nodo de la expresión es un AST_CAST
+        // Si no es cast explícito, puedes reportar error o ignorar
+        // Para este ejemplo, permitimos el cast manual si el tipo de valor es resultado de un AST_CAST
+        // (esto depende de tu lógica de evaluación)
+        double base = 0;
+        switch (tipoValor) {
+            case TIPO_DOUBLE: base = val.v.d; break;
+            case TIPO_FLOAT:  base = val.v.f; break;
+            case TIPO_INT:    base = val.v.i; break;
+            case TIPO_CHAR:   base = (unsigned char)val.v.c; break;
+            default: break;
+        }
+        switch (sim->tipo) {
+            case TIPO_DOUBLE: sim->valor.v.d = base; break;
+            case TIPO_FLOAT:  sim->valor.v.f = (float)base; break;
+            case TIPO_INT:    sim->valor.v.i = (int)base; break;
+            case TIPO_CHAR:   sim->valor.v.c = (char)base; break;
+            default: break;
+        }
+        sim->valor.tipo = sim->tipo;
+        sim->valor.inicializado = 1;
+        return;
+    }
+
+    // Asignación directa para tipos iguales
+    if (sim->tipo == tipoValor) {
         sim->valor = val;
         sim->valor.tipo = sim->tipo;
+        sim->valor.inicializado = 1;
+        return;
     }
-    sim->valor.inicializado = 1;
+
+    // Asignación para cadenas y booleanos
+    if (sim->tipo == TIPO_STRING) {
+        if (sim->valor.v.s) free(sim->valor.v.s);
+        sim->valor.v.s = val.v.s ? strdup(val.v.s) : NULL;
+        sim->valor.tipo = TIPO_STRING;
+        sim->valor.inicializado = 1;
+        return;
+    }
+    if (sim->tipo == TIPO_BOOLEAN) {
+        sim->valor.v.b = val.v.b;
+        sim->valor.tipo = TIPO_BOOLEAN;
+        sim->valor.inicializado = 1;
+        return;
+    }
+
+    // Si no es compatible, reporta error
+    printf("[ERROR] Asignación incompatible: %s <- %s\n",
+           nombreTipoDato(sim->tipo), nombreTipoDato(tipoValor));
 }
 
 ValorSimbolo getValorSimbolo(Simbolo* sim){

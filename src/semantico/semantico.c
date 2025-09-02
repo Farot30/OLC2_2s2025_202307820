@@ -19,7 +19,7 @@ const char* nombreTipo(TipoDato tipo) {
         case TIPO_CHAR: return "char";
         case TIPO_STRING: return "string";
         case TIPO_BOOLEAN: return "boolean";
-        default: return "desconocido";
+        default: return "NULL";
     }
 }
 

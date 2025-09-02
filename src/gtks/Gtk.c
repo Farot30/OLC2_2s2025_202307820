@@ -306,7 +306,7 @@ void on_load_file(GtkButton* btn, gpointer data){
 
 void ui_build(AppUI* ui){
     ui->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(ui->window),"OLC2 IDE");
+    gtk_window_set_title(GTK_WINDOW(ui->window),"Javalang IDE");
     gtk_window_set_default_size(GTK_WINDOW(ui->window),1200,700);
 
     GtkWidget* vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,4);

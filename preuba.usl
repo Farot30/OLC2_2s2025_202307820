@@ -17,3 +17,11 @@ a = 7;        // Error: no se graficará
 int b = 8;    // Correcto: SÍ se graficará
 int c = "h";  // Error de tipo: no se graficará
 float d = 2;  // Correcto: SÍ se graficará
+
+
+int a = 10;
+float b = 2.5f;
+System.out.println(a);
+a = 8;
+System.out.println(a);
+float d = 2;
