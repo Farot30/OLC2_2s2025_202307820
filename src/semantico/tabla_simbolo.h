@@ -17,6 +17,7 @@ typedef struct {
         int b;   // boolean (0/1)
     } v;
     int inicializado;
+    int es_cast;
 } ValorSimbolo;
 
 typedef struct Simbolo {

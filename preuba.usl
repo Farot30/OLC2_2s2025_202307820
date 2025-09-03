@@ -25,3 +25,7 @@ System.out.println(a);
 a = 8;
 System.out.println(a);
 float d = 2;
+
+int n = 123;
+String s = String.valueOf(n);
+System.out.println(s);

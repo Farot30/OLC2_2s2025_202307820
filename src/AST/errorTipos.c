@@ -16,15 +16,11 @@ static char* dupstr_safe(const char* s) {
     return s ? strdup(s) : strdup("");
 }
 
-void addErrorSintactico(TipoErrorSintactico tipo, const char* mensaje, 
-                        const char* contexto, const char* sugerencia, 
-                        int linea, int columna) {
+void addErrorSintactico(const char* mensaje, const char* contexto, int linea, int columna) {
     ErrorSintactico* nuevo = (ErrorSintactico*)malloc(sizeof(ErrorSintactico));
     nuevo->id = ++contadorErroresSintacticos;
-    nuevo->tipo = tipo;
     nuevo->mensaje = dupstr_safe(mensaje);
     nuevo->contexto = dupstr_safe(contexto);
-    nuevo->sugerencia = dupstr_safe(sugerencia);
     nuevo->linea = linea;
     nuevo->columna = columna;
     nuevo->sig = listaErroresSintacticos;
@@ -52,23 +48,21 @@ void mostrarErroresSintacticos(void) {
     }
     
     printf("\n== Reporte de Errores Sintácticos ==\n");
-    printf("%-3s | %-12s | %-40s | %-15s | %-5s | %-3s | %-30s\n",
-           "ID", "Categoría", "Mensaje", "Contexto", "Línea", "Col", "Sugerencia");
-    printf("----------------------------------------------------------------------------------------------------\n");
+    printf("%-4s | %-50s | %-10s | %-5s | %-6s\n",
+           "No.", "Descripción", "Ámbito", "Linea", "Col");
+    printf("---------------------------------------------------------------\n");
     
     ErrorSintactico* actual = listaErroresSintacticos;
     while (actual) {
-        printf("%-3d | %-12s | %-40s | %-15s | %-5d | %-3d | %-30s\n",
+        printf("%-4d | %-50s | %-10s | %-5d | %-6d\n",
                actual->id,
-               nombreTipoErrorSintactico(actual->tipo),
                actual->mensaje,
                actual->contexto,
                actual->linea,
-               actual->columna,
-               actual->sugerencia);
+               actual->columna);
         actual = actual->sig;
     }
-    printf("====================================================================================================\n");
+    printf("---------------------------------------------------------------\n");
 }
 
 void mostrarErroresPorCategoria(void) {
@@ -97,7 +91,6 @@ void mostrarErroresPorCategoria(void) {
                 if (actual->tipo == tipoActual) {
                     printf("  [%d:%d] %s", actual->linea, actual->columna, actual->mensaje);
                     if (strlen(actual->contexto) > 0) printf(" (en: %s)", actual->contexto);
-                    if (strlen(actual->sugerencia) > 0) printf(" -> %s", actual->sugerencia);
                     printf("\n");
                 }
                 actual = actual->sig;
@@ -127,7 +120,6 @@ void liberarErroresSintacticos(void) {
         actual = actual->sig;
         free(temp->mensaje);
         free(temp->contexto);
-        free(temp->sugerencia);
         free(temp);
     }
     listaErroresSintacticos = NULL;
@@ -165,53 +157,46 @@ int hayErroresSemanticos(void) {
 }
 
 void mostrarTablaUnificadaErrores(void) {
-    // Incluir errores del sistema anterior (err.c)
-    extern ErrorSem* lista;  // Necesitas exponerla desde err.c
+    extern ErrorSem* lista;
     extern int contador;
-    
     int totalErrores = contadorErroresSintacticos + contador;
-    
+
     if (totalErrores == 0) {
         printf("\n== Sin errores ==\n");
         return;
     }
-    
+
     printf("\n=== REPORTE UNIFICADO DE ERRORES ===\n");
-    printf("%-4s | %-20s | %-40s | %-15s | %-5s | %-3s | %-25s\n",
-           "ID", "Categoría", "Descripción", "Contexto/Ámbito", "Línea", "Col", "Sugerencia");
-    printf("---------------------------------------------------------------------------------------------------------------\n");
-    
+    printf("%-4s | %-50s | %-10s | %-5s | %-6s\n",
+           "No.", "Descripción", "Ámbito", "Linea", "Col");
+    printf("---------------------------------------------------------------\n");
+
     int idGlobal = 1;
-    
-    // 1. Mostrar errores sintácticos (nuevos)
+
+    // Errores sintácticos
     ErrorSintactico* actualSint = listaErroresSintacticos;
     while (actualSint) {
-        printf("%-4d | %-20s | %-40s | %-15s | %-5d | %-3d | %-25s\n",
+        printf("%-4d | %-50s | %-10s | %-5d | %-6d\n",
                idGlobal++,
-               nombreTipoErrorSintactico(actualSint->tipo),
                actualSint->mensaje,
                actualSint->contexto,
                actualSint->linea,
-               actualSint->columna,
-               actualSint->sugerencia);
+               actualSint->columna);
         actualSint = actualSint->sig;
     }
-    
-    // 2. Mostrar errores semánticos (sistema anterior)
+
+    // Errores semánticos
     ErrorSem* actualSem = lista;
     while (actualSem) {
-        printf("%-4d | %-20s | %-40s | %-15s | %-5d | %-3d | %-25s\n",
+        printf("%-4d | %-50s | %-10s | %-5d | %-6d\n",
                idGlobal++,
-               "Semántico",
                actualSem->descripcion,
                actualSem->ambito,
                actualSem->linea,
-               actualSem->columna,
-               "");  // Sin sugerencia en errores antiguos
+               actualSem->columna);
         actualSem = actualSem->sig;
     }
-    
-    printf("===============================================================================================================\n");
-    printf("Total de errores: %d (Sintácticos: %d, Semánticos: %d)\n", 
-           totalErrores, contadorErroresSintacticos, contador);
+
+    //printf("---------------------------------------------------------------\n");
+    //printf("Total de errores: %d\n", totalErrores);
 }

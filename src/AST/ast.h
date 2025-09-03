@@ -16,7 +16,9 @@ typedef enum {
     AST_CAST,
     AST_PRINT,
     AST_BOOLEAN,
-    AST_ERROR,  
+    AST_ERROR,
+    AST_STRING,
+    AST_EQUAL,
 
     // Por si se me olvida, aquí es agregar más tipos
 } TipoNodoAST;

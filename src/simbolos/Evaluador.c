@@ -1,11 +1,12 @@
 #include "Evaluador.h"
+#include "Operador.h"
 #include "../semantico/semantico.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 
 // Función auxiliar para crear un ValorSimbolo numérico
-static ValorSimbolo makeNum(TipoDato tipo, double d) {
+ValorSimbolo makeNum(TipoDato tipo, double d) {
     ValorSimbolo v;
     memset(&v, 0, sizeof(v));
     v.tipo = tipo;
@@ -21,7 +22,7 @@ static ValorSimbolo makeNum(TipoDato tipo, double d) {
 }
 
 // Función auxiliar para verificar si un tipo es numérico
-static int esNum(TipoDato t) {
+int esNum(TipoDato t) {
     return t == TIPO_INT || t == TIPO_FLOAT || t == TIPO_DOUBLE || t == TIPO_CHAR;
 }
 
@@ -81,59 +82,28 @@ ValorSimbolo evaluarExpr(NodoAST* e) {
             return r;
         }
         case AST_OPERACION: {
-            if (e->num_hijos != 2) return r;
+            // Operador unario '!'
+            if (strcmp(e->valor, "!") == 0 && e->num_hijos == 1) {
                 ValorSimbolo a = evaluarExpr(e->hijos[0]);
-                ValorSimbolo b = evaluarExpr(e->hijos[1]);
-                if (!a.inicializado || !b.inicializado) return r;
-
-                // Concatenación de cadenas
-                if (strcmp(e->valor, "+") == 0 && (a.tipo == TIPO_STRING || b.tipo == TIPO_STRING)) {
-                    r.tipo = TIPO_STRING;
-                    size_t len_a = a.tipo == TIPO_STRING && a.v.s ? strlen(a.v.s) : 32;
-                    size_t len_b = b.tipo == TIPO_STRING && b.v.s ? strlen(b.v.s) : 32;
-                    r.v.s = malloc(len_a + len_b + 2);
-                    r.v.s[0] = 0;
-                    if (a.tipo == TIPO_STRING && a.v.s) strcat(r.v.s, a.v.s);   
-                    else {
-                        char tmp[32];
-                        snprintf(tmp, sizeof(tmp), "%d", a.v.i); // O usa el tipo correcto
-                        strcat(r.v.s, tmp);
-                    }
-                    if (b.tipo == TIPO_STRING && b.v.s) strcat(r.v.s, b.v.s);
-                    else {
-                        char tmp[32];
-                        snprintf(tmp, sizeof(tmp), "%d", b.v.i); // O usa el tipo correcto
-                        strcat(r.v.s, tmp);
-                    }
+                if (a.tipo == TIPO_BOOLEAN && a.inicializado) {
+                    r.tipo = TIPO_BOOLEAN;
+                    r.v.b = !a.v.b;
                     r.inicializado = 1;
                     return r;
                 }
-            if (!esNum(a.tipo) || !esNum(b.tipo)) {
-                printf("[EVALUADOR] Operación '%s' con operandos no numéricos\n", e->valor);
+                printf("[EVALUADOR] Operador '!' solo válido para boolean\n");
                 return r;
             }
-            // Promover a double
-            double da = (a.tipo == TIPO_DOUBLE) ? a.v.d : (a.tipo == TIPO_FLOAT ? a.v.f : (a.tipo == TIPO_INT ? a.v.i : (unsigned char)a.v.c));
-            double db = (b.tipo == TIPO_DOUBLE) ? b.v.d : (b.tipo == TIPO_FLOAT ? b.v.f : (b.tipo == TIPO_INT ? b.v.i : (unsigned char)b.v.c));
-            double res = 0;
-            const char* op = e->valor;
-            if (strcmp(op, "+") == 0) res = da + db;
-            else if (strcmp(op, "-") == 0) res = da - db;
-            else if (strcmp(op, "*") == 0) res = da * db;
-            else if (strcmp(op, "/") == 0) res = db != 0 ? da / db : 0;
-            else if (strcmp(op, "%") == 0) {
-                long ia = (long)da;
-                long ib = (long)db;
-                res = (ib != 0) ? ia % ib : 0;
+            // Operadores binarios
+            if (e->num_hijos == 2) {
+                ValorSimbolo a = evaluarExpr(e->hijos[0]);
+                ValorSimbolo b = evaluarExpr(e->hijos[1]);
+                if (!a.inicializado || !b.inicializado) return r;
+                return evaluarOperacion(e, a, b);
             }
-            // Tipo resultante (como deducirTipoExpr)
-            TipoDato tr = TIPO_INT;
-            if (a.tipo == TIPO_DOUBLE || b.tipo == TIPO_DOUBLE) tr = TIPO_DOUBLE;
-            else if (a.tipo == TIPO_FLOAT || b.tipo == TIPO_FLOAT) tr = TIPO_FLOAT;
-            else if (a.tipo == TIPO_INT || b.tipo == TIPO_INT) tr = TIPO_INT;
-            else tr = TIPO_INT;
-            return makeNum(tr, res);
+            return r;
         }
+           
         case AST_CAST: {
             if (e->num_hijos != 1) return r;
             ValorSimbolo orig = evaluarExpr(e->hijos[0]);
@@ -148,9 +118,47 @@ ValorSimbolo evaluarExpr(NodoAST* e) {
                     case TIPO_CHAR:   base = (unsigned char)orig.v.c; break;
                     default: break;
                 }
-                return makeNum(destino, base);
+                ValorSimbolo r = makeNum(destino, base);
+                r.es_cast = 1; // <--- Marca que es resultado de un cast explícito
+                return r;
             }
             if (destino == orig.tipo) return orig;
+            return r;
+        }
+        case AST_STRING: {
+            if (strcmp(e->valor, "String.valueOf") == 0 && e->num_hijos == 1) {
+                ValorSimbolo arg = evaluarExpr(e->hijos[0]);
+                r.tipo = TIPO_STRING;
+                r.inicializado = 1;
+                char buffer[64];
+                switch (arg.tipo) {
+                    case TIPO_INT:     snprintf(buffer, sizeof(buffer), "%d", arg.v.i); break;
+                    case TIPO_FLOAT:   snprintf(buffer, sizeof(buffer), "%f", arg.v.f); break;
+                    case TIPO_DOUBLE:  snprintf(buffer, sizeof(buffer), "%lf", arg.v.d); break;
+                    case TIPO_CHAR:    snprintf(buffer, sizeof(buffer), "%c", arg.v.c); break;
+                    case TIPO_BOOLEAN: snprintf(buffer, sizeof(buffer), "%s", arg.v.b ? "true" : "false"); break;
+                    case TIPO_STRING:  snprintf(buffer, sizeof(buffer), "%s", arg.v.s ? arg.v.s : ""); break;
+                    default:           buffer[0] = '\0'; break;
+                }
+                r.v.s = strdup(buffer);
+                return r;
+            }
+            return r;
+        }
+        case AST_EQUAL: {
+            if (strcmp(e->valor, ".equals") == 0 && e->num_hijos == 2) {
+                ValorSimbolo base = evaluarExpr(e->hijos[0]);
+                ValorSimbolo arg = evaluarExpr(e->hijos[1]);
+                r.tipo = TIPO_BOOLEAN;
+                r.inicializado = 1;
+                if (base.tipo == TIPO_STRING && arg.tipo == TIPO_STRING) {
+                    r.v.b = (base.v.s && arg.v.s) ? strcmp(base.v.s, arg.v.s) == 0 : 0;
+                } else {
+                    printf("[EVALUADOR] .equals solo válido para strings\n");
+                    r.v.b = 0;
+                }
+                return r;
+            }
             return r;
         }
         default: return r;

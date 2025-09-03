@@ -39,7 +39,7 @@ int verificarAsignacion(NodoAST* nodo) {
     ValorSimbolo valorEvaluado = evaluarExpr(valor);
     if (valorEvaluado.inicializado) {
         setValorSimbolo(sim, valorEvaluado.tipo, valorEvaluado);
-        printf("[DEBUG] Asignando a '%s': valor actualizado\n", identificador->valor);
+       // printf("[DEBUG] Asignando a '%s': valor actualizado\n", identificador->valor);
     } else {
         printf("[DEBUG] Error: no se pudo evaluar la expresión para '%s'\n", identificador->valor);
         nodo->valido = 0;

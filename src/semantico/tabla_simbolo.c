@@ -133,12 +133,12 @@ void setValorSimbolo(Simbolo* sim, TipoDato tipoValor, ValorSimbolo val) {
 
     // Narrowing casting manual (double -> float -> int -> char)
     if (esNarrowing(tipoValor, sim->tipo)) {
-        // Solo permitir si el usuario lo especifica con un cast explícito en el AST
-        // Ejemplo: int counter2 = (int) counter;
-        // Aquí puedes verificar si el nodo de la expresión es un AST_CAST
-        // Si no es cast explícito, puedes reportar error o ignorar
-        // Para este ejemplo, permitimos el cast manual si el tipo de valor es resultado de un AST_CAST
-        // (esto depende de tu lógica de evaluación)
+        // Solo permitir si el valor proviene de un cast explícito
+        if (!val.es_cast) {
+            printf("[ERROR] Narrowing casting solo permitido con cast explícito: %s <- %s\n",
+                   nombreTipoDato(sim->tipo), nombreTipoDato(tipoValor));
+            return;
+        }
         double base = 0;
         switch (tipoValor) {
             case TIPO_DOUBLE: base = val.v.d; break;

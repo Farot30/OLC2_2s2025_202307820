@@ -50,40 +50,34 @@ void fill_error_treeview(GtkListStore* store, const char* error_text) {
             strncpy(line, line_start, line_len);
             line[line_len] = '\0';
             
-            // Parsear la línea con formato "ID | Categoría | Descripción | Contexto | Línea | Col | Sugerencia"
+            // Parsear la línea con formato "No. | Descripción | Ámbito | Linea | Col"
             char id[10] = "";
-            char categoria[50] = "";
             char descripcion[100] = "";
-            char contexto[50] = "";
+            char ambito[50] = "";
             char linea[10] = "";
             char columna[10] = "";
-            char sugerencia[100] = "";
-            
+
             // Extraer valores usando sscanf con formato fijo
-            sscanf(line, "%9[^|] | %49[^|] | %99[^|] | %49[^|] | %9[^|] | %9[^|] | %99[^\n]",
-                   id, categoria, descripcion, contexto, linea, columna, sugerencia);
-            
+            sscanf(line, "%9[^|]|%99[^|]|%49[^|]|%9[^|]|%9[^\n]",
+                id, descripcion, ambito, linea, columna);
+
             // Eliminar espacios extras
             g_strstrip(id);
-            g_strstrip(categoria);
             g_strstrip(descripcion);
-            g_strstrip(contexto);
+            g_strstrip(ambito);
             g_strstrip(linea);
             g_strstrip(columna);
-            g_strstrip(sugerencia);
-            
+
             // Agregar a la tabla
             GtkTreeIter iter;
             gtk_list_store_append(store, &iter);
             gtk_list_store_set(store, &iter, 
-                               0, id,
-                               1, categoria,
-                               2, descripcion,
-                               3, contexto,
-                               4, linea,
-                               5, columna,
-                               6, sugerencia,
-                               -1);
+                            0, id,
+                            1, descripcion,
+                            2, ambito,
+                            3, linea,
+                            4, columna,
+                            -1);
         }
         
         line_start = line_end + 1;
@@ -397,14 +391,12 @@ void ui_build(AppUI* ui){
     GtkWidget* scErr = gtk_scrolled_window_new(NULL, NULL);
     
     // Crear modelo para la tabla de errores
-    ui->store_errores = gtk_list_store_new(7, 
-                                          G_TYPE_STRING,  // ID
-                                          G_TYPE_STRING,  // Categoría
-                                          G_TYPE_STRING,  // Descripción
-                                          G_TYPE_STRING,  // Contexto
-                                          G_TYPE_STRING,  // Línea
-                                          G_TYPE_STRING,  // Columna
-                                          G_TYPE_STRING); // Sugerencia
+    ui->store_errores = gtk_list_store_new(5, 
+                                            G_TYPE_STRING,  // ID
+                                            G_TYPE_STRING,  // Descripción
+                                            G_TYPE_STRING,  // Ámbito
+                                            G_TYPE_STRING,  // Línea
+                                            G_TYPE_STRING); // Columna
     
     // Crear vista de tabla para errores
     ui->tree_errores = gtk_tree_view_new_with_model(GTK_TREE_MODEL(ui->store_errores));
@@ -414,26 +406,20 @@ void ui_build(AppUI* ui){
     
     column = gtk_tree_view_column_new_with_attributes("ID", renderer, "text", 0, NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(ui->tree_errores), column);
-    
-    column = gtk_tree_view_column_new_with_attributes("Categoría", renderer, "text", 1, NULL);
-    gtk_tree_view_append_column(GTK_TREE_VIEW(ui->tree_errores), column);
-    
-    column = gtk_tree_view_column_new_with_attributes("Descripción", renderer, "text", 2, NULL);
+
+    column = gtk_tree_view_column_new_with_attributes("Descripción", renderer, "text", 1, NULL);
     gtk_tree_view_column_set_min_width(column, 250);
     gtk_tree_view_append_column(GTK_TREE_VIEW(ui->tree_errores), column);
-    
-    column = gtk_tree_view_column_new_with_attributes("Contexto", renderer, "text", 3, NULL);
+
+    column = gtk_tree_view_column_new_with_attributes("Ámbito", renderer, "text", 2, NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(ui->tree_errores), column);
-    
-    column = gtk_tree_view_column_new_with_attributes("Línea", renderer, "text", 4, NULL);
+
+    column = gtk_tree_view_column_new_with_attributes("Línea", renderer, "text", 3, NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(ui->tree_errores), column);
-    
-    column = gtk_tree_view_column_new_with_attributes("Col", renderer, "text", 5, NULL);
+
+    column = gtk_tree_view_column_new_with_attributes("Col", renderer, "text", 4, NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(ui->tree_errores), column);
-    
-    column = gtk_tree_view_column_new_with_attributes("Sugerencia", renderer, "text", 6, NULL);
     gtk_tree_view_column_set_min_width(column, 200);
-    gtk_tree_view_append_column(GTK_TREE_VIEW(ui->tree_errores), column);
     
     gtk_container_add(GTK_CONTAINER(scErr), ui->tree_errores);
     gtk_notebook_append_page(GTK_NOTEBOOK(nb), scErr, gtk_label_new("Errores"));

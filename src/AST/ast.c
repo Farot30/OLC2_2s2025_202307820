@@ -60,25 +60,41 @@ static const char* nombreNodoTipo(TipoNodoAST t){
         case AST_PRINT: return "PRINT";
         case AST_BOOLEAN: return "BOOLEAN";
         case AST_ERROR: return "ERROR";
+        case AST_STRING: return "STRING";
+        case AST_EQUAL: return "EQUAL";
         default: return "UNK";
     }
 }
 
-static void escapar(const char* src, char* dst, size_t max){
+
+static void escaparLabel(const char* src, char* dst, size_t max){
     size_t j=0;
-    for(size_t i=0; src && src[i] && j+2 < max; ++i){
-        if(src[i]=='"' || src[i]=='\\')
+    for(size_t i=0; src && src[i] && j+6 < max; ++i){
+        if(src[i]=='|'){
+            strcpy(&dst[j], "&#124;");
+            j += 6;
+        } else if(src[i]=='<'){
+            strcpy(&dst[j], "&lt;");
+            j += 4;
+        } else if(src[i]=='>'){
+            strcpy(&dst[j], "&gt;");
+            j += 4;
+        } else if(src[i]=='"'){
             dst[j++]='\\';
-        dst[j++]=src[i];
+            dst[j++]=src[i];
+        } else {
+            dst[j++]=src[i];
+        }
     }
     dst[j]=0;
 }
+
 
 static void graphvizRec(NodoAST* n, FILE* f) {
     if (!n || !n->valido) return;
 
     char valorEsc[128];
-    escapar(n->valor ? n->valor : "NULL", valorEsc, sizeof(valorEsc));
+    escaparLabel(n->valor ? n->valor : "NULL", valorEsc, sizeof(valorEsc));
 
     // Mostrar el valor evaluado en el nodo PRINT
     if (n->tipo == AST_PRINT) {
@@ -108,16 +124,17 @@ void graphvizAST(NodoAST* raiz){
     printf("}\n");
 }
 
+
 static void graphvizRecFile(NodoAST* n, FILE* f){
-    if(!n || !n->valido) return;  // ← AÑADIR ESTA VERIFICACIÓN
-    
+    if(!n || !n->valido) return;
+
     char valorEsc[128];
-    escapar(n->valor ? n->valor : "NULL", valorEsc, sizeof(valorEsc));
+    escaparLabel(n->valor ? n->valor : "NULL", valorEsc, sizeof(valorEsc));
     fprintf(f, "  n%p [label=\"{Tipo: %s|Valor: %s}\"];\n",
             (void*)n, nombreNodoTipo(n->tipo), valorEsc);
-    
+
     for(int i=0; i<n->num_hijos; ++i){
-        if(n->hijos[i] && n->hijos[i]->valido) {  // ← AÑADIR ESTA VERIFICACIÓN
+        if(n->hijos[i] && n->hijos[i]->valido) {
             fprintf(f, "  n%p -> n%p;\n", (void*)n, (void*)n->hijos[i]);
             graphvizRecFile(n->hijos[i], f);
         }

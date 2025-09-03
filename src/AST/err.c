@@ -30,14 +30,14 @@ void mostrarErrores(){
     printf("\n== Reporte de Errores ==\n");
     printf("%-4s | %-50s | %-10s | %-5s | %-6s\n",
            "No.", "Descripción", "Ámbito", "Linea", "Col");
-    printf("-------------------------------------------------------------------------------\n");
+    printf("---------------------------------------------------------------\n");
     ErrorSem* cur = lista;
     while(cur){
         printf("%-4d | %-50s | %-10s | %-5d | %-6d\n",
                cur->id, cur->descripcion, cur->ambito, cur->linea, cur->columna);
         cur = cur->sig;
     }
-    printf("-------------------------------------------------------------------------------\n");
+    printf("---------------------------------------------------------------\n");
 }
 
 void liberarErrores(){

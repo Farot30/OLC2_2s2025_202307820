@@ -26,7 +26,6 @@ typedef struct ErrorSintactico {
     TipoErrorSintactico tipo;
     char* mensaje;
     char* contexto;
-    char* sugerencia;
     int linea;
     int columna;
     struct ErrorSintactico* sig;
@@ -34,8 +33,8 @@ typedef struct ErrorSintactico {
 
 
 void initErroresSintacticos(void);
-void addErrorSintactico(TipoErrorSintactico tipo, const char* mensaje, 
-                        const char* contexto, const char* sugerencia, 
+void addErrorSintactico(const char* mensaje, 
+                        const char* contexto, 
                         int linea, int columna);
 void mostrarErroresSintacticos(void);
 void mostrarErroresPorCategoria(void);

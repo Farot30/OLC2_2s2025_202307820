@@ -28,20 +28,6 @@ int verificarDeclaracion(NodoAST* nodo) {
         return 0;
     }
 
-    if (tipoDeclarado != tipoValor && tipoValor != TIPO_DESCONOCIDO) {
-        // Permitir widening implícito
-        if (!esWidening(tipoValor, tipoDeclarado)) {
-            char msg[160];
-            snprintf(msg, sizeof(msg), "Tipo incompatible en declaración '%s': %s vs %s",
-                     identificador->valor, nombreTipo(tipoDeclarado), nombreTipo(tipoValor));
-            addError(msg, "global", identificador->linea, identificador->columna);
-            printf("%s\n", msg);
-            valor->valido = 0;      // Marcar el valor como inválido
-            nodo->valido = 0;       // Marcar declaración completa como inválida
-            return 0;
-        }
-    }
-
     agregarSimboloDetallado(
         identificador->valor,
         SIMBOLO_VARIABLE,
@@ -55,6 +41,19 @@ int verificarDeclaracion(NodoAST* nodo) {
     if(sim && nodo->num_hijos > 1){
         ValorSimbolo v = evaluarExpr(nodo->hijos[1]);
         if(v.inicializado){
+            // Compara el tipo declarado con el tipo evaluado
+            if (sim->tipo != v.tipo && v.tipo != TIPO_DESCONOCIDO) {
+                if (!esWidening(v.tipo, sim->tipo)) {
+                    char msg[160];
+                    snprintf(msg, sizeof(msg), "Tipo incompatible en declaración '%s': %s vs %s",
+                            identificador->valor, nombreTipo(sim->tipo), nombreTipo(v.tipo));
+                    addError(msg, "global", identificador->linea, identificador->columna);
+                    printf("%s\n", msg);
+                    valor->valido = 0;
+                    nodo->valido = 0;
+                    return 0;
+                }
+            }
             setValorSimbolo(sim, sim->tipo, v);
         }
     }

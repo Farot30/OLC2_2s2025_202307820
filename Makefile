@@ -30,7 +30,8 @@ BACKEND_SRC = \
 	$(SRC_DIR)/semantico/Instrucciones/asignacion.c \
 	$(SRC_DIR)/semantico/Instrucciones/Print.c \
 	$(SRC_DIR)/simbolos/Evaluador.c \
-	$(SRC_DIR)/simbolos/salida.c 
+	$(SRC_DIR)/simbolos/salida.c \
+	$(SRC_DIR)/simbolos/Operador.c
 
 # Fuentes GUI
 GUI_SRC = \
@@ -52,6 +53,7 @@ GUI_SRC = \
 	$(SRC_DIR)/semantico/Instrucciones/asignacion.c \
 	$(SRC_DIR)/semantico/Instrucciones/Print.c \
 	$(SRC_DIR)/simbolos/Evaluador.c \
+	$(SRC_DIR)/simbolos/Operador.c \
 	$(SRC_DIR)/simbolos/salida.c
 
 all: parser gui

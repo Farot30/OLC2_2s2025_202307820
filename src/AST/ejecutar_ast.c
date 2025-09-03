@@ -9,8 +9,8 @@
 
 // Función para ejecutar cada nodo del AST en orden secuencial
 void ejecutarNodoAST(NodoAST* nodo) {
-    if (!nodo || !nodo->valido) {
-        printf("[DEBUG] Nodo inválido o NULL, saltando\n");
+    if (!nodo || !nodo->valido || nodo->tipo == AST_ERROR) {
+        printf("[DEBUG] Nodo inválido o de error, saltando\n");
         return;
     }
     
@@ -29,19 +29,19 @@ void ejecutarNodoAST(NodoAST* nodo) {
             break;
             
         case AST_DECLARACION:
-            printf("[DEBUG] Procesando declaración\n");
+            //printf("[DEBUG] Procesando declaración\n");
             // Procesar la declaración
             verificarDeclaracion(nodo);
             break;
             
         case AST_ASIGNACION:
-            printf("[DEBUG] Procesando asignación\n");
+            //printf("[DEBUG] Procesando asignación\n");
             // Procesar la asignación
             verificarAsignacion(nodo);
             break;
             
         case AST_PRINT:
-            printf("[DEBUG] Procesando print\n");
+           // printf("[DEBUG] Procesando print\n");
             // Ejecutar el print
             if (nodo->num_hijos > 0 && nodo->hijos[0]) {
                 imprimirEvaluado(nodo->hijos[0]);

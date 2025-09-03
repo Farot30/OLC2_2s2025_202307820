@@ -5,5 +5,7 @@
 #include "../semantico/tabla_simbolo.h"
 
 ValorSimbolo evaluarExpr(NodoAST* expr);
+ValorSimbolo makeNum(TipoDato tipo, double valor);
+int esNum(TipoDato t);
 
 #endif

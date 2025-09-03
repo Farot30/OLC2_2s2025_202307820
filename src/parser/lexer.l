@@ -52,12 +52,14 @@ static char* unescape(const char* yytext){
 System.out.println          { yylval.str = strdup("System.out.println"); return TOKEN_PRINT;}
 int                         { yylval.str = strdup("int");    return TOKEN_DINT; }
 float                       { yylval.str = strdup("float");  return TOKEN_DFLOAT; }
-string                      { yylval.str = strdup("string"); return TOKEN_DSTRING; }
+String                      { yylval.str = strdup("string"); return TOKEN_DSTRING; }
 char                        { yylval.str = strdup("char");   return TOKEN_DCHAR; }
 double                      { yylval.str = strdup("double"); return TOKEN_DOUBLE; }
 boolean                     { yylval.str = strdup("boolean"); return TOKEN_DBOOLEAN; }
 true                        { yylval.str = strdup("true"); return TOKEN_BOOLEANO; }
 false                       { yylval.str = strdup("false"); return TOKEN_BOOLEANO; }
+String\.valueOf             { return TOKEN_STRING_VALUEOF; }
+\.equals                    { return TOKEN_EQUAL; }
 
 [0-9]+                      { yylval.str = strdup(yytext); return TOKEN_NUMERO; }
 [0-9]+\.[0-9]+[fF]          { yylval.str = strdup(yytext); return TOKEN_FLOAT_LITERAL; }
@@ -94,8 +96,27 @@ false                       { yylval.str = strdup("false"); return TOKEN_BOOLEAN
 "*="             { return TOKEN_POR_IGUAL; }
 "/="             { return TOKEN_DIV_IGUAL; }
 "%="             { return TOKEN_MOD_IGUAL; }
+"&="             { return TOKEN_AND_IGUAL; }
+"|="             { return TOKEN_OR_IGUAL; }
+"^="             { return TOKEN_XOR_IGUAL; }
+"<<="            { return TOKEN_DESIZQ_IGUAL; }
+">>="            { return TOKEN_DESDER_IGUAL; }
 "("              { return TOKEN_PARIZQ; }
 ")"              { return TOKEN_PARDER; }
+"&"              { return TOKEN_BIT_AND; }
+"|"              { return TOKEN_BIT_OR; }
+"^"              { return TOKEN_XOR; }
+"<<"             { return TOKEN_DESIZQ; }
+">>"             { return TOKEN_DESDER; }
+"=="             { return TOKEN_IGUAL_IGUAL; }
+"!="             { return TOKEN_NO_IGUAL; }
+">="             { return TOKEN_MAYOR_IGUAL; }
+"<="             { return TOKEN_MENOR_IGUAL; }
+">"              { return TOKEN_MAYOR; }
+"<"              { return TOKEN_MENOR; }
+"&&"             { return TOKEN_AND; }
+"||"             { return TOKEN_OR; }
+"!"              { return TOKEN_NOT; }
 
 
 
