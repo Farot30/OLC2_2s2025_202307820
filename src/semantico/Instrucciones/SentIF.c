@@ -1,0 +1,46 @@
+#include "SentIF.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../../AST/ejecutar_ast.h"
+#include "../../AST/err.h"
+#include "../tipos.h"
+#include "../tabla_simbolo.h"
+#include "../../simbolos/Evaluador.h"
+
+SentenciaIf* crearSentenciaIf(NodoAST* condicion, NodoAST* bloqueVerdadero, NodoAST* bloqueFalso) {
+    SentenciaIf* sentencia = (SentenciaIf*)malloc(sizeof(SentenciaIf));
+    sentencia->condicion = condicion;
+    sentencia->bloqueVerdadero = bloqueVerdadero;
+    sentencia->bloqueFalso = bloqueFalso;
+    return sentencia;
+}
+
+void liberarSentenciaIf(SentenciaIf* sentencia) {
+    if (!sentencia) return;
+    free(sentencia);
+}
+
+void ejecutarNodoIf(NodoAST* nodo) {
+    if (!nodo || nodo->tipo != AST_IF) return;
+
+    NodoAST* condicion = nodo->hijos[0];
+    NodoAST* bloqueVerdadero = nodo->hijos[1];
+    NodoAST* bloqueFalso = (nodo->num_hijos > 2) ? nodo->hijos[2] : NULL;
+
+    ValorSimbolo vCond = evaluarExpr(condicion);
+
+    if (vCond.tipo == TIPO_BOOLEAN && vCond.inicializado) {
+        if (vCond.v.b) {
+            entrarAmbito("if");
+            ejecutarNodoAST(bloqueVerdadero);
+            salirAmbito();
+        } else if (bloqueFalso) {
+            entrarAmbito("else");
+            ejecutarNodoAST(bloqueFalso);
+        }
+    } else {
+        addError("Condición del IF no es booleana", ambitoActual(), nodo->linea, nodo->columna);
+    }
+}
+

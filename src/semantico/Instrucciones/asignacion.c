@@ -18,7 +18,7 @@ int verificarAsignacion(NodoAST* nodo) {
     if (!sim) {
         char msg[128];
         snprintf(msg, sizeof(msg), "Variable '%s' no declarada", identificador->valor);
-        addError(msg, "global", identificador->linea, identificador->columna);
+        addError(msg, ambitoActual(), identificador->linea, identificador->columna);
         nodo->valido = 0;
         return 0;
     }
@@ -28,7 +28,7 @@ int verificarAsignacion(NodoAST* nodo) {
             char msg[160];
             snprintf(msg, sizeof(msg), "Tipo incompatible en asignación '%s': se esperaba %s, se recibió %s",
                      identificador->valor, nombreTipo(sim->tipo), nombreTipo(tipoValor));
-            addError(msg, "global", identificador->linea, identificador->columna);
+            addError(msg, ambitoActual(), identificador->linea, identificador->columna);
             nodo->valido = 0;
             return 0;
         }

@@ -21,7 +21,7 @@ int verificarDeclaracion(NodoAST* nodo) {
     if (buscarSimbolo(identificador->valor)) {
         char msg[128];
         snprintf(msg, sizeof(msg), "Variable '%s' ya declarada", identificador->valor);
-        addError(msg, "global", identificador->linea, identificador->columna);
+        addError(msg, ambitoActual(), identificador->linea, identificador->columna);
         printf("%s\n", msg);
         identificador->valido = 0;  // Marcar identificador como inválido
         nodo->valido = 0;           // Marcar declaración completa como inválida
@@ -32,7 +32,7 @@ int verificarDeclaracion(NodoAST* nodo) {
         identificador->valor,
         SIMBOLO_VARIABLE,
         tipoDeclarado,
-        "global",
+        ambitoActual(),
         identificador->linea,
         identificador->columna
     );
@@ -47,7 +47,7 @@ int verificarDeclaracion(NodoAST* nodo) {
                     char msg[160];
                     snprintf(msg, sizeof(msg), "Tipo incompatible en declaración '%s': %s vs %s",
                             identificador->valor, nombreTipo(sim->tipo), nombreTipo(v.tipo));
-                    addError(msg, "global", identificador->linea, identificador->columna);
+                    addError(msg, ambitoActual(), identificador->linea, identificador->columna);
                     printf("%s\n", msg);
                     valor->valido = 0;
                     nodo->valido = 0;

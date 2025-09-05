@@ -8,6 +8,26 @@
 static Simbolo* tabla = NULL;
 static int contadorSimbolos = 0;
 
+// tabla_simbolo.c
+char* pilaAmbitos[MAX_SCOPES];
+int topeAmbitos = 0;
+
+void entrarAmbito(const char* nombre) {
+    if (topeAmbitos < MAX_SCOPES) {
+        pilaAmbitos[topeAmbitos++] = strdup(nombre);
+    }
+}
+
+void salirAmbito(void) {
+    if (topeAmbitos > 0) {
+        free(pilaAmbitos[--topeAmbitos]);
+    }
+}
+
+const char* ambitoActual(void) {
+    return (topeAmbitos > 0) ? pilaAmbitos[topeAmbitos-1] : "global";
+}
+
 void inicializarTabla() {
     tabla = NULL;
     contadorSimbolos = 0;
@@ -108,6 +128,10 @@ static const char* nombreClase(TipoSimbolo c){
 
 void setValorSimbolo(Simbolo* sim, TipoDato tipoValor, ValorSimbolo val) {
     if (!sim) return;
+
+    // Actualizar el ámbito de la asignación
+    if (sim->ambito) free(sim->ambito);
+    sim->ambito = strdup(ambitoActual());
 
     // Widening casting automático (char -> int -> float -> double)
     if (esWidening(tipoValor, sim->tipo)) {

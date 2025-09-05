@@ -4,8 +4,10 @@
     #include "../semantico/Instrucciones/Print.h"
     #include "../AST/ejecutar_ast.h"
 }
+
 %define parse.error verbose
 %locations
+
 %{
     #include "../comun/strutil.h"
     #include <stdio.h>
@@ -17,6 +19,10 @@
     extern int yylex(void);
     extern int yylineno;
     extern int yycolumn;
+    
+    /* Función auxiliar para crear asignaciones compuestas */
+    NodoAST* crear_asignacion_compuesta(char* id, char* operador, NodoAST* expr, 
+                                       int id_linea, int id_columna, int op_linea, int op_columna);
 %}
 
 %union {
@@ -24,455 +30,429 @@
     NodoAST* nodo;
 }
 
-%token <str> TOKEN_DBOOLEAN
-%token <str> TOKEN_BOOLEANO
+/* ========== TOKENS ========== */
+%token <str> TOKEN_LLAVEDER TOKEN_LLAVEIZQ
+%token <str> TOKEN_MULTI TOKEN_DIV TOKEN_MODULO TOKEN_MAS TOKEN_MENOS
+%token <str> TOKEN_DBOOLEAN TOKEN_BOOLEANO
 %token <str> TOKEN_IDENTIFICADOR
-%token <str> TOKEN_DINT
-%token <str> TOKEN_DFLOAT
-%token <str> TOKEN_DSTRING
-%token <str> TOKEN_DCHAR
-%token <str> TOKEN_DOUBLE
-%token <str> TOKEN_IGUAL
-%token <str> TOKEN_DOBLEPUNTO
-%token <str> TOKEN_NUMERO
-%token <str> TOKEN_CADENA
-%token <str> TOKEN_CARACTER
-%token <str> TOKEN_FLOAT_LITERAL
-%token <str> TOKEN_DOUBLE_LITERAL 
-%token <str> TOKEN_MAS_IGUAL
-%token <str> TOKEN_MENOS_IGUAL
-%token <str> TOKEN_POR_IGUAL
-%token <str> TOKEN_DIV_IGUAL
-%token <str> TOKEN_MOD_IGUAL
+%token <str> TOKEN_DINT TOKEN_DFLOAT TOKEN_DSTRING TOKEN_DCHAR TOKEN_DOUBLE
+%token <str> TOKEN_IGUAL TOKEN_PUNTOCOMA
+%token <str> TOKEN_NUMERO TOKEN_CADENA TOKEN_CARACTER
+%token <str> TOKEN_FLOAT_LITERAL TOKEN_DOUBLE_LITERAL 
 %token <str> TOKEN_PRINT
-%token <str> TOKEN_PARIZQ
-%token <str> TOKEN_PARDER
-%token <str> TOKEN_BIT_AND
-%token <str> TOKEN_BIT_OR
-%token <str> TOKEN_XOR
-%token <str> TOKEN_DESIZQ
-%token <str> TOKEN_DESDER
-%token <str> TOKEN_AND_IGUAL
-%token <str> TOKEN_OR_IGUAL
-%token <str> TOKEN_XOR_IGUAL
-%token <str> TOKEN_DESIZQ_IGUAL
-%token <str> TOKEN_DESDER_IGUAL
-%token <str> TOKEN_STRING_VALUEOF
-%token <str> TOKEN_IGUAL_IGUAL
-%token <str> TOKEN_NO_IGUAL
-%token <str> TOKEN_MAYOR_IGUAL
-%token <str> TOKEN_MENOR_IGUAL
-%token <str> TOKEN_EQUAL
-%token <str> TOKEN_MAYOR
-%token <str> TOKEN_MENOR
-%token <str> TOKEN_AND
-%token <str> TOKEN_OR
-%token <str> TOKEN_NOT
+%token <str> TOKEN_PARIZQ TOKEN_PARDER
+%token <str> TOKEN_BIT_AND TOKEN_BIT_OR TOKEN_XOR
+%token <str> TOKEN_DESIZQ TOKEN_DESDER
+%token <str> TOKEN_IGUAL_IGUAL TOKEN_NO_IGUAL
+%token <str> TOKEN_MAYOR_IGUAL TOKEN_MENOR_IGUAL
+%token <str> TOKEN_MAYOR TOKEN_MENOR
+%token <str> TOKEN_AND TOKEN_OR TOKEN_NOT
+%token <str> TOKEN_IF TOKEN_ELSE
+%token <str> TOKEN_STRING_VALUEOF TOKEN_EQUAL
 
-%type <nodo> s Programa Lista_expresiones Declaracion expresion expr Asignacion Cast PRINT
-%type <str> Tipos 
+/* Tokens para asignaciones compuestas */
+%token <str> TOKEN_MAS_IGUAL TOKEN_MENOS_IGUAL TOKEN_POR_IGUAL
+%token <str> TOKEN_DIV_IGUAL TOKEN_MOD_IGUAL
+%token <str> TOKEN_AND_IGUAL TOKEN_OR_IGUAL TOKEN_XOR_IGUAL
+%token <str> TOKEN_DESIZQ_IGUAL TOKEN_DESDER_IGUAL
 
-//precedencia
-%right TOKEN_IGUAL TOKEN_MAS_IGUAL TOKEN_MENOS_IGUAL TOKEN_POR_IGUAL TOKEN_DIV_IGUAL TOKEN_MOD_IGUAL
-%right TOKEN_NOT
-%left TOKEN_AND TOKEN_OR
-%left '+' '-'
-%left '*' '/' '%'
-%left NEG
-%left TOKEN_PARIZQ TOKEN_PARDER
-%left TOKEN_BIT_AND
+/* ========== TIPOS DE NODOS ========== */
+%type <nodo> s programa
+%type <nodo> lista_sentencias sentencia
+%type <nodo> declaracion asignacion
+%type <nodo> expresion
+%type <nodo> instruccion_print instruccion_if bloque
+%type <nodo> cast
+%type <str> tipo_primitivo
+
+/* ========== PRECEDENCIA MÍNIMA ========== */
+%right TOKEN_IGUAL TOKEN_MAS_IGUAL TOKEN_MENOS_IGUAL TOKEN_POR_IGUAL TOKEN_DIV_IGUAL TOKEN_MOD_IGUAL 
+%right TOKEN_AND_IGUAL TOKEN_OR_IGUAL TOKEN_XOR_IGUAL TOKEN_DESIZQ_IGUAL TOKEN_DESDER_IGUAL
+%left TOKEN_OR
+%left TOKEN_AND
 %left TOKEN_BIT_OR
 %left TOKEN_XOR
+%left TOKEN_BIT_AND
+%left TOKEN_IGUAL_IGUAL TOKEN_NO_IGUAL
+%left TOKEN_MENOR TOKEN_MENOR_IGUAL TOKEN_MAYOR TOKEN_MAYOR_IGUAL
 %left TOKEN_DESIZQ TOKEN_DESDER
+%left TOKEN_MAS TOKEN_MENOS
+%left TOKEN_MULTI TOKEN_DIV TOKEN_MODULO
+%right TOKEN_NOT UMINUS
 %left TOKEN_EQUAL
-%left TOKEN_IGUAL_IGUAL TOKEN_NO_IGUAL TOKEN_MAYOR TOKEN_MENOR TOKEN_MAYOR_IGUAL TOKEN_MENOR_IGUAL
-%nonassoc CAST_ERROR 
+%nonassoc TOKEN_IF
+%nonassoc TOKEN_ELSE
 
-%expect 0 
+%start s
 
 %%
 
-
-s: Programa {
-    // 2. Mostrar AST para debugging
+/* ========== PROGRAMA PRINCIPAL ========== */
+s: programa {
     printf("\n=== ESTRUCTURA DEL AST ===\n");
     imprimirAST($1, 0);
-    
-    
-    // 4. EJECUTAR/INTERPRETAR el programa (ANTES de liberar)
     interpretarPrograma($1);
-    
     printf("ejecutando exportarAST\n");
     exportarAST($1, "ast.dot", "ast.png");
-
-    //printf("verificando la semantica\n");
-    //verificarSemantica($1);
-
-    // 5. Liberar memoria AL FINAL
     printf("\n=== LIBERANDO MEMORIA ===\n");
     liberarAST($1);
-    
     printf("[DEBUG] Procesamiento completado.\n");
 }
+;
 
-Programa: Lista_expresiones { $$ = $1; };
+programa: lista_sentencias { $$ = $1; }
+;
 
-Lista_expresiones: Lista_expresiones expresion {
+/* ========== LISTA DE SENTENCIAS ========== */
+lista_sentencias: 
+    lista_sentencias sentencia { 
         if ($1->tipo != AST_LISTA) {
-            NodoAST* lista = crearNodo(AST_LISTA, "Arbol AST");
+            NodoAST* lista = crearNodo(AST_LISTA, "Programa");
             agregarHijo(lista, $1);
-            agregarHijo(lista, $2);
+            if ($2) agregarHijo(lista, $2);
             $$ = lista;
         } else {
-            agregarHijo($1, $2);
+            if ($2) agregarHijo($1, $2);
             $$ = $1;
         }
     }
-    | expresion {
-        $$ = $1;
+    | sentencia { 
+        if ($1) {
+            $$ = $1;
+        } else {
+            $$ = crearNodo(AST_LISTA, "Programa");
+        }
     }
-    ;
-/*
-Bloque: '{' Lista_expresiones '}' {
-    $$ = crearNodo(AST_BLOQUE, NULL);
-    $$->linea = @1.first_line; $$->columna = @1.first_column;
-    agregarHijo($$, $2);
-    };
-    */
+;
 
-expresion: Declaracion
-    | Asignacion
-    | PRINT
-    | error TOKEN_IGUAL expr TOKEN_DOBLEPUNTO {
-         addErrorSintactico("Asignación sin declaración de tipo", "variable", @1.first_line, @1.first_column);
-         $$ = crearNodo(AST_ERROR, "ASIGNACION_SIN_DECLARACION");
-         yyerrok;
-      }
-    ;
+/* ========== SENTENCIAS ========== */
+sentencia:
+    declaracion TOKEN_PUNTOCOMA     { $$ = $1; }
+    | asignacion TOKEN_PUNTOCOMA    { $$ = $1; }
+    | instruccion_print TOKEN_PUNTOCOMA { $$ = $1; }
+    | instruccion_if                { $$ = $1; }
+    | bloque                        { $$ = $1; }
+    | expresion TOKEN_PUNTOCOMA     { $$ = $1; }
+    | error TOKEN_PUNTOCOMA         { 
+        addErrorSintactico("Instrucción inválida", "global", @1.first_line, @1.first_column);
+        yyerrok; 
+        $$ = NULL;
+    }
+;
 
-Declaracion:
-      Tipos TOKEN_IDENTIFICADOR TOKEN_IGUAL expr TOKEN_DOBLEPUNTO {
-         $$ = crearNodo(AST_DECLARACION, NULL);
-         $$->valor = strdup($1);
-         $$->linea=@2.first_line; $$->columna=@2.first_column;
-         NodoAST* id = crearNodo(AST_IDENTIFICADOR, $2);
-         id->linea=@2.first_line; id->columna=@2.first_column;
-         agregarHijo($$, id);
-         agregarHijo($$, $4);
-      }
-    | Tipos TOKEN_IDENTIFICADOR TOKEN_DOBLEPUNTO {
-         $$ = crearNodo(AST_DECLARACION, NULL);
-         $$->valor = strdup($1);
-         $$->linea=@2.first_line; $$->columna=@2.first_column;
-         NodoAST* id = crearNodo(AST_IDENTIFICADOR, $2);
-         id->linea=@2.first_line; id->columna=@2.first_column;
-         NodoAST* def = crearNodo(AST_CADENA, (char*)valorPorDefectoTipo(obtenerTipoDesdeString($1)));
-         agregarHijo($$, id);
-         agregarHijo($$, def);
-      }
-    | Tipos TOKEN_IDENTIFICADOR error TOKEN_DOBLEPUNTO {
-        addErrorSintactico("Expresión de inicialización inválida", "global", @3.first_line, @3.first_column);
-        $$ = crearNodo(AST_DECLARACION, "ERROR");
-        yyerrok;
-      }
-    | Tipos TOKEN_IDENTIFICADOR TOKEN_IGUAL error {
-        addErrorSintactico("Falta punto y coma al final de la declaración", "global", @3.first_line, @3.first_column);
-        $$ = crearNodo(AST_DECLARACION, "ERROR");
-        yyerrok;
-      }
-    | Tipos error TOKEN_DOBLEPUNTO {
-        addErrorSintactico("Identificador inválido en declaración", "global", @3.first_line, @3.first_column);
-        $$ = crearNodo(AST_DECLARACION, "ERROR");
-        yyerrok;
-      }
-    | error TOKEN_IDENTIFICADOR TOKEN_IGUAL expr TOKEN_DOBLEPUNTO {
-        addErrorSintactico("Tipo de dato inválido en declaración", "global", @3.first_line, @3.first_column);
-        $$ = crearNodo(AST_DECLARACION, "ERROR");
-        yyerrok;
-      }
-    ;
+/* ========== DECLARACIONES ========== */
+declaracion:
+    tipo_primitivo TOKEN_IDENTIFICADOR TOKEN_IGUAL expresion {
+        $$ = crearNodo(AST_DECLARACION, NULL);
+        $$->valor = strdup($1);
+        $$->linea = @2.first_line; 
+        $$->columna = @2.first_column;
+        NodoAST* id = crearNodo(AST_IDENTIFICADOR, $2);
+        id->linea = @2.first_line; 
+        id->columna = @2.first_column;
+        agregarHijo($$, id);
+        agregarHijo($$, $4);
+    }
+    | tipo_primitivo TOKEN_IDENTIFICADOR {
+        $$ = crearNodo(AST_DECLARACION, NULL);
+        $$->valor = strdup($1);
+        $$->linea = @2.first_line; 
+        $$->columna = @2.first_column;
+        NodoAST* id = crearNodo(AST_IDENTIFICADOR, $2);
+        id->linea = @2.first_line; 
+        id->columna = @2.first_column;
+        NodoAST* def = crearNodo(AST_CADENA, (char*)valorPorDefectoTipo(obtenerTipoDesdeString($1)));
+        agregarHijo($$, id);
+        agregarHijo($$, def);
+    }
+;
 
+tipo_primitivo:
+    TOKEN_DINT      { $$ = $1; }
+    | TOKEN_DCHAR   { $$ = $1; }
+    | TOKEN_DOUBLE  { $$ = $1; }
+    | TOKEN_DFLOAT  { $$ = $1; }
+    | TOKEN_DSTRING { $$ = $1; }
+    | TOKEN_DBOOLEAN { $$ = $1; }
+;
 
-Asignacion:
-      TOKEN_IDENTIFICADOR TOKEN_IGUAL expr TOKEN_DOBLEPUNTO {
-          $$ = crearNodo(AST_ASIGNACION, "");
-          $$->linea = @1.first_line; $$->columna = @1.first_column;
-          NodoAST* id = crearNodo(AST_IDENTIFICADOR, $1);
-          id->linea = @1.first_line; id->columna = @1.first_column;
-          agregarHijo($$, id);
-          agregarHijo($$, $3);
-      }
-    | TOKEN_IDENTIFICADOR TOKEN_MAS_IGUAL expr TOKEN_DOBLEPUNTO {
-          $$ = crearNodo(AST_ASIGNACION, "");
-          $$->linea = @1.first_line; $$->columna = @1.first_column;
-          NodoAST* idRef = crearNodo(AST_IDENTIFICADOR, $1);
-          idRef->linea = @1.first_line; idRef->columna = @1.first_column;
-          NodoAST* op = crearNodo(AST_OPERACION, "+");
-          op->linea = @2.first_line; op->columna = @2.first_column;
-          NodoAST* idOp = crearNodo(AST_IDENTIFICADOR, $1);
-          idOp->linea = @1.first_line; idOp->columna = @1.first_column;
-          agregarHijo(op, idOp);
-          agregarHijo(op, $3);
-          agregarHijo($$, idRef);
-          agregarHijo($$, op);
-      }
-    | TOKEN_IDENTIFICADOR TOKEN_MENOS_IGUAL expr TOKEN_DOBLEPUNTO {
-          $$ = crearNodo(AST_ASIGNACION, "");
-          $$->linea = @1.first_line; $$->columna = @1.first_column;
-          NodoAST* idRef = crearNodo(AST_IDENTIFICADOR, $1);
-          idRef->linea = @1.first_line; idRef->columna = @1.first_column;
-          NodoAST* op = crearNodo(AST_OPERACION, "-");
-          op->linea = @2.first_line; op->columna = @2.first_column;
-          NodoAST* idOp = crearNodo(AST_IDENTIFICADOR, $1);
-          idOp->linea = @1.first_line; idOp->columna = @1.first_column;
-          agregarHijo(op, idOp);
-          agregarHijo(op, $3);
-          agregarHijo($$, idRef);
-          agregarHijo($$, op);
-      }
-    | TOKEN_IDENTIFICADOR TOKEN_POR_IGUAL expr TOKEN_DOBLEPUNTO {
-          $$ = crearNodo(AST_ASIGNACION, "");
-          $$->linea = @1.first_line; $$->columna = @1.first_column;
-          NodoAST* idRef = crearNodo(AST_IDENTIFICADOR, $1);
-          idRef->linea = @1.first_line; idRef->columna = @1.first_column;
-          NodoAST* op = crearNodo(AST_OPERACION, "*");
-          op->linea = @2.first_line; op->columna = @2.first_column;
-          NodoAST* idOp = crearNodo(AST_IDENTIFICADOR, $1);
-          idOp->linea = @1.first_line; idOp->columna = @1.first_column;
-          agregarHijo(op, idOp);
-          agregarHijo(op, $3);
-          agregarHijo($$, idRef);
-          agregarHijo($$, op);
-      }
-    | TOKEN_IDENTIFICADOR TOKEN_DIV_IGUAL expr TOKEN_DOBLEPUNTO {
-          $$ = crearNodo(AST_ASIGNACION, "");
-          $$->linea = @1.first_line; $$->columna = @1.first_column;
-          NodoAST* idRef = crearNodo(AST_IDENTIFICADOR, $1);
-          idRef->linea = @1.first_line; idRef->columna = @1.first_column;
-          NodoAST* op = crearNodo(AST_OPERACION, "/");
-          op->linea = @2.first_line; op->columna = @2.first_column;
-          NodoAST* idOp = crearNodo(AST_IDENTIFICADOR, $1);
-          idOp->linea = @1.first_line; idOp->columna = @1.first_column;
-          agregarHijo(op, idOp);
-          agregarHijo(op, $3);
-          agregarHijo($$, idRef);
-          agregarHijo($$, op);
-      }
-    | TOKEN_IDENTIFICADOR TOKEN_MOD_IGUAL expr TOKEN_DOBLEPUNTO {
-          $$ = crearNodo(AST_ASIGNACION, "");
-          $$->linea = @1.first_line; $$->columna = @1.first_column;
-          NodoAST* idRef = crearNodo(AST_IDENTIFICADOR, $1);
-          idRef->linea = @1.first_line; idRef->columna = @1.first_column;
-          NodoAST* op = crearNodo(AST_OPERACION, "%");
-          op->linea = @2.first_line; op->columna = @2.first_column;
-          NodoAST* idOp = crearNodo(AST_IDENTIFICADOR, $1);
-          idOp->linea = @1.first_line; idOp->columna = @1.first_column;
-          agregarHijo(op, idOp);
-          agregarHijo(op, $3);
-          agregarHijo($$, idRef);
-          agregarHijo($$, op);
-      }
-    | TOKEN_IDENTIFICADOR TOKEN_AND_IGUAL expr TOKEN_DOBLEPUNTO {
-          $$ = crearNodo(AST_ASIGNACION, "");
-          $$->linea = @1.first_line; $$->columna = @1.first_column;
-          NodoAST* idRef = crearNodo(AST_IDENTIFICADOR, $1);
-          idRef->linea = @1.first_line; idRef->columna = @1.first_column;
-          NodoAST* op = crearNodo(AST_OPERACION, "&");
-          op->linea = @2.first_line; op->columna = @2.first_column;
-          NodoAST* idOp = crearNodo(AST_IDENTIFICADOR, $1);
-          idOp->linea = @1.first_line; idOp->columna = @1.first_column;
-          agregarHijo(op, idOp);
-          agregarHijo(op, $3);
-          agregarHijo($$, idRef);
-          agregarHijo($$, op);
-      }
-    | TOKEN_IDENTIFICADOR TOKEN_OR_IGUAL expr TOKEN_DOBLEPUNTO {
-          $$ = crearNodo(AST_ASIGNACION, "");
-          $$->linea = @1.first_line; $$->columna = @1.first_column;
-          NodoAST* idRef = crearNodo(AST_IDENTIFICADOR, $1);
-          idRef->linea = @1.first_line; idRef->columna = @1.first_column;
-          NodoAST* op = crearNodo(AST_OPERACION, "|");
-          op->linea = @2.first_line; op->columna = @2.first_column;
-          NodoAST* idOp = crearNodo(AST_IDENTIFICADOR, $1);
-          idOp->linea = @1.first_line; idOp->columna = @1.first_column;
-          agregarHijo(op, idOp);
-          agregarHijo(op, $3);
-          agregarHijo($$, idRef);
-          agregarHijo($$, op);
-      }
-    | TOKEN_IDENTIFICADOR TOKEN_XOR_IGUAL expr TOKEN_DOBLEPUNTO {
-          $$ = crearNodo(AST_ASIGNACION, "");
-          $$->linea = @1.first_line; $$->columna = @1.first_column;
-          NodoAST* idRef = crearNodo(AST_IDENTIFICADOR, $1);
-          idRef->linea = @1.first_line; idRef->columna = @1.first_column;
-          NodoAST* op = crearNodo(AST_OPERACION, "^");
-          op->linea = @2.first_line; op->columna = @2.first_column;
-          NodoAST* idOp = crearNodo(AST_IDENTIFICADOR, $1);
-          idOp->linea = @1.first_line; idOp->columna = @1.first_column;
-          agregarHijo(op, idOp);
-          agregarHijo(op, $3);
-          agregarHijo($$, idRef);
-          agregarHijo($$, op);
-      }
-    | TOKEN_IDENTIFICADOR TOKEN_DESIZQ_IGUAL expr TOKEN_DOBLEPUNTO {
-          $$ = crearNodo(AST_ASIGNACION, "");
-          $$->linea = @1.first_line; $$->columna = @1.first_column;
-          NodoAST* idRef = crearNodo(AST_IDENTIFICADOR, $1);
-          idRef->linea = @1.first_line; idRef->columna = @1.first_column;
-          NodoAST* op = crearNodo(AST_OPERACION, "<<");
-          op->linea = @2.first_line; op->columna = @2.first_column;
-          NodoAST* idOp = crearNodo(AST_IDENTIFICADOR, $1);
-          idOp->linea = @1.first_line; idOp->columna = @1.first_column;
-          agregarHijo(op, idOp);
-          agregarHijo(op, $3);
-          agregarHijo($$, idRef);
-          agregarHijo($$, op);
-      }
-    | TOKEN_IDENTIFICADOR TOKEN_DESDER_IGUAL expr TOKEN_DOBLEPUNTO {
-          $$ = crearNodo(AST_ASIGNACION, "");
-          $$->linea = @1.first_line; $$->columna = @1.first_column;
-          NodoAST* idRef = crearNodo(AST_IDENTIFICADOR, $1);
-          idRef->linea = @1.first_line; idRef->columna = @1.first_column;
-          NodoAST* op = crearNodo(AST_OPERACION, ">>");
-          op->linea = @2.first_line; op->columna = @2.first_column;
-          NodoAST* idOp = crearNodo(AST_IDENTIFICADOR, $1);
-          idOp->linea = @1.first_line; idOp->columna = @1.first_column;
-          agregarHijo(op, idOp);
-          agregarHijo(op, $3);
-          agregarHijo($$, idRef);
-          agregarHijo($$, op);
-      }
-    | TOKEN_IDENTIFICADOR TOKEN_IGUAL error TOKEN_DOBLEPUNTO {
-         addErrorSintactico("Expresión de asignación inválida", $1, @3.first_line, @3.first_column);
-         $$ = crearNodo(AST_ASIGNACION, "ERROR");
-         yyerrok;
-      }
-    | TOKEN_IDENTIFICADOR TOKEN_IGUAL expr error {
-         addErrorSintactico("Falta punto y coma al final de la asignación", $1, @4.first_line, @4.first_column);
-         $$ = crearNodo(AST_ASIGNACION, "ERROR");
-         yyerrok;
-      }
-    | TOKEN_IDENTIFICADOR error expr TOKEN_DOBLEPUNTO {
-         addErrorSintactico("Operador de asignación inválido", $1, @2.first_line, @2.first_column);
-         $$ = crearNodo(AST_ASIGNACION, "ERROR");
-         yyerrok;
-      }
-    ;
-
-Tipos: TOKEN_DINT      { $$ = $1; }
-    | TOKEN_DCHAR     { $$ = $1; }
-    | TOKEN_DOUBLE    { $$ = $1; }
-    | TOKEN_DFLOAT    { $$ = $1; }
-    | TOKEN_DSTRING   { $$ = $1; }
-    | TOKEN_DBOOLEAN  { $$ = $1; }
-    ;
-
-expr:
-      expr '+' expr { $$ = crearNodo(AST_OPERACION, "+"); $$->linea=@2.first_line; $$->columna=@2.first_column; agregarHijo($$, $1); agregarHijo($$, $3); }
-    | expr '-' expr { $$ = crearNodo(AST_OPERACION, "-"); $$->linea=@2.first_line; $$->columna=@2.first_column; agregarHijo($$, $1); agregarHijo($$, $3); }
-    | expr '*' expr { $$ = crearNodo(AST_OPERACION, "*"); $$->linea=@2.first_line; $$->columna=@2.first_column; agregarHijo($$, $1); agregarHijo($$, $3); }
-    | expr '/' expr { $$ = crearNodo(AST_OPERACION, "/"); $$->linea=@2.first_line; $$->columna=@2.first_column; agregarHijo($$, $1); agregarHijo($$, $3); }
-    | expr '%' expr { $$ = crearNodo(AST_OPERACION, "%"); $$->linea=@2.first_line; $$->columna=@2.first_column; agregarHijo($$, $1); agregarHijo($$, $3); }
-    | expr TOKEN_IGUAL_IGUAL expr{ $$ = crearNodo(AST_OPERACION, "=="); $$->linea=@2.first_line; $$->columna=@2.first_column; agregarHijo($$, $1); agregarHijo($$, $3); }
-    | expr TOKEN_NO_IGUAL expr{ $$ = crearNodo(AST_OPERACION, "!="); $$->linea=@2.first_line; $$->columna=@2.first_column; agregarHijo($$, $1); agregarHijo($$, $3); }
-    | expr TOKEN_MAYOR expr{ $$ = crearNodo(AST_OPERACION, ">"); $$->linea=@2.first_line; $$->columna=@2.first_column; agregarHijo($$, $1); agregarHijo($$, $3); }
-    | expr TOKEN_MENOR expr{ $$ = crearNodo(AST_OPERACION, "<"); $$->linea=@2.first_line; $$->columna=@2.first_column; agregarHijo($$, $1); agregarHijo($$, $3); }
-    | expr TOKEN_MAYOR_IGUAL expr{ $$ = crearNodo(AST_OPERACION, ">="); $$->linea=@2.first_line; $$->columna=@2.first_column; agregarHijo($$, $1); agregarHijo($$, $3); }
-    | expr TOKEN_MENOR_IGUAL expr{ $$ = crearNodo(AST_OPERACION, "<="); $$->linea=@2.first_line; $$->columna=@2.first_column; agregarHijo($$, $1); agregarHijo($$, $3); }
-    | expr TOKEN_AND expr { $$ = crearNodo(AST_OPERACION, "&&"); $$->linea=@2.first_line; $$->columna=@2.first_column; agregarHijo($$, $1); agregarHijo($$, $3); }
-    | expr TOKEN_OR expr  { $$ = crearNodo(AST_OPERACION, "||"); $$->linea=@2.first_line; $$->columna=@2.first_column; agregarHijo($$, $1); agregarHijo($$, $3); }
-    | TOKEN_NOT expr %prec TOKEN_NOT  { $$ = crearNodo(AST_OPERACION, "!"); $$->linea=@1.first_line; $$->columna=@1.first_column; agregarHijo($$, $2); }
-    | Cast
-    | TOKEN_STRING_VALUEOF TOKEN_PARIZQ expr TOKEN_PARDER {
-        $$ = crearNodo(AST_STRING, "String.valueOf");
-        $$->linea = @1.first_line; $$->columna = @1.first_column;
+/* ========== ASIGNACIONES ========== */
+asignacion:
+    TOKEN_IDENTIFICADOR TOKEN_IGUAL expresion {
+        $$ = crearNodo(AST_ASIGNACION, "");
+        $$->linea = @1.first_line; 
+        $$->columna = @1.first_column;
+        NodoAST* id = crearNodo(AST_IDENTIFICADOR, $1);
+        id->linea = @1.first_line; 
+        id->columna = @1.first_column;
+        agregarHijo($$, id);
         agregarHijo($$, $3);
     }
-    | expr TOKEN_EQUAL TOKEN_PARIZQ expr TOKEN_PARDER {
+    | TOKEN_IDENTIFICADOR TOKEN_MAS_IGUAL expresion {
+        $$ = crear_asignacion_compuesta($1, "+", $3, @1.first_line, @1.first_column, @2.first_line, @2.first_column);
+    }
+    | TOKEN_IDENTIFICADOR TOKEN_MENOS_IGUAL expresion {
+        $$ = crear_asignacion_compuesta($1, "-", $3, @1.first_line, @1.first_column, @2.first_line, @2.first_column);
+    }
+    | TOKEN_IDENTIFICADOR TOKEN_POR_IGUAL expresion {
+        $$ = crear_asignacion_compuesta($1, "*", $3, @1.first_line, @1.first_column, @2.first_line, @2.first_column);
+    }
+    | TOKEN_IDENTIFICADOR TOKEN_DIV_IGUAL expresion {
+        $$ = crear_asignacion_compuesta($1, "/", $3, @1.first_line, @1.first_column, @2.first_line, @2.first_column);
+    }
+    | TOKEN_IDENTIFICADOR TOKEN_MOD_IGUAL expresion {
+        $$ = crear_asignacion_compuesta($1, "%", $3, @1.first_line, @1.first_column, @2.first_line, @2.first_column);
+    }
+    | TOKEN_IDENTIFICADOR TOKEN_AND_IGUAL expresion {
+        $$ = crear_asignacion_compuesta($1, "&", $3, @1.first_line, @1.first_column, @2.first_line, @2.first_column);
+    }
+    | TOKEN_IDENTIFICADOR TOKEN_OR_IGUAL expresion {
+        $$ = crear_asignacion_compuesta($1, "|", $3, @1.first_line, @1.first_column, @2.first_line, @2.first_column);
+    }
+    | TOKEN_IDENTIFICADOR TOKEN_XOR_IGUAL expresion {
+        $$ = crear_asignacion_compuesta($1, "^", $3, @1.first_line, @1.first_column, @2.first_line, @2.first_column);
+    }
+    | TOKEN_IDENTIFICADOR TOKEN_DESIZQ_IGUAL expresion {
+        $$ = crear_asignacion_compuesta($1, "<<", $3, @1.first_line, @1.first_column, @2.first_line, @2.first_column);
+    }
+    | TOKEN_IDENTIFICADOR TOKEN_DESDER_IGUAL expresion {
+        $$ = crear_asignacion_compuesta($1, ">>", $3, @1.first_line, @1.first_column, @2.first_line, @2.first_column);
+    }
+;
+
+/* ========== EXPRESIONES ========== */
+expresion:
+    expresion TOKEN_MAS expresion {
+        $$ = crearNodo(AST_OPERACION, "+");
+        $$->linea = @2.first_line; $$->columna = @2.first_column;
+        agregarHijo($$, $1); agregarHijo($$, $3);
+    }
+    | expresion TOKEN_MENOS expresion {
+        $$ = crearNodo(AST_OPERACION, "-");
+        $$->linea = @2.first_line; $$->columna = @2.first_column;
+        agregarHijo($$, $1); agregarHijo($$, $3);
+    }
+    | expresion TOKEN_MULTI expresion {
+        $$ = crearNodo(AST_OPERACION, "*");
+        $$->linea = @2.first_line; $$->columna = @2.first_column;
+        agregarHijo($$, $1); agregarHijo($$, $3);
+    }
+    | expresion TOKEN_DIV expresion {
+        $$ = crearNodo(AST_OPERACION, "/");
+        $$->linea = @2.first_line; $$->columna = @2.first_column;
+        agregarHijo($$, $1); agregarHijo($$, $3);
+    }
+    | expresion TOKEN_MODULO expresion {
+        $$ = crearNodo(AST_OPERACION, "%");
+        $$->linea = @2.first_line; $$->columna = @2.first_column;
+        agregarHijo($$, $1); agregarHijo($$, $3);
+    }
+    | expresion TOKEN_IGUAL_IGUAL expresion {
+        $$ = crearNodo(AST_OPERACION, "==");
+        $$->linea = @2.first_line; $$->columna = @2.first_column;
+        agregarHijo($$, $1); agregarHijo($$, $3);
+    }
+    | expresion TOKEN_NO_IGUAL expresion {
+        $$ = crearNodo(AST_OPERACION, "!=");
+        $$->linea = @2.first_line; $$->columna = @2.first_column;
+        agregarHijo($$, $1); agregarHijo($$, $3);
+    }
+    | expresion TOKEN_MENOR expresion {
+        $$ = crearNodo(AST_OPERACION, "<");
+        $$->linea = @2.first_line; $$->columna = @2.first_column;
+        agregarHijo($$, $1); agregarHijo($$, $3);
+    }
+    | expresion TOKEN_MAYOR expresion {
+        $$ = crearNodo(AST_OPERACION, ">");
+        $$->linea = @2.first_line; $$->columna = @2.first_column;
+        agregarHijo($$, $1); agregarHijo($$, $3);
+    }
+    | expresion TOKEN_MENOR_IGUAL expresion {
+        $$ = crearNodo(AST_OPERACION, "<=");
+        $$->linea = @2.first_line; $$->columna = @2.first_column;
+        agregarHijo($$, $1); agregarHijo($$, $3);
+    }
+    | expresion TOKEN_MAYOR_IGUAL expresion {
+        $$ = crearNodo(AST_OPERACION, ">=");
+        $$->linea = @2.first_line; $$->columna = @2.first_column;
+        agregarHijo($$, $1); agregarHijo($$, $3);
+    }
+    | expresion TOKEN_AND expresion {
+        $$ = crearNodo(AST_OPERACION, "&&");
+        $$->linea = @2.first_line; $$->columna = @2.first_column;
+        agregarHijo($$, $1); agregarHijo($$, $3);
+    }
+    | expresion TOKEN_OR expresion {
+        $$ = crearNodo(AST_OPERACION, "||");
+        $$->linea = @2.first_line; $$->columna = @2.first_column;
+        agregarHijo($$, $1); agregarHijo($$, $3);
+    }
+    | expresion TOKEN_BIT_AND expresion {
+        $$ = crearNodo(AST_OPERACION, "&");
+        $$->linea = @2.first_line; $$->columna = @2.first_column;
+        agregarHijo($$, $1); agregarHijo($$, $3);
+    }
+    | expresion TOKEN_BIT_OR expresion {
+        $$ = crearNodo(AST_OPERACION, "|");
+        $$->linea = @2.first_line; $$->columna = @2.first_column;
+        agregarHijo($$, $1); agregarHijo($$, $3);
+    }
+    | expresion TOKEN_XOR expresion {
+        $$ = crearNodo(AST_OPERACION, "^");
+        $$->linea = @2.first_line; $$->columna = @2.first_column;
+        agregarHijo($$, $1); agregarHijo($$, $3);
+    }
+    | expresion TOKEN_DESIZQ expresion {
+        $$ = crearNodo(AST_OPERACION, "<<");
+        $$->linea = @2.first_line; $$->columna = @2.first_column;
+        agregarHijo($$, $1); agregarHijo($$, $3);
+    }
+    | expresion TOKEN_DESDER expresion {
+        $$ = crearNodo(AST_OPERACION, ">>");
+        $$->linea = @2.first_line; $$->columna = @2.first_column;
+        agregarHijo($$, $1); agregarHijo($$, $3);
+    }
+    | expresion TOKEN_EQUAL TOKEN_PARIZQ expresion TOKEN_PARDER {
         $$ = crearNodo(AST_EQUAL, ".equals");
         $$->linea = @2.first_line; $$->columna = @2.first_column;
         agregarHijo($$, $1);
         agregarHijo($$, $4);
     }
-    | TOKEN_PARIZQ expr TOKEN_PARDER { $$ = $2; }
-    | expr TOKEN_BIT_AND expr { $$ = crearNodo(AST_OPERACION, "&"); $$->linea=@2.first_line; $$->columna=@2.first_column; agregarHijo($$, $1); agregarHijo($$, $3); }
-    | expr TOKEN_BIT_OR expr  { $$ = crearNodo(AST_OPERACION, "|"); $$->linea=@2.first_line; $$->columna=@2.first_column; agregarHijo($$, $1); agregarHijo($$, $3); }
-    | expr TOKEN_XOR expr { $$ = crearNodo(AST_OPERACION, "^"); $$->linea=@2.first_line; $$->columna=@2.first_column; agregarHijo($$, $1); agregarHijo($$, $3); }
-    | expr TOKEN_DESIZQ expr { $$ = crearNodo(AST_OPERACION, "<<"); $$->linea=@2.first_line; $$->columna=@2.first_column; agregarHijo($$, $1); agregarHijo($$, $3); }
-    | expr TOKEN_DESDER expr { $$ = crearNodo(AST_OPERACION, ">>"); $$->linea=@2.first_line; $$->columna=@2.first_column; agregarHijo($$, $1); agregarHijo($$, $3); }
-    | TOKEN_NUMERO         { $$ = crearNodo(AST_NUMERO, $1); $$->linea=@1.first_line; $$->columna=@1.first_column; }
-    | TOKEN_FLOAT_LITERAL  { $$ = crearNodo(AST_NUMERO, $1); $$->linea=@1.first_line; $$->columna=@1.first_column; }
-    | TOKEN_DOUBLE_LITERAL { $$ = crearNodo(AST_NUMERO, $1); $$->linea=@1.first_line; $$->columna=@1.first_column; }
-    | TOKEN_CADENA         { $$ = crearNodo(AST_CADENA, $1); $$->linea=@1.first_line; $$->columna=@1.first_column; }
-    | TOKEN_CARACTER       { $$ = crearNodo(AST_CARACTER, $1); $$->linea=@1.first_line; $$->columna=@1.first_column; }
-    | TOKEN_IDENTIFICADOR  { $$ = crearNodo(AST_IDENTIFICADOR, $1); $$->linea=@1.first_line; $$->columna=@1.first_column; }
-    | TOKEN_BOOLEANO       { $$ = crearNodo(AST_BOOLEAN, $1); $$->linea=@1.first_line; $$->columna=@1.first_column; }
-    | expr '+' error {
-         addErrorSintactico("Operando derecho faltante en suma", "+", @3.first_line, @3.first_column);
-         $$ = $1;
-         yyerrok;
-      }
-    | expr '*' error {
-         addErrorSintactico("Operando derecho faltante en multiplicación", "*", @3.first_line, @3.first_column);
-         $$ = $1;
-         yyerrok;
-      }
-    ;
-
-Cast: TOKEN_PARIZQ Tipos TOKEN_PARDER expr {
-    $$ = crearNodo(AST_CAST, $2);
-    $$->linea = @1.first_line; $$->columna = @1.first_column;
-    agregarHijo($$, $4);
-  }
-  | TOKEN_PARIZQ Tipos error %prec CAST_ERROR {
-      addErrorSintactico("Falta paréntesis de cierre y expresión en cast", $2, @3.first_line, @3.first_column);
-      $$ = crearNodo(AST_CAST, "ERROR");
-      yyerrok;
+    | TOKEN_NOT expresion {
+        $$ = crearNodo(AST_OPERACION, "!");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+        agregarHijo($$, $2);
     }
-  | TOKEN_PARIZQ error TOKEN_PARDER expr {
-      addErrorSintactico("Tipo inválido en cast", "cast", @2.first_line, @2.first_column);
-      $$ = crearNodo(AST_CAST, "ERROR");
-      yyerrok;
+    | TOKEN_MENOS expresion %prec UMINUS {
+        $$ = crearNodo(AST_OPERACION, "-");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+        agregarHijo($$, $2);
     }
-  ;
+    | TOKEN_PARIZQ expresion TOKEN_PARDER {
+        $$ = $2;
+    }
+    | TOKEN_NUMERO {
+        $$ = crearNodo(AST_NUMERO, $1);
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+    }
+    | TOKEN_FLOAT_LITERAL {
+        $$ = crearNodo(AST_NUMERO, $1);
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+    }
+    | TOKEN_DOUBLE_LITERAL {
+        $$ = crearNodo(AST_NUMERO, $1);
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+    }
+    | TOKEN_CADENA {
+        $$ = crearNodo(AST_CADENA, $1);
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+    }
+    | TOKEN_CARACTER {
+        $$ = crearNodo(AST_CARACTER, $1);
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+    }
+    | TOKEN_BOOLEANO {
+        $$ = crearNodo(AST_BOOLEAN, $1);
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+    }
+    | TOKEN_IDENTIFICADOR {
+        $$ = crearNodo(AST_IDENTIFICADOR, $1);
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+    }
+    | cast {
+        $$ = $1;
+    }
+    | TOKEN_STRING_VALUEOF TOKEN_PARIZQ expresion TOKEN_PARDER {
+        $$ = crearNodo(AST_STRING, "String.valueOf");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+        agregarHijo($$, $3);
+    }
+;
 
-PRINT: TOKEN_PRINT TOKEN_PARIZQ expr TOKEN_PARDER TOKEN_DOBLEPUNTO {
-    $$ = crearNodo(AST_PRINT, "System.out.println");
-    $$->linea = @1.first_line;
-    $$->columna = @1.first_column;
-    agregarHijo($$, $3);
-  }
-    | TOKEN_PRINT TOKEN_PARIZQ expr error TOKEN_DOBLEPUNTO {
-         addErrorSintactico("Falta paréntesis de cierre en System.out.println",
-                            "System.out.println",
-                            @4.first_line, @4.first_column);
-         $$ = crearNodo(AST_PRINT, "ERROR");
-         yyerrok;
-      }
-    | TOKEN_PRINT TOKEN_PARIZQ error TOKEN_PARDER TOKEN_DOBLEPUNTO {
-         addErrorSintactico("Expresión inválida en System.out.println", 
-                            "System.out.println",
-                            @3.first_line, @3.first_column);
-         $$ = crearNodo(AST_PRINT, "ERROR");
-         yyerrok;
-      }
-    | TOKEN_PRINT TOKEN_PARIZQ expr TOKEN_PARDER error {
-         addErrorSintactico("Falta punto y coma al final de System.out.println",
-                            "System.out.println", 
-                            @5.first_line, @5.first_column);
-         $$ = crearNodo(AST_PRINT, "ERROR");
-         yyerrok;
-      }
-    | TOKEN_PRINT error {
-         addErrorSintactico("Sintaxis incorrecta en System.out.println",
-                            "System.out.println",
-                            @2.first_line, @2.first_column);
-         $$ = crearNodo(AST_PRINT, "ERROR");
-         yyerrok;
-      }
-    ;
+/* ========== CAST ========== */
+cast:
+    TOKEN_PARIZQ tipo_primitivo TOKEN_PARDER expresion {
+        $$ = crearNodo(AST_CAST, $2);
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+        agregarHijo($$, $4);
+    }
+;
+
+/* ========== INSTRUCCIONES ESPECÍFICAS ========== */
+instruccion_print:
+    TOKEN_PRINT TOKEN_PARIZQ expresion TOKEN_PARDER {
+        $$ = crearNodo(AST_PRINT, "System.out.println");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+        agregarHijo($$, $3);
+    }
+;
+
+bloque:
+    TOKEN_LLAVEIZQ lista_sentencias TOKEN_LLAVEDER {
+        $$ = crearNodo(AST_BLOQUE, NULL);
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+        agregarHijo($$, $2);
+    }
+;
+
+/* ========== CONTROL DE FLUJO ========== */
+instruccion_if:
+    TOKEN_IF TOKEN_PARIZQ expresion TOKEN_PARDER bloque %prec TOKEN_IF {
+        $$ = crearNodo(AST_IF, "if");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+        agregarHijo($$, $3);   // condición
+        agregarHijo($$, $5);   // bloque if
+    }
+    | TOKEN_IF TOKEN_PARIZQ expresion TOKEN_PARDER bloque TOKEN_ELSE bloque {
+        $$ = crearNodo(AST_IF, "if");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+        agregarHijo($$, $3);   // condición
+        agregarHijo($$, $5);   // bloque if
+        NodoAST* else_node = crearNodo(AST_ELSE, "else");
+        agregarHijo(else_node, $7);
+        agregarHijo($$, else_node);
+    }
+    | TOKEN_IF TOKEN_PARIZQ expresion TOKEN_PARDER bloque TOKEN_ELSE instruccion_if {
+        $$ = crearNodo(AST_IF, "if");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+        agregarHijo($$, $3);   // condición
+        agregarHijo($$, $5);   // bloque if
+        NodoAST* elseif_node = crearNodo(AST_ELSEIF, "elseif");
+        agregarHijo(elseif_node, $7);
+        agregarHijo($$, elseif_node);
+    }
+;
 
 %%
+
+/* ========== FUNCIONES AUXILIARES ========== */
+
+/* Función auxiliar para crear asignaciones compuestas */
+NodoAST* crear_asignacion_compuesta(char* id, char* operador, NodoAST* expr, 
+                                   int id_linea, int id_columna, int op_linea, int op_columna) {
+    NodoAST* asig = crearNodo(AST_ASIGNACION, "");
+    asig->linea = id_linea; 
+    asig->columna = id_columna;
+    
+    NodoAST* idRef = crearNodo(AST_IDENTIFICADOR, strdup(id));
+    idRef->linea = id_linea; 
+    idRef->columna = id_columna;
+    
+    NodoAST* op = crearNodo(AST_OPERACION, strdup(operador));
+    op->linea = op_linea; 
+    op->columna = op_columna;
+    
+    NodoAST* idOp = crearNodo(AST_IDENTIFICADOR, strdup(id));
+    idOp->linea = id_linea; 
+    idOp->columna = id_columna;
+    
+    agregarHijo(op, idOp);
+    agregarHijo(op, expr);
+    agregarHijo(asig, idRef);
+    agregarHijo(asig, op);
+    
+    return asig;
+}
 
 void yyerror(const char *s) {
     extern YYLTYPE yylloc;

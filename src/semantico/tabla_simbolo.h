@@ -1,7 +1,10 @@
 #ifndef TABLA_SIMBOLOS_H
 #define TABLA_SIMBOLOS_H
+#define MAX_SCOPES 128
 #include "tipos.h"
 #include "../comun/strutil.h"
+
+
 typedef enum {
     SIMBOLO_VARIABLE,
     SIMBOLO_FUNCION
@@ -32,6 +35,13 @@ typedef struct Simbolo {
     struct Simbolo* siguiente;
     int inicializado;   
 } Simbolo;
+
+extern char* pilaAmbitos[MAX_SCOPES];
+extern int topeAmbitos;
+
+void entrarAmbito(const char* nombre);
+void salirAmbito(void);
+const char* ambitoActual(void);
 
 void inicializarTabla();
 void liberarTabla();

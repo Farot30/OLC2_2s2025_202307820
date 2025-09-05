@@ -62,6 +62,9 @@ static const char* nombreNodoTipo(TipoNodoAST t){
         case AST_ERROR: return "ERROR";
         case AST_STRING: return "STRING";
         case AST_EQUAL: return "EQUAL";
+        case AST_IF: return "IF";
+        case AST_ELSE : return "ELSE";
+        case AST_ELSEIF: return "ELSEIF";
         default: return "UNK";
     }
 }

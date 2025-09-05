@@ -2,6 +2,8 @@
 #define _POSIX_C_SOURCE 200809L
 #include "parser.tab.h"
 #include "../comun/strutil.h"
+#include "../AST/errorTIpos.h" 
+#include "../AST/err.h"  
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -57,9 +59,14 @@ char                        { yylval.str = strdup("char");   return TOKEN_DCHAR;
 double                      { yylval.str = strdup("double"); return TOKEN_DOUBLE; }
 boolean                     { yylval.str = strdup("boolean"); return TOKEN_DBOOLEAN; }
 true                        { yylval.str = strdup("true"); return TOKEN_BOOLEANO; }
+if                          { yylval.str = strdup("if"); return TOKEN_IF; }
+else                        { yylval.str = strdup("else"); return TOKEN_ELSE; }
 false                       { yylval.str = strdup("false"); return TOKEN_BOOLEANO; }
 String\.valueOf             { return TOKEN_STRING_VALUEOF; }
 \.equals                    { return TOKEN_EQUAL; }
+switch                      { yylval.str = strdup("switch"); return TOKEN_SWITCH; }
+case                        { yylval.str = strdup("case"); return TOKEN_CASE; }
+default                     { yylval.str = strdup("default"); return TOKEN_DEFAULT; }
 
 [0-9]+                      { yylval.str = strdup(yytext); return TOKEN_NUMERO; }
 [0-9]+\.[0-9]+[fF]          { yylval.str = strdup(yytext); return TOKEN_FLOAT_LITERAL; }
@@ -89,8 +96,13 @@ String\.valueOf             { return TOKEN_STRING_VALUEOF; }
 \/\/[^\n]*                  { }
 \/\*([^*]|\*+[^*/])*\*+\/   { }
 
+
+"{"              { return TOKEN_LLAVEIZQ; }
+"}"              { return TOKEN_LLAVEDER; }
+"+"              { return TOKEN_MAS; }
+"-"              { return TOKEN_MENOS; }
 "="              { return TOKEN_IGUAL; }
-";"              { return TOKEN_DOBLEPUNTO; }
+";"              { return TOKEN_PUNTOCOMA; }
 "+="             { return TOKEN_MAS_IGUAL; }
 "-="             { return TOKEN_MENOS_IGUAL; }
 "*="             { return TOKEN_POR_IGUAL; }
@@ -117,6 +129,10 @@ String\.valueOf             { return TOKEN_STRING_VALUEOF; }
 "&&"             { return TOKEN_AND; }
 "||"             { return TOKEN_OR; }
 "!"              { return TOKEN_NOT; }
+"*"              { return TOKEN_MULTI; }
+"/"              { return TOKEN_DIV; }
+"%"              { return TOKEN_MODULO; }
+
 
 
 
@@ -125,7 +141,8 @@ String\.valueOf             { return TOKEN_STRING_VALUEOF; }
 
 .                           { fprintf(stderr, "Carácter no reconocido '%c' en línea %d, columna %d\n", 
                               yytext[0], yylineno, yycolumn);
-                              return yytext[0];  
+                              addError("Carácter no reconocido", "léxico", yylineno, yycolumn);
+                              yycolumn += yyleng;
                             }
 
 %%

@@ -4,6 +4,8 @@
 #include "../semantico/Instrucciones/asignacion.h"
 #include "../semantico/Instrucciones/declaracion.h"
 #include "../semantico/Instrucciones/Print.h"
+#include "../semantico/Instrucciones/SentIF.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -48,6 +50,10 @@ void ejecutarNodoAST(NodoAST* nodo) {
             } else {
                 printf("[WARNING] Nodo PRINT sin expresión para imprimir\n");
             }
+            break;
+
+        case AST_IF:
+            ejecutarNodoIf(nodo);
             break;
             
         default:

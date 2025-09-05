@@ -80,6 +80,20 @@ TipoDato deducirTipoExpr(NodoAST* expr) {
             if(destino == original) return destino;
             return TIPO_DESCONOCIDO;
         }
+        case AST_EQUAL: {
+            if (expr->num_hijos == 2) {
+                TipoDato tipoIzq = deducirTipoExpr(expr->hijos[0]);
+                TipoDato tipoDer = deducirTipoExpr(expr->hijos[1]);
+                if ((esNumerico(tipoIzq) && esNumerico(tipoDer)) || tipoIzq == tipoDer)
+                    return TIPO_BOOLEAN;
+                return TIPO_DESCONOCIDO;
+            }
+            return TIPO_DESCONOCIDO;
+        }
+        case AST_IF: {
+            // Un if no es una expresión, así que no retorna tipo
+            return TIPO_DESCONOCIDO;
+        }
         default:
             return TIPO_DESCONOCIDO;
     }
