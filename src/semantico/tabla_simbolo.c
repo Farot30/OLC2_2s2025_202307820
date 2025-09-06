@@ -134,12 +134,12 @@ void setValorSimbolo(Simbolo* sim, TipoDato tipoValor, ValorSimbolo val) {
         return;
     }
 
-    printf("[DEBUG setValorSimbolo] === INICIANDO ASIGNACIÓN ===\n");
+    /*printf("[DEBUG setValorSimbolo] === INICIANDO ASIGNACIÓN ===\n");
     printf("[DEBUG setValorSimbolo] Variable: %s\n", sim->nombre);
     printf("[DEBUG setValorSimbolo] Valor actual: %d\n", sim->valor.v.i);
     printf("[DEBUG setValorSimbolo] Tipo símbolo: %d, Tipo valor: %d\n", sim->tipo, tipoValor);
     printf("[DEBUG setValorSimbolo] Nuevo valor: %d\n", val.v.i);
-    printf("[DEBUG setValorSimbolo] Valor inicializado: %d\n", val.inicializado);
+    printf("[DEBUG setValorSimbolo] Valor inicializado: %d\n", val.inicializado);*/
 
     // Actualizar el ámbito de la asignación
     if (sim->ambito) free(sim->ambito);

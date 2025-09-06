@@ -2,6 +2,7 @@
     "files.associations": {
         "tabla_simbolo.h": "c",
         "tipos.h": "c",
-        "evaluador.h": "c"
+        "evaluador.h": "c",
+        "ejecutar_ast.h": "c"
     }
 }

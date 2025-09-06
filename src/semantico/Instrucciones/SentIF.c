@@ -8,6 +8,7 @@
 #include "../tabla_simbolo.h"
 #include "../../simbolos/Evaluador.h"
 
+
 SentenciaIf* crearSentenciaIf(NodoAST* condicion, NodoAST* bloqueVerdadero, NodoAST* bloqueFalso) {
     SentenciaIf* sentencia = (SentenciaIf*)malloc(sizeof(SentenciaIf));
     sentencia->condicion = condicion;
@@ -21,8 +22,8 @@ void liberarSentenciaIf(SentenciaIf* sentencia) {
     free(sentencia);
 }
 
-void ejecutarNodoIf(NodoAST* nodo) {
-    if (!nodo || nodo->tipo != AST_IF) return;
+ResultadoEjecucion ejecutarNodoIf(NodoAST* nodo) {
+    if (!nodo || nodo->tipo != AST_IF) return EJEC_OK;
 
     NodoAST* condicion = nodo->hijos[0];
     NodoAST* bloqueVerdadero = nodo->hijos[1];
@@ -32,22 +33,25 @@ void ejecutarNodoIf(NodoAST* nodo) {
 
     if (!vCond.inicializado) {
         addError("Condición del IF no está inicializada", ambitoActual(), nodo->linea, nodo->columna);
-        return;
+        return EJEC_OK;
     }
 
     if (vCond.tipo != TIPO_BOOLEAN) {
         addError("Condición del IF no es booleana", ambitoActual(), nodo->linea, nodo->columna);
-        return;
+        return EJEC_OK;
     }
 
     if (vCond.v.b) {
         entrarAmbito("if");
-        ejecutarNodoAST(bloqueVerdadero);
+        ResultadoEjecucion res = ejecutarNodoAST(bloqueVerdadero);
         salirAmbito();
+        return res;
     } else if (bloqueFalso) {
         entrarAmbito("else");
-        ejecutarNodoAST(bloqueFalso);
+        ResultadoEjecucion res = ejecutarNodoAST(bloqueFalso);
         salirAmbito();
+        return res;
     }
+    return EJEC_OK;
 }
 

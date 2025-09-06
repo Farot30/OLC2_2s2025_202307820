@@ -50,6 +50,7 @@
 %token <str> TOKEN_IF TOKEN_ELSE
 %token <str> TOKEN_SWITCH TOKEN_CASE TOKEN_DEFAULT TOKEN_BREAK
 %token <str> TOKEN_WHILE TOKEN_CONTINUE
+%token <str> TOKEN_FOR
 %token <str> TOKEN_STRING_VALUEOF TOKEN_EQUAL
 
 /* Tokens para asignaciones compuestas */
@@ -67,6 +68,7 @@
 %type <nodo> cast
 %type <nodo> intruccion_switch lista_casos caso
 %type <nodo> instruccion_while instruccion_break instruccion_continue
+%type <nodo> instruccion_for
 %type <str> tipo_primitivo
 
 /* ========== PRECEDENCIA MÍNIMA ========== */
@@ -137,10 +139,12 @@ sentencia:
     | instruccion_if                { $$ = $1; }
     | intruccion_switch             { $$ = $1; }
     | instruccion_while             { $$ = $1; }
+    | instruccion_for               { $$ = $1; }
     | bloque                        { $$ = $1; }
     | expresion TOKEN_PUNTOCOMA     { $$ = $1; }
     | instruccion_break TOKEN_PUNTOCOMA {$$ = $1; }
     | instruccion_continue TOKEN_PUNTOCOMA {$$ = $1; }
+
     | error TOKEN_PUNTOCOMA         { 
         addErrorSintactico("Instrucción inválida", "global", @1.first_line, @1.first_column);
         yyerrok; 
@@ -183,7 +187,7 @@ tipo_primitivo:
     | TOKEN_DSTRING { $$ = $1; }
     | TOKEN_DBOOLEAN { $$ = $1; }
 ;
-
+    
 /* ========== ASIGNACIONES ========== */
 asignacion:
     TOKEN_IDENTIFICADOR TOKEN_IGUAL expresion {
@@ -239,6 +243,20 @@ expresion:
         $$ = crearNodo(AST_OPERACION, "-");
         $$->linea = @2.first_line; $$->columna = @2.first_column;
         agregarHijo($$, $1); agregarHijo($$, $3);
+    }
+    | TOKEN_IDENTIFICADOR TOKEN_MAS TOKEN_MAS {
+        $$ = crearNodo(AST_INCREMENTO, "++");
+        $$->linea = @2.first_line; $$->columna = @2.first_column;
+        NodoAST* id = crearNodo(AST_IDENTIFICADOR, $1);
+        id->linea = @1.first_line; id->columna = @1.first_column;
+        agregarHijo($$, id);
+    }
+    | TOKEN_IDENTIFICADOR TOKEN_MENOS TOKEN_MENOS {
+        $$ = crearNodo(AST_DECREMENTO, "--");
+        $$->linea = @2.first_line; $$->columna = @2.first_column;
+        NodoAST* id = crearNodo(AST_IDENTIFICADOR, $1);
+        id->linea = @1.first_line; id->columna = @1.first_column;
+        agregarHijo($$, id);
     }
     | expresion TOKEN_MULTI expresion {
         $$ = crearNodo(AST_OPERACION, "*");
@@ -496,13 +514,31 @@ instruccion_while:
         agregarHijo($$, $3);
         agregarHijo($$, $5);
     } 
+;
 
+instruccion_for:
+    TOKEN_FOR TOKEN_PARIZQ declaracion TOKEN_PUNTOCOMA expresion TOKEN_PUNTOCOMA expresion TOKEN_PARDER bloque{
+        $$ = crearNodo(AST_FOR, "FOR");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+        agregarHijo($$, $3);
+        agregarHijo($$, $5);
+        agregarHijo($$, $7);
+        agregarHijo($$, $9);
+    }
+    | TOKEN_FOR TOKEN_PARIZQ asignacion TOKEN_PUNTOCOMA expresion TOKEN_PUNTOCOMA expresion TOKEN_PARDER bloque{
+        $$ = crearNodo(AST_FOR, "FOR");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+        agregarHijo($$, $3);
+        agregarHijo($$, $5);
+        agregarHijo($$, $7);
+        agregarHijo($$, $9);
+    }
+;
 
 %%
 
 /* ========== FUNCIONES AUXILIARES ========== */
 
-/* Función auxiliar para crear asignaciones compuestas */
 NodoAST* crear_asignacion_compuesta(char* id, char* operador, NodoAST* expr, 
                                    int id_linea, int id_columna, int op_linea, int op_columna) {
     NodoAST* asig = crearNodo(AST_ASIGNACION, "");

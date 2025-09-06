@@ -84,8 +84,6 @@ ValorSimbolo evaluarExpr(NodoAST* e) {
         }
         case AST_OPERACION: {
             printf("[DEBUG EVALUADOR] === EVALUANDO OPERACIÓN ===\n");
-            printf("[DEBUG EVALUADOR] Operador: '%s'\n", e->valor ? e->valor : "NULL");
-            printf("[DEBUG EVALUADOR] Número de hijos: %d\n", e->num_hijos);
             
             // Operador unario '!'
             if (strcmp(e->valor, "!") == 0 && e->num_hijos == 1) {
@@ -105,20 +103,14 @@ ValorSimbolo evaluarExpr(NodoAST* e) {
                 printf("[DEBUG EVALUADOR] Evaluando operandos...\n");
                 
                 // Evaluar primer operando
-                printf("[DEBUG EVALUADOR] Evaluando operando izquierdo...\n");
                 printf("[DEBUG EVALUADOR] Tipo nodo izq: %d, valor: '%s'\n", 
                     e->hijos[0]->tipo, e->hijos[0]->valor ? e->hijos[0]->valor : "NULL");
                 ValorSimbolo a = evaluarExpr(e->hijos[0]);
-                printf("[DEBUG EVALUADOR] Operando izquierdo evaluado: tipo=%d, valor=%d, inicializado=%d\n", 
-                    a.tipo, a.v.i, a.inicializado);
                 
                 // Evaluar segundo operando
-                printf("[DEBUG EVALUADOR] Evaluando operando derecho...\n");
                 printf("[DEBUG EVALUADOR] Tipo nodo der: %d, valor: '%s'\n", 
                     e->hijos[1]->tipo, e->hijos[1]->valor ? e->hijos[1]->valor : "NULL");
                 ValorSimbolo b = evaluarExpr(e->hijos[1]);
-                printf("[DEBUG EVALUADOR] Operando derecho evaluado: tipo=%d, valor=%d, inicializado=%d\n", 
-                    b.tipo, b.v.i, b.inicializado);
                 
                 if (!a.inicializado || !b.inicializado) {
                     printf("[DEBUG EVALUADOR] ERROR: Uno de los operandos no está inicializado\n");

@@ -19,12 +19,11 @@ void liberarSentenciaBreak(SentenciaBreak* sentencia) {
 ResultadoEjecucion ejecutarSentenciaBreak(NodoAST* nodo) {
     if (!nodo || nodo->tipo != AST_BREAK) return EJEC_OK;
 
-    NodoAST* nodoBreak = nodo;
-
-    if(!nodoBreak) {
-        addError("Sentencia BREAK inválida", ambitoActual(), nodo->linea, nodo->columna);
+    if (contexto_break == 0) {
+        addError("Sentencia BREAK debe estar dentro de un ciclo o switch", ambitoActual(), nodo->linea, nodo->columna);
         return EJEC_OK;
     }
 
+    printf("[DEBUG BREAK] Break detectado dentro de un contexto válido\n");
     return EJEC_BREAK;
 }

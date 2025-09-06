@@ -70,6 +70,7 @@ default                     { yylval.str = strdup("default"); return TOKEN_DEFAU
 break                       { yylval.str = strdup("break"); return TOKEN_BREAK; }
 while                       { yylval.str = strdup("while"); return TOKEN_WHILE; }
 continue                    { yylval.str = strdup("continue"); return TOKEN_CONTINUE; }
+for                         { yylval.str = strdup("for"); return TOKEN_FOR; }
 
 [0-9]+                      { yylval.str = strdup(yytext); return TOKEN_NUMERO; }
 [0-9]+\.[0-9]+[fF]          { yylval.str = strdup(yytext); return TOKEN_FLOAT_LITERAL; }

@@ -2,6 +2,7 @@
 #define SENTIF_H
 
 #include "../../AST/ast.h"
+#include "../../AST/ejecutar_ast.h"
 
 typedef struct {
     NodoAST* condicion;
@@ -12,6 +13,6 @@ typedef struct {
 SentenciaIf* crearSentenciaIf(NodoAST* condicion, NodoAST* bloqueVerdadero, NodoAST* bloqueFalso);
 void liberarSentenciaIf(SentenciaIf* sentencia);
 
-void ejecutarNodoIf(NodoAST* nodo);
+ResultadoEjecucion ejecutarNodoIf(NodoAST* nodo);
 
 #endif

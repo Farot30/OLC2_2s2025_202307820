@@ -28,6 +28,9 @@ typedef enum {
     AST_DEFAULT,
     AST_WHILE,
     AST_CONTINUE,
+    AST_FOR,
+    AST_INCREMENTO,
+    AST_DECREMENTO,
 
     // Por si se me olvida, aquí es agregar más tipos
 } TipoNodoAST;

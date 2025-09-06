@@ -14,12 +14,6 @@ NodoAST* crearNodo(TipoNodoAST tipo, char* valor) {
     nodo->columna = -1;
     nodo->valido = 1;
     
-    // DEBUG: Mostrar creación de operaciones
-    if (tipo == AST_OPERACION || (valor && (strcmp(valor, "+") == 0 || strcmp(valor, "-") == 0))) {
-        printf("[DEBUG crearNodo] Creando nodo: tipo=%d, valor='%s'\n", tipo, valor ? valor : "NULL");
-        printf("===========================\n");
-    }
-    
     return nodo;
 }
 
@@ -77,6 +71,9 @@ static const char* nombreNodoTipo(TipoNodoAST t){
         case AST_DEFAULT: return "DEFAULT";
         case AST_WHILE: return "WHILE";
         case AST_CONTINUE: return "CONTINUE";
+        case AST_FOR: return "FOR";
+        case AST_INCREMENTO: return "INCREMENTO";
+        case AST_DECREMENTO: return "DECREMENTO";
         
         default: return "UNK";
     }

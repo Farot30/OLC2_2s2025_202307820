@@ -53,7 +53,8 @@ ResultadoEjecucion ejecutarSetenciaWhile(NodoAST* nodo) {
     
     printf("[DEBUG WHILE] Iniciando bucle while\n");
     
-
+    contexto_break++;
+    contexto_continue++;
     while(1) {
         entrarAmbito("while");
         
@@ -87,21 +88,28 @@ ResultadoEjecucion ejecutarSetenciaWhile(NodoAST* nodo) {
             
             // Ejecutar el bloque
             ResultadoEjecucion res = ejecutarNodoAST(bloque);
-
-            printf("[DEBUG WHILE] Bloque ejecutado, resultado: %d\n", res);
-            
-
             if (res == EJEC_BREAK) {
                 printf("[DEBUG WHILE] Break detectado, saliendo del bucle\n");
+                contexto_break--; // Decrementa el contexto antes de salir
+                salirAmbito();
                 return EJEC_OK;
+            }
+
+            if (res == EJEC_CONTINUE) {
+                printf("[DEBUG WHILE] Continue detectado, continuando al siguiente ciclo\n");
+                contexto_continue--; // Decrementa el contexto antes de continuar
+                salirAmbito();
+                continue;;
             }
         
         salirAmbito();
-            
+        
         } else {
             printf("[DEBUG WHILE] Condición falsa, saliendo del bucle\n");
             break;
         }
     }
+    contexto_break--;
+    contexto_continue--;
     return EJEC_OK;
 }

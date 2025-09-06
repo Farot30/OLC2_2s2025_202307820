@@ -10,6 +10,8 @@ typedef enum {
     EJEC_RETURN,
 } ResultadoEjecucion;
 
+extern int contexto_break;
+extern int contexto_continue;
 // Función principal para interpretar el programa completo
 void interpretarPrograma(NodoAST* raiz);
 
