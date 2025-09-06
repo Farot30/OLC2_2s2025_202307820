@@ -80,43 +80,50 @@ extern int yydebug;
     TOKEN_DOUBLE = 272,            /* TOKEN_DOUBLE  */
     TOKEN_IGUAL = 273,             /* TOKEN_IGUAL  */
     TOKEN_PUNTOCOMA = 274,         /* TOKEN_PUNTOCOMA  */
-    TOKEN_NUMERO = 275,            /* TOKEN_NUMERO  */
-    TOKEN_CADENA = 276,            /* TOKEN_CADENA  */
-    TOKEN_CARACTER = 277,          /* TOKEN_CARACTER  */
-    TOKEN_FLOAT_LITERAL = 278,     /* TOKEN_FLOAT_LITERAL  */
-    TOKEN_DOUBLE_LITERAL = 279,    /* TOKEN_DOUBLE_LITERAL  */
-    TOKEN_PRINT = 280,             /* TOKEN_PRINT  */
-    TOKEN_PARIZQ = 281,            /* TOKEN_PARIZQ  */
-    TOKEN_PARDER = 282,            /* TOKEN_PARDER  */
-    TOKEN_BIT_AND = 283,           /* TOKEN_BIT_AND  */
-    TOKEN_BIT_OR = 284,            /* TOKEN_BIT_OR  */
-    TOKEN_XOR = 285,               /* TOKEN_XOR  */
-    TOKEN_DESIZQ = 286,            /* TOKEN_DESIZQ  */
-    TOKEN_DESDER = 287,            /* TOKEN_DESDER  */
-    TOKEN_IGUAL_IGUAL = 288,       /* TOKEN_IGUAL_IGUAL  */
-    TOKEN_NO_IGUAL = 289,          /* TOKEN_NO_IGUAL  */
-    TOKEN_MAYOR_IGUAL = 290,       /* TOKEN_MAYOR_IGUAL  */
-    TOKEN_MENOR_IGUAL = 291,       /* TOKEN_MENOR_IGUAL  */
-    TOKEN_MAYOR = 292,             /* TOKEN_MAYOR  */
-    TOKEN_MENOR = 293,             /* TOKEN_MENOR  */
-    TOKEN_AND = 294,               /* TOKEN_AND  */
-    TOKEN_OR = 295,                /* TOKEN_OR  */
-    TOKEN_NOT = 296,               /* TOKEN_NOT  */
-    TOKEN_IF = 297,                /* TOKEN_IF  */
-    TOKEN_ELSE = 298,              /* TOKEN_ELSE  */
-    TOKEN_STRING_VALUEOF = 299,    /* TOKEN_STRING_VALUEOF  */
-    TOKEN_EQUAL = 300,             /* TOKEN_EQUAL  */
-    TOKEN_MAS_IGUAL = 301,         /* TOKEN_MAS_IGUAL  */
-    TOKEN_MENOS_IGUAL = 302,       /* TOKEN_MENOS_IGUAL  */
-    TOKEN_POR_IGUAL = 303,         /* TOKEN_POR_IGUAL  */
-    TOKEN_DIV_IGUAL = 304,         /* TOKEN_DIV_IGUAL  */
-    TOKEN_MOD_IGUAL = 305,         /* TOKEN_MOD_IGUAL  */
-    TOKEN_AND_IGUAL = 306,         /* TOKEN_AND_IGUAL  */
-    TOKEN_OR_IGUAL = 307,          /* TOKEN_OR_IGUAL  */
-    TOKEN_XOR_IGUAL = 308,         /* TOKEN_XOR_IGUAL  */
-    TOKEN_DESIZQ_IGUAL = 309,      /* TOKEN_DESIZQ_IGUAL  */
-    TOKEN_DESDER_IGUAL = 310,      /* TOKEN_DESDER_IGUAL  */
-    UMINUS = 311                   /* UMINUS  */
+    TOKEN_DOS_PUNTOS = 275,        /* TOKEN_DOS_PUNTOS  */
+    TOKEN_NUMERO = 276,            /* TOKEN_NUMERO  */
+    TOKEN_CADENA = 277,            /* TOKEN_CADENA  */
+    TOKEN_CARACTER = 278,          /* TOKEN_CARACTER  */
+    TOKEN_FLOAT_LITERAL = 279,     /* TOKEN_FLOAT_LITERAL  */
+    TOKEN_DOUBLE_LITERAL = 280,    /* TOKEN_DOUBLE_LITERAL  */
+    TOKEN_PRINT = 281,             /* TOKEN_PRINT  */
+    TOKEN_PARIZQ = 282,            /* TOKEN_PARIZQ  */
+    TOKEN_PARDER = 283,            /* TOKEN_PARDER  */
+    TOKEN_BIT_AND = 284,           /* TOKEN_BIT_AND  */
+    TOKEN_BIT_OR = 285,            /* TOKEN_BIT_OR  */
+    TOKEN_XOR = 286,               /* TOKEN_XOR  */
+    TOKEN_DESIZQ = 287,            /* TOKEN_DESIZQ  */
+    TOKEN_DESDER = 288,            /* TOKEN_DESDER  */
+    TOKEN_IGUAL_IGUAL = 289,       /* TOKEN_IGUAL_IGUAL  */
+    TOKEN_NO_IGUAL = 290,          /* TOKEN_NO_IGUAL  */
+    TOKEN_MAYOR_IGUAL = 291,       /* TOKEN_MAYOR_IGUAL  */
+    TOKEN_MENOR_IGUAL = 292,       /* TOKEN_MENOR_IGUAL  */
+    TOKEN_MAYOR = 293,             /* TOKEN_MAYOR  */
+    TOKEN_MENOR = 294,             /* TOKEN_MENOR  */
+    TOKEN_AND = 295,               /* TOKEN_AND  */
+    TOKEN_OR = 296,                /* TOKEN_OR  */
+    TOKEN_NOT = 297,               /* TOKEN_NOT  */
+    TOKEN_IF = 298,                /* TOKEN_IF  */
+    TOKEN_ELSE = 299,              /* TOKEN_ELSE  */
+    TOKEN_SWITCH = 300,            /* TOKEN_SWITCH  */
+    TOKEN_CASE = 301,              /* TOKEN_CASE  */
+    TOKEN_DEFAULT = 302,           /* TOKEN_DEFAULT  */
+    TOKEN_BREAK = 303,             /* TOKEN_BREAK  */
+    TOKEN_WHILE = 304,             /* TOKEN_WHILE  */
+    TOKEN_CONTINUE = 305,          /* TOKEN_CONTINUE  */
+    TOKEN_STRING_VALUEOF = 306,    /* TOKEN_STRING_VALUEOF  */
+    TOKEN_EQUAL = 307,             /* TOKEN_EQUAL  */
+    TOKEN_MAS_IGUAL = 308,         /* TOKEN_MAS_IGUAL  */
+    TOKEN_MENOS_IGUAL = 309,       /* TOKEN_MENOS_IGUAL  */
+    TOKEN_POR_IGUAL = 310,         /* TOKEN_POR_IGUAL  */
+    TOKEN_DIV_IGUAL = 311,         /* TOKEN_DIV_IGUAL  */
+    TOKEN_MOD_IGUAL = 312,         /* TOKEN_MOD_IGUAL  */
+    TOKEN_AND_IGUAL = 313,         /* TOKEN_AND_IGUAL  */
+    TOKEN_OR_IGUAL = 314,          /* TOKEN_OR_IGUAL  */
+    TOKEN_XOR_IGUAL = 315,         /* TOKEN_XOR_IGUAL  */
+    TOKEN_DESIZQ_IGUAL = 316,      /* TOKEN_DESIZQ_IGUAL  */
+    TOKEN_DESDER_IGUAL = 317,      /* TOKEN_DESDER_IGUAL  */
+    UMINUS = 318                   /* UMINUS  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -130,7 +137,7 @@ union YYSTYPE
     char* str;
     NodoAST* nodo;
 
-#line 134 "src/parser/parser.tab.h"
+#line 141 "src/parser/parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

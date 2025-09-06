@@ -90,10 +90,6 @@ TipoDato deducirTipoExpr(NodoAST* expr) {
             }
             return TIPO_DESCONOCIDO;
         }
-        case AST_IF: {
-            // Un if no es una expresión, así que no retorna tipo
-            return TIPO_DESCONOCIDO;
-        }
         default:
             return TIPO_DESCONOCIDO;
     }

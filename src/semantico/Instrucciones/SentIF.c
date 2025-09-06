@@ -30,17 +30,24 @@ void ejecutarNodoIf(NodoAST* nodo) {
 
     ValorSimbolo vCond = evaluarExpr(condicion);
 
-    if (vCond.tipo == TIPO_BOOLEAN && vCond.inicializado) {
-        if (vCond.v.b) {
-            entrarAmbito("if");
-            ejecutarNodoAST(bloqueVerdadero);
-            salirAmbito();
-        } else if (bloqueFalso) {
-            entrarAmbito("else");
-            ejecutarNodoAST(bloqueFalso);
-        }
-    } else {
+    if (!vCond.inicializado) {
+        addError("Condición del IF no está inicializada", ambitoActual(), nodo->linea, nodo->columna);
+        return;
+    }
+
+    if (vCond.tipo != TIPO_BOOLEAN) {
         addError("Condición del IF no es booleana", ambitoActual(), nodo->linea, nodo->columna);
+        return;
+    }
+
+    if (vCond.v.b) {
+        entrarAmbito("if");
+        ejecutarNodoAST(bloqueVerdadero);
+        salirAmbito();
+    } else if (bloqueFalso) {
+        entrarAmbito("else");
+        ejecutarNodoAST(bloqueFalso);
+        salirAmbito();
     }
 }
 

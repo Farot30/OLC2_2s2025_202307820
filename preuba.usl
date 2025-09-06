@@ -29,3 +29,26 @@ float d = 2;
 int n = 123;
 String s = String.valueOf(n);
 System.out.println(s);
+
+
+int x = 2;
+
+switch (x) {
+    case 1:
+        System.out.println("Caso 1");
+        break;
+    case 2:
+        System.out.println("Caso 2");
+        break;
+    default:
+        System.out.println("Caso por defecto");
+}
+
+int x = 0;
+while (x < 10) {
+    System.out.println(x);
+    if (x == 5) {
+        break;
+    }
+    x = x + 1;
+}

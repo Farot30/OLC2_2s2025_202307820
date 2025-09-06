@@ -22,6 +22,12 @@ typedef enum {
     AST_IF,
     AST_ELSE,
     AST_ELSEIF,
+    AST_SWITCH,
+    AST_CASE,
+    AST_BREAK,
+    AST_DEFAULT,
+    AST_WHILE,
+    AST_CONTINUE,
 
     // Por si se me olvida, aquí es agregar más tipos
 } TipoNodoAST;

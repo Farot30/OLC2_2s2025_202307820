@@ -15,11 +15,13 @@ int topeAmbitos = 0;
 void entrarAmbito(const char* nombre) {
     if (topeAmbitos < MAX_SCOPES) {
         pilaAmbitos[topeAmbitos++] = strdup(nombre);
+        printf("[DEBUG] Entrando al ámbito: %s\n", nombre);
     }
 }
 
 void salirAmbito(void) {
     if (topeAmbitos > 0) {
+        printf("[DEBUG] Saliendo del ámbito: %s\n", pilaAmbitos[topeAmbitos - 1]);
         free(pilaAmbitos[--topeAmbitos]);
     }
 }
@@ -127,7 +129,17 @@ static const char* nombreClase(TipoSimbolo c){
 }
 
 void setValorSimbolo(Simbolo* sim, TipoDato tipoValor, ValorSimbolo val) {
-    if (!sim) return;
+    if (!sim) {
+        printf("[DEBUG setValorSimbolo] Símbolo es NULL\n");
+        return;
+    }
+
+    printf("[DEBUG setValorSimbolo] === INICIANDO ASIGNACIÓN ===\n");
+    printf("[DEBUG setValorSimbolo] Variable: %s\n", sim->nombre);
+    printf("[DEBUG setValorSimbolo] Valor actual: %d\n", sim->valor.v.i);
+    printf("[DEBUG setValorSimbolo] Tipo símbolo: %d, Tipo valor: %d\n", sim->tipo, tipoValor);
+    printf("[DEBUG setValorSimbolo] Nuevo valor: %d\n", val.v.i);
+    printf("[DEBUG setValorSimbolo] Valor inicializado: %d\n", val.inicializado);
 
     // Actualizar el ámbito de la asignación
     if (sim->ambito) free(sim->ambito);
@@ -135,6 +147,7 @@ void setValorSimbolo(Simbolo* sim, TipoDato tipoValor, ValorSimbolo val) {
 
     // Widening casting automático (char -> int -> float -> double)
     if (esWidening(tipoValor, sim->tipo)) {
+        printf("[DEBUG setValorSimbolo] Aplicando widening casting\n");
         double base = 0;
         switch (tipoValor) {
             case TIPO_CHAR:   base = (unsigned char)val.v.c; break;
@@ -152,11 +165,13 @@ void setValorSimbolo(Simbolo* sim, TipoDato tipoValor, ValorSimbolo val) {
         }
         sim->valor.tipo = sim->tipo;
         sim->valor.inicializado = 1;
+        printf("[DEBUG setValorSimbolo] Widening realizado - nuevo valor: %d\n", sim->valor.v.i);
         return;
     }
 
     // Narrowing casting manual (double -> float -> int -> char)
     if (esNarrowing(tipoValor, sim->tipo)) {
+        printf("[DEBUG setValorSimbolo] Intentando narrowing casting\n");
         // Solo permitir si el valor proviene de un cast explícito
         if (!val.es_cast) {
             printf("[ERROR] Narrowing casting solo permitido con cast explícito: %s <- %s\n",
@@ -180,14 +195,18 @@ void setValorSimbolo(Simbolo* sim, TipoDato tipoValor, ValorSimbolo val) {
         }
         sim->valor.tipo = sim->tipo;
         sim->valor.inicializado = 1;
+        printf("[DEBUG setValorSimbolo] Narrowing realizado - nuevo valor: %d\n", sim->valor.v.i);
         return;
     }
 
     // Asignación directa para tipos iguales
     if (sim->tipo == tipoValor) {
+        printf("[DEBUG setValorSimbolo] Asignación directa (tipos iguales)\n");
+        printf("[DEBUG setValorSimbolo] Antes: sim->valor.v.i = %d\n", sim->valor.v.i);
         sim->valor = val;
         sim->valor.tipo = sim->tipo;
         sim->valor.inicializado = 1;
+        printf("[DEBUG setValorSimbolo] Después: sim->valor.v.i = %d\n", sim->valor.v.i);
         return;
     }
 
@@ -197,12 +216,14 @@ void setValorSimbolo(Simbolo* sim, TipoDato tipoValor, ValorSimbolo val) {
         sim->valor.v.s = val.v.s ? strdup(val.v.s) : NULL;
         sim->valor.tipo = TIPO_STRING;
         sim->valor.inicializado = 1;
+        printf("[DEBUG setValorSimbolo] String asignado\n");
         return;
     }
     if (sim->tipo == TIPO_BOOLEAN) {
         sim->valor.v.b = val.v.b;
         sim->valor.tipo = TIPO_BOOLEAN;
         sim->valor.inicializado = 1;
+        printf("[DEBUG setValorSimbolo] Boolean asignado\n");
         return;
     }
 
@@ -219,16 +240,45 @@ ValorSimbolo getValorSimbolo(Simbolo* sim){
 
 void mostrarTablaSimbolos() {
     printf("\n=== Tabla de Símbolos ===\n");
-    printf("%-4s %-15s %-8s %-10s %-10s %-6s %-6s\n",
-           "ID", "Nombre", "Clase", "TipoDato", "Ambito", "Linea", "Col");
+    printf("%-4s %-15s %-8s %-10s %-8s %-10s %-6s %-6s\n",
+           "ID", "Nombre", "Clase", "TipoDato", "Valor", "Ambito", "Linea", "Col");
     printf("-------------------------------------------------------------------------------\n");
     Simbolo* actual = tabla;
-    while (actual) {
-        printf("%-4d %-15s %-8s %-10s %-10s %-6d %-6d\n",
+
+     while (actual) {
+        char valor[50] = "(sin valor)";
+        if (actual->inicializado) {
+            switch (actual->tipo) {
+                case TIPO_INT:
+                    snprintf(valor, sizeof(valor), "%d", actual->valor.v.i);
+                    break;
+                case TIPO_FLOAT:
+                    snprintf(valor, sizeof(valor), "%f", actual->valor.v.f);
+                    break;
+                case TIPO_STRING:
+                    snprintf(valor, sizeof(valor), "\"%s\"", actual->valor.v.s);
+                    break;
+                case TIPO_DOUBLE:
+                    snprintf(valor, sizeof(valor), "%lf", actual->valor.v.d);
+                    break;
+                case TIPO_CHAR:
+                    snprintf(valor, sizeof(valor), "'%c'", actual->valor.v.c);
+                    break;
+                case TIPO_BOOLEAN:
+                    snprintf(valor, sizeof(valor), "%s", actual->valor.v.b ? "true" : "false");
+                    break;
+                
+                default:
+                    snprintf(valor, sizeof(valor), "(desconocido)");
+                    break;
+            }
+        }
+        printf("%-4d %-15s %-8s %-10s %-8s %-10s %-6d %-6d\n",
                actual->id,
                actual->nombre,
                nombreClase(actual->clase),
                nombreTipoDato(actual->tipo),
+               valor,
                actual->ambito,
                actual->linea,
                actual->columna);

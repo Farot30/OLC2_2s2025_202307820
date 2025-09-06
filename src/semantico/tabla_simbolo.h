@@ -17,7 +17,7 @@ typedef struct {
         double d;
         char c;
         char* s;
-        int b;   // boolean (0/1)
+        int b;
     } v;
     int inicializado;
     int es_cast;
@@ -31,7 +31,7 @@ typedef struct Simbolo {
     char* ambito;
     int linea;
     int columna;
-    ValorSimbolo valor;        // <- nuevo
+    ValorSimbolo valor; 
     struct Simbolo* siguiente;
     int inicializado;   
 } Simbolo;

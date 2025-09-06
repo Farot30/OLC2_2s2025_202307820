@@ -133,13 +133,14 @@ void fill_symbol_treeview(GtkListStore* store, const char* symbol_text) {
             char nombre[50] = "";
             char clase[20] = "";
             char tipo[20] = "";
+            char valor[50] = "";
             char ambito[30] = "";
             char linea[10] = "";
             char columna[10] = "";
             
             // Extraer valores usando sscanf con formato fijo
-            sscanf(line, "%9s %49s %19s %19s %29s %9s %9s",
-                   id, nombre, clase, tipo, ambito, linea, columna);
+            sscanf(line, "%9s %49s %19s %19s %49s %29s %9s %9s",
+                   id, nombre, clase, tipo,valor ,ambito, linea, columna);
             
             // Agregar a la tabla
             GtkTreeIter iter;
@@ -149,9 +150,10 @@ void fill_symbol_treeview(GtkListStore* store, const char* symbol_text) {
                                1, nombre,
                                2, clase,
                                3, tipo,
-                               4, ambito,
-                               5, linea,
-                               6, columna,
+                               4, valor,
+                               5, ambito,
+                               6, linea,
+                               7, columna,
                                -1);
         }
         
@@ -347,11 +349,12 @@ void ui_build(AppUI* ui){
     GtkWidget* scSym = gtk_scrolled_window_new(NULL, NULL);
     
     // Crear modelo para la tabla de símbolos
-    ui->store_simbolos = gtk_list_store_new(7, 
+    ui->store_simbolos = gtk_list_store_new(8, 
                                            G_TYPE_STRING,  // ID
                                            G_TYPE_STRING,  // Nombre
                                            G_TYPE_STRING,  // Clase
                                            G_TYPE_STRING,  // Tipo
+                                           G_TYPE_STRING,  // Valor
                                            G_TYPE_STRING,  // Ámbito
                                            G_TYPE_STRING,  // Línea
                                            G_TYPE_STRING); // Columna
@@ -369,19 +372,22 @@ void ui_build(AppUI* ui){
     column = gtk_tree_view_column_new_with_attributes("Nombre", renderer, "text", 1, NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(ui->tree_simbolos), column);
     
-    column = gtk_tree_view_column_new_with_attributes("Clase", renderer, "text", 2, NULL);
+    column = gtk_tree_view_column_new_with_attributes("Tipo de símbolo", renderer, "text", 2, NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(ui->tree_simbolos), column);
     
     column = gtk_tree_view_column_new_with_attributes("Tipo", renderer, "text", 3, NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(ui->tree_simbolos), column);
-    
-    column = gtk_tree_view_column_new_with_attributes("Ámbito", renderer, "text", 4, NULL);
+
+    column = gtk_tree_view_column_new_with_attributes("Valor", renderer, "text", 4, NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(ui->tree_simbolos), column);
     
-    column = gtk_tree_view_column_new_with_attributes("Línea", renderer, "text", 5, NULL);
+    column = gtk_tree_view_column_new_with_attributes("Ámbito", renderer, "text", 5, NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(ui->tree_simbolos), column);
     
-    column = gtk_tree_view_column_new_with_attributes("Columna", renderer, "text", 6, NULL);
+    column = gtk_tree_view_column_new_with_attributes("Línea", renderer, "text", 6, NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(ui->tree_simbolos), column);
+    
+    column = gtk_tree_view_column_new_with_attributes("Columna", renderer, "text", 7, NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(ui->tree_simbolos), column);
     
     gtk_container_add(GTK_CONTAINER(scSym), ui->tree_simbolos);

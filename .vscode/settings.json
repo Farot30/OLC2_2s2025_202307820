@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "tabla_simbolo.h": "c"
+        "tabla_simbolo.h": "c",
+        "tipos.h": "c",
+        "evaluador.h": "c"
     }
 }

@@ -67,6 +67,9 @@ String\.valueOf             { return TOKEN_STRING_VALUEOF; }
 switch                      { yylval.str = strdup("switch"); return TOKEN_SWITCH; }
 case                        { yylval.str = strdup("case"); return TOKEN_CASE; }
 default                     { yylval.str = strdup("default"); return TOKEN_DEFAULT; }
+break                       { yylval.str = strdup("break"); return TOKEN_BREAK; }
+while                       { yylval.str = strdup("while"); return TOKEN_WHILE; }
+continue                    { yylval.str = strdup("continue"); return TOKEN_CONTINUE; }
 
 [0-9]+                      { yylval.str = strdup(yytext); return TOKEN_NUMERO; }
 [0-9]+\.[0-9]+[fF]          { yylval.str = strdup(yytext); return TOKEN_FLOAT_LITERAL; }
@@ -103,6 +106,7 @@ default                     { yylval.str = strdup("default"); return TOKEN_DEFAU
 "-"              { return TOKEN_MENOS; }
 "="              { return TOKEN_IGUAL; }
 ";"              { return TOKEN_PUNTOCOMA; }
+":"              { return TOKEN_DOS_PUNTOS; }
 "+="             { return TOKEN_MAS_IGUAL; }
 "-="             { return TOKEN_MENOS_IGUAL; }
 "*="             { return TOKEN_POR_IGUAL; }

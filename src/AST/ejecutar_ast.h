@@ -3,11 +3,18 @@
 
 #include "ast.h"
 
+typedef enum {
+    EJEC_OK,
+    EJEC_BREAK,
+    EJEC_CONTINUE,
+    EJEC_RETURN,
+} ResultadoEjecucion;
+
 // Función principal para interpretar el programa completo
 void interpretarPrograma(NodoAST* raiz);
 
 // Función para ejecutar cada nodo del AST en orden secuencial
-void ejecutarNodoAST(NodoAST* nodo);
+ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo);
 
 // Función auxiliar para verificar la estructura del AST
 void verificarEstructuraAST(NodoAST* nodo, int nivel);

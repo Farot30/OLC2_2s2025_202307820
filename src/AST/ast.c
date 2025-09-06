@@ -13,9 +13,15 @@ NodoAST* crearNodo(TipoNodoAST tipo, char* valor) {
     nodo->linea = -1;
     nodo->columna = -1;
     nodo->valido = 1;
+    
+    // DEBUG: Mostrar creación de operaciones
+    if (tipo == AST_OPERACION || (valor && (strcmp(valor, "+") == 0 || strcmp(valor, "-") == 0))) {
+        printf("[DEBUG crearNodo] Creando nodo: tipo=%d, valor='%s'\n", tipo, valor ? valor : "NULL");
+        printf("===========================\n");
+    }
+    
     return nodo;
 }
-
 
 void agregarHijo(NodoAST* padre, NodoAST* hijo) {
     padre->hijos = (NodoAST**)realloc(padre->hijos, sizeof(NodoAST*) * (padre->num_hijos + 1));
@@ -65,6 +71,13 @@ static const char* nombreNodoTipo(TipoNodoAST t){
         case AST_IF: return "IF";
         case AST_ELSE : return "ELSE";
         case AST_ELSEIF: return "ELSEIF";
+        case AST_SWITCH: return "SWITCH";
+        case AST_CASE: return "CASE";
+        case AST_BREAK: return "BREAK";
+        case AST_DEFAULT: return "DEFAULT";
+        case AST_WHILE: return "WHILE";
+        case AST_CONTINUE: return "CONTINUE";
+        
         default: return "UNK";
     }
 }

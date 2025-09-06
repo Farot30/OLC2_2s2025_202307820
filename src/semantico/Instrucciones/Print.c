@@ -28,7 +28,6 @@ static void procesarSecuenciasEscape(const char* src, char* dst, size_t max) {
     dst[j] = 0;
 }
 
-
 void imprimirTexto(const char* mensaje){
     if (mensaje) {
         char procesada[1024];
@@ -61,7 +60,6 @@ void imprimirValor(TipoDato tipo, const char* literal){
             break;
     }
 }
-
 
 void imprimirEvaluado(NodoAST* expr) {
     printf("[DEBUG] imprimirEvaluado() llamado\n");
@@ -130,11 +128,12 @@ void imprimirEvaluado(NodoAST* expr) {
             break;
     }
 
-    // Actualizar el valor del nodo AST con el valor evaluado
-    if (expr->valor) free(expr->valor);
-    expr->valor = strdup(buffer);
+    // ¡¡¡ LÍNEAS PROBLEMÁTICAS ELIMINADAS !!!
+    // NO modifiques el AST original - esto causaba el ciclo infinito
+    // if (expr->valor) free(expr->valor);
+    // expr->valor = strdup(buffer);
 
-    // Imprimir el valor sin salto de línea extra
+    // Simplemente imprimir el valor sin modificar el AST
     printf("%s", buffer);
     capture_print_output(buffer);
 }

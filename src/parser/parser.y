@@ -36,7 +36,7 @@
 %token <str> TOKEN_DBOOLEAN TOKEN_BOOLEANO
 %token <str> TOKEN_IDENTIFICADOR
 %token <str> TOKEN_DINT TOKEN_DFLOAT TOKEN_DSTRING TOKEN_DCHAR TOKEN_DOUBLE
-%token <str> TOKEN_IGUAL TOKEN_PUNTOCOMA
+%token <str> TOKEN_IGUAL TOKEN_PUNTOCOMA TOKEN_DOS_PUNTOS
 %token <str> TOKEN_NUMERO TOKEN_CADENA TOKEN_CARACTER
 %token <str> TOKEN_FLOAT_LITERAL TOKEN_DOUBLE_LITERAL 
 %token <str> TOKEN_PRINT
@@ -48,6 +48,8 @@
 %token <str> TOKEN_MAYOR TOKEN_MENOR
 %token <str> TOKEN_AND TOKEN_OR TOKEN_NOT
 %token <str> TOKEN_IF TOKEN_ELSE
+%token <str> TOKEN_SWITCH TOKEN_CASE TOKEN_DEFAULT TOKEN_BREAK
+%token <str> TOKEN_WHILE TOKEN_CONTINUE
 %token <str> TOKEN_STRING_VALUEOF TOKEN_EQUAL
 
 /* Tokens para asignaciones compuestas */
@@ -63,6 +65,8 @@
 %type <nodo> expresion
 %type <nodo> instruccion_print instruccion_if bloque
 %type <nodo> cast
+%type <nodo> intruccion_switch lista_casos caso
+%type <nodo> instruccion_while instruccion_break instruccion_continue
 %type <str> tipo_primitivo
 
 /* ========== PRECEDENCIA MÍNIMA ========== */
@@ -131,8 +135,12 @@ sentencia:
     | asignacion TOKEN_PUNTOCOMA    { $$ = $1; }
     | instruccion_print TOKEN_PUNTOCOMA { $$ = $1; }
     | instruccion_if                { $$ = $1; }
+    | intruccion_switch             { $$ = $1; }
+    | instruccion_while             { $$ = $1; }
     | bloque                        { $$ = $1; }
     | expresion TOKEN_PUNTOCOMA     { $$ = $1; }
+    | instruccion_break TOKEN_PUNTOCOMA {$$ = $1; }
+    | instruccion_continue TOKEN_PUNTOCOMA {$$ = $1; }
     | error TOKEN_PUNTOCOMA         { 
         addErrorSintactico("Instrucción inválida", "global", @1.first_line, @1.first_column);
         yyerrok; 
@@ -395,7 +403,20 @@ bloque:
     }
 ;
 
-/* ========== CONTROL DE FLUJO ========== */
+instruccion_break:
+    TOKEN_BREAK {
+        $$ = crearNodo(AST_BREAK, "break");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+    }
+;
+
+instruccion_continue:
+    TOKEN_CONTINUE {
+        $$ = crearNodo(AST_CONTINUE, "continue");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+    }
+
+/* ========== CONTROL DE FLUJOS ========== */
 instruccion_if:
     TOKEN_IF TOKEN_PARIZQ expresion TOKEN_PARDER bloque %prec TOKEN_IF {
         $$ = crearNodo(AST_IF, "if");
@@ -422,6 +443,60 @@ instruccion_if:
         agregarHijo($$, elseif_node);
     }
 ;
+
+
+intruccion_switch:
+    TOKEN_SWITCH TOKEN_PARIZQ expresion TOKEN_PARDER TOKEN_LLAVEIZQ lista_casos TOKEN_LLAVEDER {
+        $$ = crearNodo(AST_SWITCH, "switch");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+        agregarHijo($$, $3);
+        agregarHijo($$, $6);
+    }
+    ;
+
+lista_casos: 
+    lista_casos caso {
+        if ($1->tipo != AST_LISTA) {
+            NodoAST* lista = crearNodo(AST_LISTA, "Casos");
+            agregarHijo(lista, $1);
+            agregarHijo(lista, $2);
+            $$ = lista;
+        } else {
+            agregarHijo($1, $2);
+            $$ = $1;
+        }
+    }
+    | caso {
+        $$ = crearNodo(AST_LISTA, "Casos");
+        agregarHijo($$, $1);
+    }
+    ;
+
+caso: 
+    TOKEN_CASE expresion TOKEN_DOS_PUNTOS lista_sentencias TOKEN_BREAK TOKEN_PUNTOCOMA{
+        $$ = crearNodo(AST_CASE, "CASE");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+        agregarHijo($$, $2);
+        agregarHijo($$, $4);
+        NodoAST* nodoBreak = crearNodo(AST_BREAK, "break");
+        nodoBreak->linea = @5.first_line; nodoBreak->columna = @5.first_column;
+        agregarHijo($$, nodoBreak);
+    }
+    | TOKEN_DEFAULT TOKEN_DOS_PUNTOS lista_sentencias {
+        $$ = crearNodo(AST_DEFAULT, "DEFAULT");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+        agregarHijo($$, $3);
+    }
+    ;
+
+instruccion_while:
+    TOKEN_WHILE TOKEN_PARIZQ expresion TOKEN_PARDER bloque {
+        $$ = crearNodo(AST_WHILE, "while");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+        agregarHijo($$, $3);
+        agregarHijo($$, $5);
+    } 
+
 
 %%
 
