@@ -56,9 +56,7 @@ ResultadoEjecucion ejecutarSentenciaFor(NodoAST* nodo) {
         }
     }
     
-    int maxBucle = 0;
-    while (maxBucle < 20) { // Mantener límite de seguridad
-        printf("[DEBUG FOR] === ITERACIÓN %d ===\n", maxBucle);
+    while (true) { // Mantener límite de seguridad
         
         // Evaluar condición
         if (condicion) {
@@ -80,8 +78,8 @@ ResultadoEjecucion ejecutarSentenciaFor(NodoAST* nodo) {
                 break;
             }
         }
-        
-        maxBucle++;
+    
+
 
         // Ejecutar bloque (si existe)
         if (bloque) {
@@ -115,7 +113,6 @@ ResultadoEjecucion ejecutarSentenciaFor(NodoAST* nodo) {
         } else {
             printf("[INFO FOR] No hay bloque de código, ejecutando bucle vacío\n");
             // Para testing, puedes agregar aquí alguna acción por defecto
-            printf("Iteración %d del for (bloque vacío)\n", maxBucle);
         }
 
         // Ejecutar incremento
@@ -133,17 +130,12 @@ ResultadoEjecucion ejecutarSentenciaFor(NodoAST* nodo) {
             }
         }
         
-        printf("[DEBUG FOR] === FIN ITERACIÓN %d ===\n", maxBucle);
         
         // Mostrar estado de la variable después del incremento
         Simbolo* var_i = buscarSimbolo("i");
         if (var_i) {
             printf("[DEBUG FOR] Valor de 'i' después del incremento: %d\n", var_i->valor.v.i);
         }
-    }
-    
-    if (maxBucle >= 20) {
-        printf("[WARNING] Bucle FOR alcanzó límite máximo de iteraciones (20)\n");
     }
     
     printf("[DEBUG FOR] === BUCLE FOR COMPLETADO ===\n");

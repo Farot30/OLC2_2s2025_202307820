@@ -71,6 +71,7 @@ break                       { yylval.str = strdup("break"); return TOKEN_BREAK; 
 while                       { yylval.str = strdup("while"); return TOKEN_WHILE; }
 continue                    { yylval.str = strdup("continue"); return TOKEN_CONTINUE; }
 for                         { yylval.str = strdup("for"); return TOKEN_FOR; }
+new                         { yylval.str = strdup("new"); return TOKEN_NEW; }
 
 [0-9]+                      { yylval.str = strdup(yytext); return TOKEN_NUMERO; }
 [0-9]+\.[0-9]+[fF]          { yylval.str = strdup(yytext); return TOKEN_FLOAT_LITERAL; }
@@ -103,6 +104,8 @@ for                         { yylval.str = strdup("for"); return TOKEN_FOR; }
 
 "{"              { return TOKEN_LLAVEIZQ; }
 "}"              { return TOKEN_LLAVEDER; }
+"\+\+"           { return TOKEN_INCREMENTO; }
+"\-\-"           { return TOKEN_DECREMENTO; }
 "+"              { return TOKEN_MAS; }
 "-"              { return TOKEN_MENOS; }
 "="              { return TOKEN_IGUAL; }
@@ -137,6 +140,9 @@ for                         { yylval.str = strdup("for"); return TOKEN_FOR; }
 "*"              { return TOKEN_MULTI; }
 "/"              { return TOKEN_DIV; }
 "%"              { return TOKEN_MODULO; }
+"["              { return TOKEN_CORCHETEIZQ; }
+"]"              { return TOKEN_CORCHETEDER; }
+","              { return TOKEN_COMA; }
 
 
 

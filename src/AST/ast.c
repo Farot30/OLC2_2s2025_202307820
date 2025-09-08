@@ -74,6 +74,14 @@ static const char* nombreNodoTipo(TipoNodoAST t){
         case AST_FOR: return "FOR";
         case AST_INCREMENTO: return "INCREMENTO";
         case AST_DECREMENTO: return "DECREMENTO";
+        case AST_DECLARACION_VECTOR: return "DECLARACION_VECTOR";
+        case AST_DECLARACION_MATRIZ: return "DECLARACION_MATRIZ";
+        case AST_DECLARACION_ARRAY_MULTIDIMENSIONAL: return "DECLARACION_ARRAY_MULTIDIMENSIONAL";
+        case AST_DIMENSION: return "DIMENSION";
+        case AST_TIPO: return "TIPO";
+        case AST_INTERNO: return "INTERNO";
+
+
         
         default: return "UNK";
     }

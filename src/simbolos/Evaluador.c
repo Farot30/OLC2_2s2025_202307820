@@ -35,22 +35,22 @@ ValorSimbolo evaluarExpr(NodoAST* e) {
 
     switch (e->tipo) {
         case AST_NUMERO: {
-            if (strchr(e->valor, '.')) {
-                size_t L = strlen(e->valor);
-                if (L > 0 && (e->valor[L - 1] == 'f' || e->valor[L - 1] == 'F')) {
-                    r.tipo = TIPO_FLOAT;
-                    r.v.f = strtof(e->valor, NULL);
+                if (strchr(e->valor, '.')) {
+                    size_t L = strlen(e->valor);
+                    if (L > 0 && (e->valor[L - 1] == 'f' || e->valor[L - 1] == 'F')) {
+                        r.tipo = TIPO_FLOAT;
+                        r.v.f = strtof(e->valor, NULL);
+                    } else {
+                        r.tipo = TIPO_DOUBLE;
+                        r.v.d = strtod(e->valor, NULL);
+                    }
                 } else {
-                    r.tipo = TIPO_DOUBLE;
-                    r.v.d = strtod(e->valor, NULL);
+                    r.tipo = TIPO_INT;
+                    r.v.i = atoi(e->valor);
                 }
-            } else {
-                r.tipo = TIPO_INT;
-                r.v.i = atoi(e->valor);
+                r.inicializado = 1;
+                return r;
             }
-            r.inicializado = 1;
-            return r;
-        }
         case AST_CADENA: {
             r.tipo = TIPO_STRING;
             r.v.s = e->valor ? strdup(e->valor) : NULL;
@@ -95,6 +95,26 @@ ValorSimbolo evaluarExpr(NodoAST* e) {
                     return r;
                 }
                 printf("[EVALUADOR] Operador '!' solo válido para boolean\n");
+                return r;
+            }
+            if (strcmp(e->valor, "-") == 0 && e->num_hijos == 1) {
+                ValorSimbolo a = evaluarExpr(e->hijos[0]);
+                if (esNum(a.tipo) && a.inicializado) {
+                    r.tipo = a.tipo;
+                    switch (a.tipo) {
+                        case TIPO_INT:    r.v.i = -a.v.i; break;
+                        case TIPO_FLOAT:  r.v.f = -a.v.f; break;
+                        case TIPO_DOUBLE: r.v.d = -a.v.d; break;
+                        default: break;
+                    }
+                    r.inicializado = 1;
+                    return r;
+                }
+                if (!esNum(a.tipo)) {
+                    printf("[EVALUADOR] Operador '-' no válido para tipo '%d'\n", a.tipo);
+                    return r;
+                }
+                printf("[EVALUADOR] Operador '-' solo válido para números o variable no inicializada\n");
                 return r;
             }
             

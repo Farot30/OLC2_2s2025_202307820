@@ -21,7 +21,6 @@ int contexto_break = 0;
 int contexto_continue = 0;
 
 // Función para ejecutar cada nodo del AST en orden secuencial
-// Función para ejecutar cada nodo del AST en orden secuencial
 ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
     // Verificación más robusta de nodos
     if (!nodo) {

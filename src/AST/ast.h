@@ -31,6 +31,12 @@ typedef enum {
     AST_FOR,
     AST_INCREMENTO,
     AST_DECREMENTO,
+    AST_DECLARACION_VECTOR,
+    AST_DECLARACION_MATRIZ,
+    AST_DECLARACION_ARRAY_MULTIDIMENSIONAL,
+    AST_DIMENSION,
+    AST_TIPO,
+    AST_INTERNO,
 
     // Por si se me olvida, aquí es agregar más tipos
 } TipoNodoAST;

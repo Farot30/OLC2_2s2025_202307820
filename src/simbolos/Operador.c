@@ -51,6 +51,8 @@ ValorSimbolo evaluarOperacion(NodoAST* e, ValorSimbolo a, ValorSimbolo b) {
         printf("[DEBUG OPERADOR] Realizando concatenación de cadenas\n");
         r.tipo = TIPO_STRING;
         
+        // Asegurarse de que ambos operandos estén completamente evaluados
+        // antes de intentar la concatenación
         char* str_a = valorToString(a);
         char* str_b = valorToString(b);
         
