@@ -133,15 +133,15 @@ void fill_symbol_treeview(GtkListStore* store, const char* symbol_text) {
             char nombre[50] = "";
             char clase[20] = "";
             char tipo[20] = "";
-            char valor[50] = "";
+            char valor[51] = "";
             char ambito[30] = "";
             char linea[10] = "";
             char columna[10] = "";
             
             // Extraer valores usando sscanf con formato fijo
-            sscanf(line, "%9s %49s %19s %19s %49s %29s %9s %9s",
-                   id, nombre, clase, tipo,valor ,ambito, linea, columna);
-            
+            sscanf(line, "%9s %49s %40s %19s %50s %29s %9s %9s",
+                   id, nombre, clase, tipo, valor, ambito, linea, columna);
+
             // Agregar a la tabla
             GtkTreeIter iter;
             gtk_list_store_append(store, &iter);

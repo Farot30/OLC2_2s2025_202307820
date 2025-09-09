@@ -10,10 +10,13 @@
 #include "../semantico/Instrucciones/break.h"
 #include "../semantico/Instrucciones/continue.h"
 #include "../semantico/Instrucciones/for.h"
-
+#include "../semantico/Vectores/declaracion_vector.h"
+#include "../semantico/Vectores/declaracion_matriz.h"
+#include "../semantico/Vectores/declaracion_array.h"
+#include "../semantico/Vectores/acceso_vector.h"
+#include "../simbolos/Evaluador.h"
 #include "ejecutar_ast.h"
 #include "err.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -64,14 +67,88 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
             verificarDeclaracion(nodo);
             return EJEC_OK;
             
-        case AST_ASIGNACION:
-            if (nodo->num_hijos > 0 && nodo->hijos[0] && nodo->hijos[0]->valor) {
-                printf("[DEBUG] Asignación procesada para variable: %s\n", nodo->hijos[0]->valor);
-            } else {
-                printf("[DEBUG] Asignación con datos incompletos\n");
+        case AST_ASIGNACION: {
+            if (nodo->num_hijos < 2) {
+                printf("[ERROR] Asignación sin destino o valor\n");
+                return EJEC_OK;
             }
-            verificarAsignacion(nodo);
+            
+            NodoAST* destino = nodo->hijos[0];
+            NodoAST* valorNodo = nodo->hijos[1];
+            
+            // Caso 1: Asignación a variable simple
+            if (destino->tipo == AST_IDENTIFICADOR) {
+                printf("[DEBUG] Asignación a variable '%s'\n", destino->valor);
+                verificarAsignacion(nodo);
+            }
+            // Caso 2: Asignación a elemento de array
+            else if (destino->tipo == AST_ACCESO) {
+                printf("[DEBUG] Asignación a elemento de array\n");
+                
+                // Verificar que el acceso sea válido
+                if (!verificarAccesoVector(destino)) {
+                    printf("[ERROR] Acceso inválido en asignación\n");
+                    return EJEC_OK;
+                }
+                
+                // Obtener el identificador y los índices del acceso
+                NodoAST* idNodo = destino->hijos[0];
+                NodoAST* dimensionesNodo = destino->hijos[1];
+                
+                // Obtener el símbolo del array
+                Simbolo* simbolo = buscarSimbolo(idNodo->valor);
+                if (!simbolo) {
+                    printf("[ERROR] Variable '%s' no encontrada\n", idNodo->valor);
+                    return EJEC_OK;
+                }
+                
+                // Evaluar el valor a asignar
+                ValorSimbolo valor = evaluarExpr(valorNodo);
+                if (!valor.inicializado) {
+                    printf("[ERROR] Valor no inicializado en asignación\n");
+                    return EJEC_OK;
+                }
+                
+                // Verificar compatibilidad de tipos
+                if (valor.tipo != simbolo->tipo && !esWidening(valor.tipo, simbolo->tipo)) {
+                    printf("[ERROR] Tipo incompatible en asignación a array\n");
+                    return EJEC_OK;
+                }
+                
+                // Obtener los índices evaluados
+                int indices[10] = {0};
+                int numIndices = 0;
+                
+                for (int i = 0; i < dimensionesNodo->num_hijos && numIndices < 10; i++) {
+                    NodoAST* dimNodo = dimensionesNodo->hijos[i];
+                    if (dimNodo->tipo == AST_1DIMENSION && dimNodo->num_hijos > 0) {
+                        ValorSimbolo idxVal = evaluarExpr(dimNodo->hijos[0]);
+                        if (idxVal.inicializado && idxVal.tipo == TIPO_INT) {
+                            indices[numIndices++] = idxVal.v.i;
+                        }
+                    }
+                }
+                
+                // Realizar la asignación según el tipo de array
+                if (simbolo->clase == SIMBOLO_VECTOR && numIndices == 1) {
+                    asignarElementoVector(simbolo, indices[0], valor);
+                    printf("[DEBUG] Asignado valor a %s[%d]\n", idNodo->valor, indices[0]);
+                }
+                else if (simbolo->clase == SIMBOLO_MATRIZ && numIndices == 2) {
+                    asignarElementoMatriz(simbolo, indices[0], indices[1], valor);
+                    printf("[DEBUG] Asignado valor a %s[%d][%d]\n", idNodo->valor, indices[0], indices[1]);
+                }
+                else if (simbolo->clase == SIMBOLO_ARRAY_MULTIDIMENSIONAL) {
+                    asignarElementoArrayMultidimensional(simbolo, indices, numIndices, valor);
+                    printf("[DEBUG] Asignado valor a elemento de array multidimensional\n");
+                }
+            }
+            else {
+                printf("[ERROR] Destino de asignación inválido\n");
+            }
+            
             return EJEC_OK;
+        }
 
         case AST_PRINT:
             printf("[DEBUG] Procesando print\n");
@@ -148,7 +225,48 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
             
         case AST_CONTINUE:
             return ejecutarSentenciaContinue(nodo);
+        case AST_DECLARACION_VECTOR:
+            printf("[DEBUG] Procesando declaración de vector\n");
+            verificarDeclaracionVector(nodo);
+            return EJEC_OK;
             
+        case AST_DECLARACION_MATRIZ:
+            printf("[DEBUG] Procesando declaración de matriz\n");
+            verificarDeclaracionMatriz(nodo);
+            return EJEC_OK;
+        case AST_DECLARACION_ARRAY_MULTIDIMENSIONAL:
+            printf("[DEBUG] Procesando declaración de array multidimensional\n");
+            verificarDeclaracionArray(nodo);
+            return EJEC_OK;
+        case AST_ACCESO: {
+            printf("[DEBUG] Procesando acceso a array/vector/matriz\n");
+            
+            // Verificar que el acceso sea válido
+            if (!verificarAccesoVector(nodo)) {
+                printf("[ERROR] Acceso inválido\n");
+                return EJEC_OK;
+            }
+            
+            // Evaluar el acceso (solo para depuración, ya que como instrucción sola no hace nada)
+            ValorSimbolo valorAcceso = evaluarAccesoArrays(nodo);
+            if (valorAcceso.inicializado) {
+                printf("[DEBUG] Acceso evaluado exitosamente, valor = ");
+                switch (valorAcceso.tipo) {
+                    case TIPO_INT: printf("%d\n", valorAcceso.v.i); break;
+                    case TIPO_FLOAT: printf("%f\n", valorAcceso.v.f); break;
+                    case TIPO_DOUBLE: printf("%lf\n", valorAcceso.v.d); break;
+                    case TIPO_CHAR: printf("'%c'\n", valorAcceso.v.c); break;
+                    case TIPO_BOOLEAN: printf("%s\n", valorAcceso.v.b ? "true" : "false"); break;
+                    case TIPO_STRING: printf("\"%s\"\n", valorAcceso.v.s ? valorAcceso.v.s : "null"); break;
+                    default: printf("tipo desconocido\n"); break;
+                }
+            } else {
+                printf("[ERROR] No se pudo obtener valor del acceso\n");
+            }
+            
+            return EJEC_OK; // En ejecutarNodoAST, debemos retornar un ResultadoEjecucion, no un ValorSimbolo
+        }
+
         default:
             printf("[DEBUG] Nodo tipo %d no manejado específicamente, procesando hijos\n", nodo->tipo);
             for (int i = 0; i < nodo->num_hijos; i++) {

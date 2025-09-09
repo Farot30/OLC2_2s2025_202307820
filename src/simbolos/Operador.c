@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 
+
 char* valorToString(ValorSimbolo val) {
     char* result = malloc(64);
     if (!result) return NULL;

@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "ast.h"
+#include "../simbolos/Evaluador.h"
+#include "../semantico/tipos.h"
 
 
 NodoAST* crearNodo(TipoNodoAST tipo, char* valor) {
@@ -77,11 +79,12 @@ static const char* nombreNodoTipo(TipoNodoAST t){
         case AST_DECLARACION_VECTOR: return "DECLARACION_VECTOR";
         case AST_DECLARACION_MATRIZ: return "DECLARACION_MATRIZ";
         case AST_DECLARACION_ARRAY_MULTIDIMENSIONAL: return "DECLARACION_ARRAY_MULTIDIMENSIONAL";
-        case AST_DIMENSION: return "DIMENSION";
+        case AST_DIMENSIONES: return "DIMENSIONES";
         case AST_TIPO: return "TIPO";
         case AST_INTERNO: return "INTERNO";
-
-
+        case AST_LISTA_ELEMENTOS: return "LISTA_ELEMENTOS";
+        case AST_1DIMENSION: return "1DIMENSION";
+        case AST_ACCESO: return "ACCESO";
         
         default: return "UNK";
     }
@@ -110,7 +113,6 @@ static void escaparLabel(const char* src, char* dst, size_t max){
     dst[j]=0;
 }
 
-
 static void graphvizRec(NodoAST* n, FILE* f) {
     if (!n || !n->valido) return;
 
@@ -118,9 +120,55 @@ static void graphvizRec(NodoAST* n, FILE* f) {
     escaparLabel(n->valor ? n->valor : "NULL", valorEsc, sizeof(valorEsc));
 
     // Mostrar el valor evaluado en el nodo PRINT
-    if (n->tipo == AST_PRINT) {
-        fprintf(f, "  n%p [label=\"{Tipo: %s|Valor Evaluado: %s}\"];\n",
-                (void*)n, nombreNodoTipo(n->tipo), valorEsc);
+    if (n->tipo == AST_PRINT && n->num_hijos > 0 && n->hijos[0]) {
+        // Evaluar la expresión a imprimir
+        ValorSimbolo valorEvaluado = evaluarExpr(n->hijos[0]);
+        char valorPrint[256] = "sin valor";
+        
+        if (valorEvaluado.inicializado) {
+            switch (valorEvaluado.tipo) {
+                case TIPO_INT:
+                    snprintf(valorPrint, sizeof(valorPrint), "%d", valorEvaluado.v.i);
+                    break;
+                case TIPO_FLOAT:
+                    snprintf(valorPrint, sizeof(valorPrint), "%f", valorEvaluado.v.f);
+                    break;
+                case TIPO_DOUBLE:
+                    snprintf(valorPrint, sizeof(valorPrint), "%lf", valorEvaluado.v.d);
+                    break;
+                case TIPO_CHAR:
+                    snprintf(valorPrint, sizeof(valorPrint), "%c", valorEvaluado.v.c);
+                    break;
+                case TIPO_BOOLEAN:
+                    snprintf(valorPrint, sizeof(valorPrint), "%s", valorEvaluado.v.b ? "true" : "false");
+                    break;
+                case TIPO_STRING:
+                    if (valorEvaluado.v.s) {
+                        // Para strings, limitar a 40 caracteres para no sobrecargar el gráfico
+                        if (strlen(valorEvaluado.v.s) > 40) {
+                            char temp[44];
+                            strncpy(temp, valorEvaluado.v.s, 40);
+                            temp[40] = '\0';
+                            snprintf(valorPrint, sizeof(valorPrint), "%s...", temp);
+                        } else {
+                            snprintf(valorPrint, sizeof(valorPrint), "%s", valorEvaluado.v.s);
+                        }
+                    } else {
+                        snprintf(valorPrint, sizeof(valorPrint), "null");
+                    }
+                    break;
+                default:
+                    snprintf(valorPrint, sizeof(valorPrint), "?");
+                    break;
+            }
+        }
+        
+        // Escapar el valor para Graphviz
+        char valorPrintEsc[256];
+        escaparLabel(valorPrint, valorPrintEsc, sizeof(valorPrintEsc));
+        
+        fprintf(f, "  n%p [label=\"{Tipo: %s|Imprime: %s}\"];\n",
+                (void*)n, nombreNodoTipo(n->tipo), valorPrintEsc);
     } else {
         fprintf(f, "  n%p [label=\"{Tipo: %s|Valor: %s}\"];\n",
                 (void*)n, nombreNodoTipo(n->tipo), valorEsc);
@@ -151,8 +199,61 @@ static void graphvizRecFile(NodoAST* n, FILE* f){
 
     char valorEsc[128];
     escaparLabel(n->valor ? n->valor : "NULL", valorEsc, sizeof(valorEsc));
-    fprintf(f, "  n%p [label=\"{Tipo: %s|Valor: %s}\"];\n",
-            (void*)n, nombreNodoTipo(n->tipo), valorEsc);
+    
+    // Mostrar el valor evaluado en el nodo PRINT (igual que en graphvizRec)
+    if (n->tipo == AST_PRINT && n->num_hijos > 0 && n->hijos[0]) {
+        // Evaluar la expresión a imprimir
+        ValorSimbolo valorEvaluado = evaluarExpr(n->hijos[0]);
+        char valorPrint[256] = "sin valor";
+        
+        if (valorEvaluado.inicializado) {
+            switch (valorEvaluado.tipo) {
+                case TIPO_INT:
+                    snprintf(valorPrint, sizeof(valorPrint), "%d", valorEvaluado.v.i);
+                    break;
+                case TIPO_FLOAT:
+                    snprintf(valorPrint, sizeof(valorPrint), "%f", valorEvaluado.v.f);
+                    break;
+                case TIPO_DOUBLE:
+                    snprintf(valorPrint, sizeof(valorPrint), "%lf", valorEvaluado.v.d);
+                    break;
+                case TIPO_CHAR:
+                    snprintf(valorPrint, sizeof(valorPrint), "%c", valorEvaluado.v.c);
+                    break;
+                case TIPO_BOOLEAN:
+                    snprintf(valorPrint, sizeof(valorPrint), "%s", valorEvaluado.v.b ? "true" : "false");
+                    break;
+                case TIPO_STRING:
+                    if (valorEvaluado.v.s) {
+                        // Para strings, limitar a 40 caracteres para no sobrecargar el gráfico
+                        if (strlen(valorEvaluado.v.s) > 40) {
+                            char temp[44];
+                            strncpy(temp, valorEvaluado.v.s, 40);
+                            temp[40] = '\0';
+                            snprintf(valorPrint, sizeof(valorPrint), "%s...", temp);
+                        } else {
+                            snprintf(valorPrint, sizeof(valorPrint), "%s", valorEvaluado.v.s);
+                        }
+                    } else {
+                        snprintf(valorPrint, sizeof(valorPrint), "null");
+                    }
+                    break;
+                default:
+                    snprintf(valorPrint, sizeof(valorPrint), "?");
+                    break;
+            }
+        }
+        
+        // Escapar el valor para Graphviz
+        char valorPrintEsc[256];
+        escaparLabel(valorPrint, valorPrintEsc, sizeof(valorPrintEsc));
+        
+        fprintf(f, "  n%p [label=\"{Tipo: %s|Imprime: %s}\"];\n",
+                (void*)n, nombreNodoTipo(n->tipo), valorPrintEsc);
+    } else {
+        fprintf(f, "  n%p [label=\"{Tipo: %s|Valor: %s}\"];\n",
+                (void*)n, nombreNodoTipo(n->tipo), valorEsc);
+    }
 
     for(int i=0; i<n->num_hijos; ++i){
         if(n->hijos[i] && n->hijos[i]->valido) {

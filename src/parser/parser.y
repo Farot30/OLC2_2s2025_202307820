@@ -63,7 +63,8 @@
 %type <nodo> s programa
 %type <nodo> lista_sentencias sentencia
 %type <nodo> declaracion asignacion declaracion_vector declaracion_matriz 
-%type <nodo> declaracion_array_multidimensional Dimensiones lista_bloques lista_filas lista_elementos DimensionesCorchetes
+%type <nodo> declaracion_array_multidimensional Dimensiones lista_bloques lista_filas lista_elementos DimensionesCorchetes lista_elementos_o_bloques
+%type <nodo> acceso DimensionesAcceso
 %type <nodo> expresion expresion_or expresion_and expresion_bit_or expresion_bit_xor 
 %type <nodo> expresion_bit_and expresion_equality expresion_relacional expresion_shift 
 %type <nodo> expresion_aditiva expresion_multiplicativa expresion_unaria postfix primary
@@ -187,15 +188,32 @@ declaracion_vector:
         $$ = crearNodo(AST_DECLARACION_VECTOR, "Declaración Vector");
         $$->linea = @4.first_line; $$->columna = @4.first_column;
         agregarHijo($$, crearNodo(AST_TIPO, $1));
-        agregarHijo($$, crearNodo(AST_IDENTIFICADOR, $4));
-        agregarHijo($$, $9); // Dimensión
+        
+        // Crea el nodo identificador con línea y columna
+        NodoAST* id = crearNodo(AST_IDENTIFICADOR, $4);
+        id->linea = @4.first_line; 
+        id->columna = @4.first_column;
+        agregarHijo($$, id);
+
+        NodoAST* id2 = crearNodo(AST_TIPO, $7);
+        id2->linea = @7.first_line; 
+        id2->columna = @7.first_column;
+        agregarHijo($$, id2);
+        
+        NodoAST* dimension = crearNodo(AST_1DIMENSION, "Dimensión");
+        agregarHijo(dimension, $9);
+        agregarHijo($$, dimension);
     }
-    | tipo_primitivo TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_IDENTIFICADOR TOKEN_IGUAL TOKEN_LLAVEIZQ lista_elementos TOKEN_LLAVEDER{
+    | tipo_primitivo TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_IDENTIFICADOR TOKEN_IGUAL TOKEN_LLAVEIZQ lista_elementos TOKEN_LLAVEDER {
         $$ = crearNodo(AST_DECLARACION_VECTOR, "Declaración Vector");
         $$->linea = @4.first_line; $$->columna = @4.first_column;
         agregarHijo($$, crearNodo(AST_TIPO, $1));
-        agregarHijo($$, crearNodo(AST_IDENTIFICADOR, $4));
-        agregarHijo($$, $7); // lista_elementos
+        NodoAST* id = crearNodo(AST_IDENTIFICADOR, $4);
+        id->linea = @4.first_line; id->columna = @4.first_column;
+        agregarHijo($$, id);
+        NodoAST* lista = crearNodo(AST_LISTA_ELEMENTOS, "Lista Elementos");
+        agregarHijo(lista, $7);
+        agregarHijo($$, lista);
     }
 ;
 
@@ -219,25 +237,19 @@ lista_elementos:
 
 lista_filas:
     lista_filas TOKEN_COMA TOKEN_LLAVEIZQ lista_elementos TOKEN_LLAVEDER {
-        if ($1->tipo != AST_INTERNO) {
-            NodoAST* lista = crearNodo(AST_INTERNO, "Lista Filas");
+        if ($1->tipo != AST_LISTA_ELEMENTOS) {
+            NodoAST* lista = crearNodo(AST_LISTA_ELEMENTOS, "Lista Filas");
             agregarHijo(lista, $1);
-            NodoAST* fila = crearNodo(AST_INTERNO, "Fila");
-            agregarHijo(fila, $4);
-            agregarHijo(lista, fila);
+            agregarHijo(lista, $4);
             $$ = lista;
         } else {
-            NodoAST* fila = crearNodo(AST_INTERNO, "Fila");
-            agregarHijo(fila, $4);
-            agregarHijo($1, fila);
+            agregarHijo($1, $4);
             $$ = $1;
         }
     }
     | TOKEN_LLAVEIZQ lista_elementos TOKEN_LLAVEDER {
-        NodoAST* fila = crearNodo(AST_INTERNO, "Fila");
-        agregarHijo(fila, $2);
-        $$ = crearNodo(AST_INTERNO, "Lista Filas");
-        agregarHijo($$, fila);
+        $$ = crearNodo(AST_LISTA_ELEMENTOS, "Lista Filas");
+        agregarHijo($$, $2);
     }
 ;
 
@@ -245,54 +257,122 @@ declaracion_matriz:
     tipo_primitivo TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_IDENTIFICADOR TOKEN_IGUAL TOKEN_NEW tipo_primitivo TOKEN_CORCHETEIZQ expresion TOKEN_CORCHETEDER TOKEN_CORCHETEIZQ expresion TOKEN_CORCHETEDER {
         $$ = crearNodo(AST_DECLARACION_MATRIZ, "Declaración Matriz");
         $$->linea = @6.first_line; $$->columna = @6.first_column;
-        agregarHijo($$, crearNodo(AST_TIPO, $1));
-        agregarHijo($$, crearNodo(AST_IDENTIFICADOR, $6));
-        agregarHijo($$, $11); // Filas
-        agregarHijo($$, $14); // Columnas
+        
+        // Tipo declarado
+        NodoAST* tipo = crearNodo(AST_TIPO, $1);
+        tipo->linea = @1.first_line; tipo->columna = @1.first_column;
+        agregarHijo($$, tipo);
+        
+        // Identificador
+        NodoAST* id = crearNodo(AST_IDENTIFICADOR, $6);
+        id->linea = @6.first_line; id->columna = @6.first_column;
+        agregarHijo($$, id);
+        
+        // Tipo en new
+        NodoAST* tipoNew = crearNodo(AST_TIPO, $9);
+        tipoNew->linea = @9.first_line; tipoNew->columna = @9.first_column;
+        agregarHijo($$, tipoNew);
+        
+        NodoAST* dimension = crearNodo(AST_DIMENSIONES, "Dimensiones");
+        agregarHijo(dimension, $11);
+        agregarHijo(dimension, $14);
+        agregarHijo($$, dimension);
     }
     | tipo_primitivo TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_IDENTIFICADOR TOKEN_IGUAL TOKEN_LLAVEIZQ lista_filas TOKEN_LLAVEDER {
         $$ = crearNodo(AST_DECLARACION_MATRIZ, "Declaración Matriz");
         $$->linea = @6.first_line; $$->columna = @6.first_column;
-        agregarHijo($$, crearNodo(AST_TIPO, $1));
-        agregarHijo($$, crearNodo(AST_IDENTIFICADOR, $6));
-        agregarHijo($$, $9);
+        
+        // Tipo declarado
+        NodoAST* tipo = crearNodo(AST_TIPO, $1);
+        tipo->linea = @1.first_line; tipo->columna = @1.first_column;
+        agregarHijo($$, tipo);
+        
+        // Identificador
+        NodoAST* id = crearNodo(AST_IDENTIFICADOR, $6);
+        id->linea = @6.first_line; id->columna = @6.first_column;
+        agregarHijo($$, id);
+        
+        // Lista de elementos
+        NodoAST* lista = crearNodo(AST_LISTA_ELEMENTOS, "Lista Elementos");
+        agregarHijo(lista, $9);
+        agregarHijo($$, lista);
     }
 ;
 
 declaracion_array_multidimensional:
-    tipo_primitivo DimensionesCorchetes TOKEN_IDENTIFICADOR TOKEN_IGUAL TOKEN_NEW tipo_primitivo Dimensiones {
+    tipo_primitivo TOKEN_IDENTIFICADOR DimensionesCorchetes TOKEN_IGUAL TOKEN_NEW tipo_primitivo Dimensiones {
         $$ = crearNodo(AST_DECLARACION_ARRAY_MULTIDIMENSIONAL, "Declaración Array Multidimensional");
-        $$->linea = @3.first_line; $$->columna = @3.first_column;
-        agregarHijo($$, crearNodo(AST_TIPO, $1));
-        agregarHijo($$, crearNodo(AST_IDENTIFICADOR, $3));
-        agregarHijo($$, $7); // Dimensiones
+        $$->linea = @2.first_line; $$->columna = @2.first_column;
+
+        // Tipo declarado
+        NodoAST* tipo = crearNodo(AST_TIPO, $1);
+        tipo->linea = @1.first_line; tipo->columna = @1.first_column;
+        agregarHijo($$, tipo);
+
+        // Identificador
+        NodoAST* id = crearNodo(AST_IDENTIFICADOR, $2);
+        id->linea = @2.first_line; id->columna = @2.first_column;
+        agregarHijo($$, id);
+
+        // Tipo en new
+        NodoAST* tipoNew = crearNodo(AST_TIPO, $6);
+        tipoNew->linea = @6.first_line; tipoNew->columna = @6.first_column;
+        agregarHijo($$, tipoNew);
+
+        // Dimensiones explícitas
+        agregarHijo($$, $7);
+
+        // Validación de consistencia entre corchetes y dimensiones
+        if ($3->num_hijos != $7->num_hijos) {
+            addErrorSintactico("El número de corchetes no coincide con las dimensiones especificadas", "global", @2.first_line, @2.first_column);
+        }
     }
-    | tipo_primitivo DimensionesCorchetes TOKEN_IDENTIFICADOR TOKEN_IGUAL TOKEN_LLAVEIZQ lista_bloques TOKEN_LLAVEDER {
+    | tipo_primitivo TOKEN_IDENTIFICADOR DimensionesCorchetes TOKEN_IGUAL TOKEN_LLAVEIZQ lista_bloques TOKEN_LLAVEDER {
         $$ = crearNodo(AST_DECLARACION_ARRAY_MULTIDIMENSIONAL, "Declaración Array Multidimensional");
-        $$->linea = @3.first_line; $$->columna = @3.first_column;
-        agregarHijo($$, crearNodo(AST_TIPO, $1));
-        agregarHijo($$, crearNodo(AST_IDENTIFICADOR, $3));
+        $$->linea = @2.first_line; $$->columna = @2.first_column;
+
+        // Tipo declarado
+        NodoAST* tipo = crearNodo(AST_TIPO, $1);
+        tipo->linea = @1.first_line; tipo->columna = @1.first_column;
+        agregarHijo($$, tipo);
+
+        // Identificador
+        NodoAST* id = crearNodo(AST_IDENTIFICADOR, $2);
+        id->linea = @2.first_line; id->columna = @2.first_column;
+        agregarHijo($$, id);
+
+        // Lista de bloques anidados
         agregarHijo($$, $6);
     }
 ;
 
 lista_bloques:
-    lista_bloques TOKEN_COMA TOKEN_LLAVEIZQ lista_bloques TOKEN_LLAVEDER {
+    lista_bloques TOKEN_COMA lista_elementos_o_bloques {
         if ($1->tipo != AST_INTERNO) {
             NodoAST* lista = crearNodo(AST_INTERNO, "Lista Bloques");
             agregarHijo(lista, $1);
-            NodoAST* bloque = crearNodo(AST_INTERNO, "Bloque");
-            agregarHijo(bloque, $4);
-            agregarHijo(lista, bloque);
+            agregarHijo(lista, $3);
             $$ = lista;
         } else {
-            NodoAST* bloque = crearNodo(AST_INTERNO, "Bloque");
-            agregarHijo(bloque, $4);
-            agregarHijo($1, bloque);
+            agregarHijo($1, $3);
             $$ = $1;
         }
     }
-    | TOKEN_LLAVEIZQ lista_elementos TOKEN_LLAVEDER {
+    | lista_elementos_o_bloques {
+        $$ = crearNodo(AST_INTERNO, "Lista Bloques");
+        agregarHijo($$, $1);
+    }
+;
+
+lista_elementos_o_bloques:
+    TOKEN_LLAVEIZQ lista_elementos TOKEN_LLAVEDER {
+        // Caso: lista de elementos
+        NodoAST* bloque = crearNodo(AST_INTERNO, "Bloque");
+        agregarHijo(bloque, $2);
+        $$ = bloque;
+    }
+    | TOKEN_LLAVEIZQ lista_bloques TOKEN_LLAVEDER {
+        // Caso: bloques anidados
         NodoAST* bloque = crearNodo(AST_INTERNO, "Bloque");
         agregarHijo(bloque, $2);
         $$ = bloque;
@@ -301,7 +381,7 @@ lista_bloques:
 
 DimensionesCorchetes:
     TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER DimensionesCorchetes {
-        NodoAST* dim = crearNodo(AST_DIMENSION, "[]");
+        NodoAST* dim = crearNodo(AST_DIMENSIONES, "[]");
         if ($3 == NULL) {
             $$ = dim;
         } else if ($3->tipo != AST_INTERNO) {
@@ -320,13 +400,13 @@ DimensionesCorchetes:
         }
     }
     | TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER {
-        $$ = crearNodo(AST_DIMENSION, "[]");
+        $$ = crearNodo(AST_DIMENSIONES, "[]");
     }
 ;
 
 Dimensiones:
     TOKEN_CORCHETEIZQ TOKEN_NUMERO TOKEN_CORCHETEDER {
-        $$ = crearNodo(AST_DIMENSION, "[]");
+        $$ = crearNodo(AST_DIMENSIONES, "[]");
         agregarHijo($$, crearNodo(AST_NUMERO, $2));
     }
     | Dimensiones TOKEN_CORCHETEIZQ TOKEN_NUMERO TOKEN_CORCHETEDER {
@@ -334,6 +414,44 @@ Dimensiones:
         $$ = $1;
     }
 ;
+
+
+/*============== ACCSESO DE VECTORES, MATRICES Y ARRAYS ===================*/
+
+acceso:
+    TOKEN_IDENTIFICADOR DimensionesAcceso {
+        $$ = crearNodo(AST_ACCESO, "Acceso");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+
+        // Nodo para el identificador
+        NodoAST* id = crearNodo(AST_IDENTIFICADOR, $1);
+        id->linea = @1.first_line; id->columna = @1.first_column;
+        agregarHijo($$, id);
+
+        // Nodo para las dimensiones de acceso
+        agregarHijo($$, $2);
+    }
+;
+
+DimensionesAcceso:
+    DimensionesAcceso TOKEN_CORCHETEIZQ expresion TOKEN_CORCHETEDER {
+        if ($1 == NULL) {
+            $$ = crearNodo(AST_DIMENSIONES, "Dimensiones");
+        } else {
+            $$ = $1;
+        }
+        NodoAST* dim = crearNodo(AST_1DIMENSION, "Dimensión");
+        agregarHijo(dim, $3); // Agregar la expresión como una dimensión
+        agregarHijo($$, dim);
+    }
+    | TOKEN_CORCHETEIZQ expresion TOKEN_CORCHETEDER {
+        $$ = crearNodo(AST_DIMENSIONES, "Dimensiones");
+        NodoAST* dim = crearNodo(AST_1DIMENSION, "Dimensión");
+        agregarHijo(dim, $2); // Agregar la expresión como una dimensión
+        agregarHijo($$, dim);
+    }
+;
+
 
 tipo_primitivo:
     TOKEN_DINT      { $$ = $1; }
@@ -593,6 +711,9 @@ primary:
     | TOKEN_IDENTIFICADOR {
           $$ = crearNodo(AST_IDENTIFICADOR, $1);
           $$->linea = @1.first_line; $$->columna = @1.first_column;
+      }
+    | acceso {
+          $$ = $1;
       }
     | TOKEN_PARIZQ expresion TOKEN_PARDER {
           $$ = $2;

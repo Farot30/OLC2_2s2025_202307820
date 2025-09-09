@@ -3,6 +3,8 @@
         "tabla_simbolo.h": "c",
         "tipos.h": "c",
         "evaluador.h": "c",
-        "ejecutar_ast.h": "c"
+        "ejecutar_ast.h": "c",
+        "err.h": "c",
+        "acceso_vector.h": "c"
     }
 }

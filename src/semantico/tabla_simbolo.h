@@ -7,7 +7,10 @@
 
 typedef enum {
     SIMBOLO_VARIABLE,
-    SIMBOLO_FUNCION
+    SIMBOLO_FUNCION,
+    SIMBOLO_VECTOR,
+    SIMBOLO_MATRIZ,
+    SIMBOLO_ARRAY_MULTIDIMENSIONAL,
 } TipoSimbolo;
 typedef struct {
     TipoDato tipo;
@@ -45,12 +48,16 @@ const char* ambitoActual(void);
 
 void inicializarTabla();
 void liberarTabla();
-void agregarSimbolo(const char* nombre, TipoDato tipo); // compatible
 void agregarSimboloDetallado(const char* nombre, TipoSimbolo clase, TipoDato tipo,
                              const char* ambito, int linea, int columna);
 Simbolo* buscarSimbolo(const char* nombre);
 void mostrarTablaSimbolos();
 void setValorSimbolo(Simbolo* sim, TipoDato tipo, ValorSimbolo valor);
 ValorSimbolo getValorSimbolo(Simbolo* sim);
+void asignarValor(Simbolo* simbolo, ValorSimbolo valor);
+
+void asignarElementoVector(Simbolo* simbolo, int indice, ValorSimbolo valor);
+void asignarElementoMatriz(Simbolo* simbolo, int fila, int columna, ValorSimbolo valor);
+void asignarElementoArrayMultidimensional(Simbolo* simbolo, int* indices, int numIndices, ValorSimbolo valor);
 
 #endif

@@ -35,6 +35,10 @@ BACKEND_SRC = \
 	$(SRC_DIR)/semantico/Instrucciones/break.c \
 	$(SRC_DIR)/semantico/Instrucciones/continue.c \
 	$(SRC_DIR)/semantico/Instrucciones/for.c \
+	$(SRC_DIR)/semantico/Vectores/declaracion_vector.c \
+	$(SRC_DIR)/semantico/Vectores/declaracion_matriz.c \
+	$(SRC_DIR)/semantico/Vectores/declaracion_array.c \
+	$(SRC_DIR)/semantico/Vectores/acceso_vector.c \
 	$(SRC_DIR)/simbolos/Evaluador.c \
 	$(SRC_DIR)/simbolos/salida.c \
 	$(SRC_DIR)/simbolos/Operador.c
@@ -64,6 +68,10 @@ GUI_SRC = \
 	$(SRC_DIR)/semantico/Instrucciones/break.c \
 	$(SRC_DIR)/semantico/Instrucciones/continue.c \
 	$(SRC_DIR)/semantico/Instrucciones/for.c \
+	$(SRC_DIR)/semantico/Vectores/declaracion_vector.c \
+	$(SRC_DIR)/semantico/Vectores/declaracion_matriz.c \
+	$(SRC_DIR)/semantico/Vectores/declaracion_array.c \
+	$(SRC_DIR)/semantico/Vectores/acceso_vector.c \
 	$(SRC_DIR)/simbolos/Evaluador.c \
 	$(SRC_DIR)/simbolos/Operador.c \
 	$(SRC_DIR)/simbolos/salida.c

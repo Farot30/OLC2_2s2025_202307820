@@ -66,8 +66,8 @@ void imprimirEvaluado(NodoAST* expr) {
     
     if (!expr) {
         printf("[DEBUG] expr es NULL\n");
-        printf("[PRINT] (expresión nula)");
-        capture_print_output("[PRINT] (expresión nula)");
+        printf("[PRINT] (expresión nula)\n");
+        capture_print_output("[PRINT] (expresión nula)\n");
         return;
     }
     
@@ -91,8 +91,8 @@ void imprimirEvaluado(NodoAST* expr) {
            v.inicializado, v.tipo);
     
     if (!v.inicializado) {
-        printf("[PRINT] (sin valor)");
-        capture_print_output("[PRINT] (sin valor)");
+        printf("[PRINT] (sin valor)\n");
+        capture_print_output("[PRINT] (sin valor)\n");
         return;
     }
 
@@ -127,13 +127,9 @@ void imprimirEvaluado(NodoAST* expr) {
             printf("[DEBUG] Tipo desconocido: %d\n", v.tipo);
             break;
     }
-
-    // ¡¡¡ LÍNEAS PROBLEMÁTICAS ELIMINADAS !!!
-    // NO modifiques el AST original - esto causaba el ciclo infinito
-    // if (expr->valor) free(expr->valor);
-    // expr->valor = strdup(buffer);
-
+    
     // Simplemente imprimir el valor sin modificar el AST
-    printf("%s", buffer);
+    printf("%s\n", buffer);
     capture_print_output(buffer);
+    capture_print_output("\n");
 }

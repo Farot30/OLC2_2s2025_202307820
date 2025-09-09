@@ -56,11 +56,16 @@ ResultadoEjecucion ejecutarSentenciaFor(NodoAST* nodo) {
         }
     }
     
-    while (true) { // Mantener límite de seguridad
+    // Establecer un límite de seguridad para evitar bucles infinitos durante desarrollo
+    int max_iteraciones = 10000; // Ajustar según sea necesario
+    int contador_iteraciones = 0;
+    
+    while (contador_iteraciones < max_iteraciones) {
+        contador_iteraciones++;
         
         // Evaluar condición
         if (condicion) {
-            printf("[DEBUG FOR] Evaluando condición\n");
+            printf("[DEBUG FOR] Evaluando condición (iteración %d)\n", contador_iteraciones);
             ValorSimbolo vCond = evaluarExpr(condicion);
             if (!vCond.inicializado) {
                 printf("[ERROR FOR] Condición del FOR no está inicializada\n");
@@ -78,66 +83,71 @@ ResultadoEjecucion ejecutarSentenciaFor(NodoAST* nodo) {
                 break;
             }
         }
-    
-
 
         // Ejecutar bloque (si existe)
         if (bloque) {
-            printf("[DEBUG FOR] Verificando bloque: tipo=%d, válido=%d, hijos=%d\n", 
-                   bloque->tipo, bloque->valido, bloque->num_hijos);
+            printf("[DEBUG FOR] Ejecutando bloque de código\n");
+            entrarAmbito("for");
             
-            // Verificar que el bloque es válido
-            if (!bloque->valido || bloque->tipo == AST_ERROR) {
-                printf("[WARNING FOR] Bloque inválido o con errores, saltando\n");
-            } else {
-                // Ejecutar bloque
-                entrarAmbito("for");
-                printf("[DEBUG FOR] Ejecutando bloque de código\n");
-                
-                // Si es un bloque vacío, no hacer nada
-                if (bloque->num_hijos == 0) {
-                    printf("[DEBUG FOR] Bloque vacío\n");
-                } else {
-                    ResultadoEjecucion res = ejecutarNodoAST(bloque);
-                    if (res == EJEC_BREAK) {
-                        printf("[DEBUG FOR] Break detectado, saliendo del bucle\n");
-                        salirAmbito();
-                        break; 
-                    } else if (res == EJEC_CONTINUE) {
-                        printf("[DEBUG FOR] Continue detectado, continuando con incremento\n");
-                        // continuar con el incremento
-                    }
-                }
-                salirAmbito();
+            ResultadoEjecucion res = ejecutarNodoAST(bloque);
+            
+            salirAmbito();
+            
+            if (res == EJEC_BREAK) {
+                printf("[DEBUG FOR] Break detectado, saliendo del bucle\n");
+                break; 
+            } else if (res == EJEC_CONTINUE) {
+                printf("[DEBUG FOR] Continue detectado, continuando con incremento\n");
+                // continuar con el incremento
             }
-        } else {
-            printf("[INFO FOR] No hay bloque de código, ejecutando bucle vacío\n");
-            // Para testing, puedes agregar aquí alguna acción por defecto
         }
 
-        // Ejecutar incremento
+        // Ejecutar incremento - PARTE CRÍTICA CORREGIDA
         if(incremento) {
             printf("[DEBUG FOR] Ejecutando incremento: tipo=%d, valor='%s'\n", 
                    incremento->tipo, incremento->valor ? incremento->valor : "NULL");
             
-            if (incremento->valido && incremento->tipo != AST_ERROR) {
+            // Manejar diferentes tipos de nodos de incremento
+            if (incremento->tipo == AST_OPERACION && 
+                incremento->valor && 
+                (strcmp(incremento->valor, "++") == 0 || strcmp(incremento->valor, "--") == 0)) {
+                
+                // Para operaciones de incremento/decremento
+                if (incremento->num_hijos > 0 && incremento->hijos[0] && 
+                    incremento->hijos[0]->tipo == AST_IDENTIFICADOR) {
+                    
+                    const char* nombreVar = incremento->hijos[0]->valor;
+                    Simbolo* simbolo = buscarSimbolo(nombreVar);
+                    
+                    if (simbolo && simbolo->tipo == TIPO_INT) {
+                        if (strcmp(incremento->valor, "++") == 0) {
+                            simbolo->valor.v.i++;
+                            printf("[DEBUG FOR] Incrementado '%s' a: %d\n", nombreVar, simbolo->valor.v.i);
+                        } else {
+                            simbolo->valor.v.i--;
+                            printf("[DEBUG FOR] Decrementado '%s' a: %d\n", nombreVar, simbolo->valor.v.i);
+                        }
+                    } else {
+                        printf("[WARNING FOR] Variable '%s' no encontrada o no es int\n", nombreVar);
+                    }
+                }
+            } else {
+                // Para cualquier otro tipo de expresión de incremento
                 ResultadoEjecucion res_inc = ejecutarNodoAST(incremento);
                 if (res_inc != EJEC_OK) {
                     printf("[WARNING FOR] Error en incremento, continuando\n");
                 }
-            } else {
-                printf("[WARNING FOR] Nodo incremento inválido\n");
             }
         }
         
-        
-        // Mostrar estado de la variable después del incremento
-        Simbolo* var_i = buscarSimbolo("i");
-        if (var_i) {
-            printf("[DEBUG FOR] Valor de 'i' después del incremento: %d\n", var_i->valor.v.i);
+        // Verificar límite de seguridad
+        if (contador_iteraciones >= max_iteraciones) {
+            printf("[ERROR FOR] Posible bucle infinito detectado después de %d iteraciones\n", contador_iteraciones);
+            addError("Posible bucle infinito en FOR", ambitoActual(), nodo->linea, nodo->columna);
+            break;
         }
     }
     
-    printf("[DEBUG FOR] === BUCLE FOR COMPLETADO ===\n");
+    printf("[DEBUG FOR] === BUCLE FOR COMPLETADO después de %d iteraciones ===\n", contador_iteraciones);
     return EJEC_OK;
 }

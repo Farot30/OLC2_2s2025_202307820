@@ -7,6 +7,8 @@ typedef enum {
     AST_NUMERO,
     AST_IDENTIFICADOR,
     AST_DECLARACION,
+    AST_1DIMENSION,
+    AST_LISTA_ELEMENTOS,
     AST_LISTA,
     AST_BLOQUE,
     AST_ASIGNACION,
@@ -34,9 +36,10 @@ typedef enum {
     AST_DECLARACION_VECTOR,
     AST_DECLARACION_MATRIZ,
     AST_DECLARACION_ARRAY_MULTIDIMENSIONAL,
-    AST_DIMENSION,
+    AST_DIMENSIONES,
     AST_TIPO,
     AST_INTERNO,
+    AST_ACCESO,
 
     // Por si se me olvida, aquí es agregar más tipos
 } TipoNodoAST;

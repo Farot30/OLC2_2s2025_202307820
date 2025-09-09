@@ -2,4 +2,5 @@
 #define OPERADOR_H
 #include "Evaluador.h"
 ValorSimbolo evaluarOperacion(NodoAST* e, ValorSimbolo a, ValorSimbolo b);
+char* valorToString(ValorSimbolo val);
 #endif
