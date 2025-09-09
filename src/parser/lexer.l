@@ -67,7 +67,7 @@ String\.valueOf             { return TOKEN_STRING_VALUEOF; }
 Integer\.parseInt           { yylval.str = strdup("Integer.parseInt"); return TOKEN_PARSEINT; }
 Double\.parseDouble         { yylval.str = strdup("Double.parseDouble"); return TOKEN_PARSEDOUBLE; }
 Float\.parseFloat           { yylval.str = strdup("Float.parseFloat"); return TOKEN_PARSEFLOAT; }
-Strings\.join               { yylval.str = strdup("Strings.join"); return TOKEN_PARSEJOIN; }
+String\.join                { yylval.str = strdup("String.join"); return TOKEN_PARSEJOIN; }
 Arrays\.indexOf             { yylval.str = strdup("Arrays.indexOf"); return TOKEN_INDEXOF; }
 length                      { yylval.str = strdup("Array.length"); return TOKEN_LENGHT; }
 add                         { yylval.str = strdup("Array.add"); return TOKEN_ADD; }

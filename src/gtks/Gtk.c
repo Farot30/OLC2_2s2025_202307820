@@ -84,7 +84,7 @@ void fill_error_treeview(GtkListStore* store, const char* error_text) {
     }
 }
 
-// Función para llenar la tabla de símbolos desde texto formateado
+// Función corregida para llenar la tabla de símbolos desde texto formateado
 void fill_symbol_treeview(GtkListStore* store, const char* symbol_text) {
     clear_treeview(store);
     
@@ -100,18 +100,18 @@ void fill_symbol_treeview(GtkListStore* store, const char* symbol_text) {
     if (!start) return;
     start++;
     
-    // Saltar la línea de formato
+    // Saltar la línea de formato (ID Nombre Clase...)
     start = strchr(start, '\n');
     if (!start) return;
     start++;
     
-    // Saltar la línea de separadores
+    // Saltar la línea de separadores (---...)
     start = strchr(start, '\n');
     if (!start) return;
     start++;
     
     // Procesar hasta encontrar la línea de ===
-    const char* end = strstr(start, "=======================");
+    const char* end = strstr(start, "=============================================");
     if (!end) end = start + strlen(start);
     
     // Extraer líneas con símbolos
@@ -128,33 +128,101 @@ void fill_symbol_treeview(GtkListStore* store, const char* symbol_text) {
             strncpy(line, line_start, line_len);
             line[line_len] = '\0';
             
-            // Parsear la línea con formato "ID Nombre Clase TipoDato Ambito Linea Col"
+            // Saltar líneas vacías
+            if (strlen(g_strstrip(g_strdup(line))) == 0) {
+                line_start = line_end + 1;
+                continue;
+            }
+            
+            // Inicializar variables
             char id[10] = "";
             char nombre[50] = "";
             char clase[20] = "";
             char tipo[20] = "";
-            char valor[51] = "";
+            char valor[200] = "";
             char ambito[30] = "";
             char linea[10] = "";
             char columna[10] = "";
             
-            // Extraer valores usando sscanf con formato fijo
-            sscanf(line, "%9s %49s %40s %19s %50s %29s %9s %9s",
-                   id, nombre, clase, tipo, valor, ambito, linea, columna);
-
-            // Agregar a la tabla
-            GtkTreeIter iter;
-            gtk_list_store_append(store, &iter);
-            gtk_list_store_set(store, &iter, 
-                               0, id,
-                               1, nombre,
-                               2, clase,
-                               3, tipo,
-                               4, valor,
-                               5, ambito,
-                               6, linea,
-                               7, columna,
-                               -1);
+            // Parser basado en posiciones fijas corregidas según el printf:
+            // printf("%-4s %-15s %-15s %-10s %-35s %-10s %-6s %-6s\n",
+            //        "ID", "Nombre", "Clase", "TipoDato", "Valor", "Ambito", "Linea", "Col");
+            // printf("%-4d %-15s %-15s %-10s %-35s %-10s %-6d %-6d\n",
+            //        actual->id, actual->nombre, nombreClase(actual->clase), 
+            //        nombreTipoDato(actual->tipo), valor, actual->ambito, 
+            //        actual->linea, actual->columna);
+            
+            // ID (posición 0-3, ancho %-4d)
+            if (strlen(line) > 0) {
+                strncpy(id, line, 4);
+                id[4] = '\0';
+                g_strstrip(id);
+            }
+            
+            // Nombre (posición 5-19, ancho %-15s) 
+            if (strlen(line) > 5) {
+                strncpy(nombre, line + 5, 15);
+                nombre[15] = '\0';
+                g_strstrip(nombre);
+            }
+            
+            // Clase (posición 21-35, ancho %-15s)
+            if (strlen(line) > 21) {
+                strncpy(clase, line + 21, 15);
+                clase[15] = '\0';
+                g_strstrip(clase);
+            }
+            
+            // Tipo (posición 37-46, ancho %-10s)
+            if (strlen(line) > 37) {
+                strncpy(tipo, line + 37, 10);
+                tipo[10] = '\0';
+                g_strstrip(tipo);
+            }
+            
+            // Valor (posición 48-82, ancho %-35s)
+            if (strlen(line) > 48) {
+                strncpy(valor, line + 48, 35);
+                valor[35] = '\0';
+                g_strstrip(valor);
+            }
+            
+            // Ámbito (posición 84-93, ancho %-10s)
+            if (strlen(line) > 84) {
+                strncpy(ambito, line + 84, 10);
+                ambito[10] = '\0';
+                g_strstrip(ambito);
+            }
+            
+            // Línea (posición 95-100, ancho %-6d)
+            if (strlen(line) > 95) {
+                strncpy(linea, line + 95, 6);
+                linea[6] = '\0';
+                g_strstrip(linea);
+            }
+            
+            // Columna (posición 102 en adelante, ancho %-6d)
+            if (strlen(line) > 102) {
+                strncpy(columna, line + 102, 6);
+                columna[6] = '\0';
+                g_strstrip(columna);
+            }
+            
+            // Agregar a la tabla si tenemos al menos el ID
+            if (strlen(id) > 0) {
+                GtkTreeIter iter;
+                gtk_list_store_append(store, &iter);
+                gtk_list_store_set(store, &iter, 
+                                   0, id,
+                                   1, nombre,
+                                   2, clase,
+                                   3, tipo,
+                                   4, valor,
+                                   5, ambito,
+                                   6, linea,
+                                   7, columna,
+                                   -1);
+            }
         }
         
         line_start = line_end + 1;

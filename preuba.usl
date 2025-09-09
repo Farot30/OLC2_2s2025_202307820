@@ -121,3 +121,35 @@ String[] frutas = {"manzana", "banana", "cereza"};
 String buscar = "banana";
 int pos = Arrays.indexOf(frutas, buscar);
 System.out.println(pos);
+
+
+int[] primes = { 2, 3, 5, 7, 11 };
+int x = primes[2];
+
+int[][] board = {
+{ 0, 1, 0 },
+{ 1, 0, 1 },
+{ 0, 1, 0 }
+};
+
+int y = board[1][2];
+
+int edad = Integer.parseInt("25");
+
+double pi = Double.parseDouble("3.1416");
+
+String s2 = String.valueOf(true);
+
+String s = String.join("-", "2025", "08", "03");
+
+
+int[] numeros = { 2, 5, 7, 8, 11, 12 };
+int clave = 7;
+int indice = Arrays.indexOf(numeros, clave);
+
+int[] numeros = { 2, 5, 7, 8, 11, 12 };
+int tam = numeros.length;
+
+int[] numeros = { 2, 5, 7, 8 };
+int nuevoVal = 11;
+int[] ampliado = numeros.add(nuevoVal);

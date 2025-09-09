@@ -744,6 +744,10 @@ primary:
           $$ = crearNodo(AST_IDENTIFICADOR, $1);
           $$->linea = @1.first_line; $$->columna = @1.first_column;
       }
+    | TOKEN_BOOLEANO {
+        $$ = crearNodo(AST_BOOLEAN, $1);
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+    }
     | TOKEN_PARSEINT TOKEN_PARIZQ expresion TOKEN_PARDER {
         $$ = crearNodo(AST_PARSEINT, "Integer.parseInt");
         $$->linea = @1.first_line; $$->columna = @1.first_column;
