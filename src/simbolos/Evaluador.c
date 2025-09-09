@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <ctype.h> 
 
 // Función auxiliar para crear un ValorSimbolo numérico
 ValorSimbolo makeNum(TipoDato tipo, double d) {
@@ -240,11 +241,358 @@ ValorSimbolo evaluarExpr(NodoAST* e) {
     }
 }
 
+static void obtenerDimensionesArray(Simbolo* simbolo, int* dimensiones, int* numDimensiones) {
+    if (!simbolo || !simbolo->valor.v.s || !dimensiones || !numDimensiones) return;
+    
+    // Inicializar
+    *numDimensiones = 0;
+    
+    // Si es una matriz, procesar su formato específico
+    if (simbolo->clase == SIMBOLO_MATRIZ) {
+        // Formato matriz: [[val1,val2,...],[val1,val2,...],...]
+        char* matrixCopy = strdup(simbolo->valor.v.s);
+        if (matrixCopy) {
+            // Contar filas (corchetes internos)
+            int numFilas = 0;
+            int numColumnas = 0;
+            char* p = matrixCopy;
+            
+            // Contar filas (separadas por ],[)
+            while (*p) {
+                if (*p == '[' && (p == matrixCopy || *(p-1) == ',')) numFilas++;
+                p++;
+            }
+            
+            // Contar columnas en la primera fila
+            if (numFilas > 0) {
+                p = strchr(matrixCopy, '[');
+                if (p) {
+                    p++; // Saltar el primer corchete
+                    char* endRow = strchr(p, ']');
+                    if (endRow) {
+                        // Contar comas dentro de la primera fila + 1
+                        numColumnas = 1; // Al menos un elemento
+                        while (p < endRow) {
+                            if (*p == ',') numColumnas++;
+                            p++;
+                        }
+                    }
+                }
+            }
+            
+            printf("[EVALUADOR] Matriz '%s' detectada con formato: %d filas, %d columnas\n", 
+                simbolo->nombre, numFilas, numColumnas);
+            
+            dimensiones[0] = numFilas;
+            dimensiones[1] = numColumnas;
+            *numDimensiones = 2;
+            
+            free(matrixCopy);
+        }
+    } else if (simbolo->clase == SIMBOLO_VECTOR) {
+        // Vector: contar elementos directamente
+        char* valorCopy = strdup(simbolo->valor.v.s);
+        int count = 1; // Al menos un elemento
+        
+        // Eliminar corchetes si existen
+        if (valorCopy[0] == '[') {
+            memmove(valorCopy, valorCopy + 1, strlen(valorCopy));
+            int len = strlen(valorCopy);
+            if (len > 0 && valorCopy[len - 1] == ']') {
+                valorCopy[len - 1] = '\0';
+            }
+        }
+        
+        // Contar comas para determinar número de elementos
+        for (char* p = valorCopy; *p; p++) {
+            if (*p == ',') count++;
+        }
+        
+        dimensiones[0] = count;
+        *numDimensiones = 1;
+        
+        free(valorCopy);
+        printf("[EVALUADOR] Vector '%s' con %d elementos\n", simbolo->nombre, count);
+    }
+}
+
+static int evaluarIndices(NodoAST* dimensionesNodo, int* indices, int maxDim) {
+    int numIndices = 0;
+    
+    for (int i = 0; i < dimensionesNodo->num_hijos && numIndices < maxDim; i++) {
+        NodoAST* dimNodo = dimensionesNodo->hijos[i];
+        if (dimNodo->tipo == AST_1DIMENSION) {
+            if (dimNodo->num_hijos < 1) {
+                printf("[EVALUADOR] Dimensión sin expresión\n");
+                return -1;
+            }
+            
+            // Evaluar índice
+            ValorSimbolo idxVal = evaluarExpr(dimNodo->hijos[0]);
+            if (!idxVal.inicializado || idxVal.tipo != TIPO_INT) {
+                printf("[EVALUADOR] Índice debe ser entero\n");
+                return -1;
+            }
+            
+            indices[numIndices++] = idxVal.v.i;
+        }
+    }
+    
+    return numIndices;
+}
+
+static ValorSimbolo procesarAccesoVector(Simbolo* simbolo, int indice) {
+    ValorSimbolo r;
+    memset(&r, 0, sizeof(r));
+    r.tipo = simbolo->tipo;
+    r.inicializado = 1;
+    
+    char* valCopy = strdup(simbolo->valor.v.s);
+    char* valores = valCopy;
+    
+    // Eliminar corchetes si existen
+    if (valores[0] == '[') {
+        memmove(valores, valores + 1, strlen(valores));
+        int len = strlen(valores);
+        if (len > 0 && valores[len - 1] == ']') {
+            valores[len - 1] = '\0';
+        }
+    }
+    
+    // Extraer elementos
+    char* valoresCopy = strdup(valores);
+    char* elementos[256]; // Máximo 256 elementos
+    int numElementos = 0;
+    
+    char* token = strtok(valoresCopy, ",");
+    while (token && numElementos < 256) {
+        // Limpiar espacios
+        while (*token && isspace(*token)) token++;
+        char* end = token + strlen(token) - 1;
+        while (end > token && isspace(*end)) *end-- = '\0';
+        
+        elementos[numElementos++] = strdup(token);
+        token = strtok(NULL, ",");
+    }
+    
+    // Verificar índice dentro del rango
+    if (indice >= 0 && indice < numElementos) {
+        // Convertir según el tipo
+        switch (simbolo->tipo) {
+            case TIPO_INT:
+                r.v.i = atoi(elementos[indice]);
+                break;
+            case TIPO_FLOAT:
+                r.v.f = strtof(elementos[indice], NULL);
+                break;
+            case TIPO_DOUBLE:
+                r.v.d = strtod(elementos[indice], NULL);
+                break;
+            case TIPO_CHAR:
+                r.v.c = elementos[indice][0];
+                break;
+            case TIPO_BOOLEAN:
+                r.v.b = (strcmp(elementos[indice], "true") == 0);
+                break;
+            case TIPO_STRING:
+                r.v.s = strdup(elementos[indice]);
+                break;
+            default:
+                r.inicializado = 0;
+                break;
+        }
+        printf("[EVALUADOR] Vector '%s[%d]' = '%s'\n", 
+            simbolo->nombre, indice, elementos[indice]);
+    } else {
+        printf("[EVALUADOR] Índice %d fuera de rango (0-%d)\n", 
+            indice, numElementos-1);
+        r.inicializado = 0;
+    }
+    
+    // Liberar memoria
+    for (int i = 0; i < numElementos; i++) {
+        free(elementos[i]);
+    }
+    free(valoresCopy);
+    free(valCopy);
+    
+    return r;
+}
+
+static ValorSimbolo procesarAccesoMatriz(Simbolo* simbolo, int filaIdx, int colIdx) {
+    ValorSimbolo r;
+    memset(&r, 0, sizeof(r));
+    r.tipo = simbolo->tipo;
+    r.inicializado = 1;
+    
+    printf("[EVALUADOR] Accediendo a matriz '%s[%d][%d]'\n", 
+        simbolo->nombre, filaIdx, colIdx);
+    
+    char* matrixStr = strdup(simbolo->valor.v.s);
+    
+    // Verificar formato
+    if (matrixStr[0] != '[' || matrixStr[1] != '[') {
+        printf("[EVALUADOR] Formato de matriz no reconocido\n");
+        free(matrixStr);
+        r.inicializado = 0;
+        return r;
+    }
+    
+    // Extraer filas de la matriz
+    char* matrixCopy = strdup(matrixStr);
+    char* filas[50]; // Máximo 50 filas
+    int numFilas = 0;
+    
+    // Quitar corchete externo inicial
+    memmove(matrixCopy, matrixCopy + 1, strlen(matrixCopy));
+    
+    // Quitar corchete externo final si existe
+    int len = strlen(matrixCopy);
+    if (len > 0 && matrixCopy[len - 1] == ']') {
+        matrixCopy[len - 1] = '\0';
+    }
+    
+    // Extraer cada fila - tienen formato [val1,val2,...]
+    char* p = matrixCopy;
+    char* inicioFila = p;
+    int nivel = 0;
+    
+    while (*p) {
+        if (*p == '[') nivel++;
+        else if (*p == ']') {
+            nivel--;
+            if (nivel == 0) {
+                // Fin de una fila
+                *(p+1) = '\0'; // Cortar después del corchete
+                filas[numFilas++] = strdup(inicioFila);
+                inicioFila = p + 2; // Saltar el corchete y la coma
+                p++; // Avanzar después del corchete
+            }
+        }
+        p++;
+    }
+    
+    printf("[EVALUADOR] Matriz analizada con %d filas\n", numFilas);
+    
+    // Verificar índice de fila
+    if (filaIdx < 0 || filaIdx >= numFilas) {
+        printf("[EVALUADOR] Índice de fila %d fuera de rango (0-%d)\n", 
+            filaIdx, numFilas-1);
+        // Liberar memoria
+        for (int i = 0; i < numFilas; i++) {
+            free(filas[i]);
+        }
+        free(matrixCopy);
+        free(matrixStr);
+        r.inicializado = 0;
+        return r;
+    }
+    
+    // Analizar la fila seleccionada
+    char* filaStr = filas[filaIdx];
+    
+    // Quitar corchetes de la fila
+    if (filaStr[0] == '[') {
+        memmove(filaStr, filaStr + 1, strlen(filaStr));
+        len = strlen(filaStr);
+        if (len > 0 && filaStr[len - 1] == ']') {
+            filaStr[len - 1] = '\0';
+        }
+    }
+    
+    // Separar elementos de la fila
+    char* elementos[100]; // Máximo 100 columnas
+    int numElementos = 0;
+    
+    char* elementosCopy = strdup(filaStr);
+    char* token = strtok(elementosCopy, ",");
+    while (token && numElementos < 100) {
+        // Eliminar espacios al inicio y final si existen
+        while (*token && isspace(*token)) token++;
+        char* end = token + strlen(token) - 1;
+        while (end > token && isspace(*end)) *end-- = '\0';
+        
+        elementos[numElementos++] = strdup(token);
+        token = strtok(NULL, ",");
+    }
+    
+    printf("[EVALUADOR] Fila %d tiene %d elementos\n", filaIdx, numElementos);
+    
+    // Verificar índice de columna
+    if (colIdx < 0 || colIdx >= numElementos) {
+        printf("[EVALUADOR] Índice de columna %d fuera de rango (0-%d)\n", 
+            colIdx, numElementos-1);
+        
+        // Liberar memoria
+        for (int i = 0; i < numElementos; i++) {
+            free(elementos[i]);
+        }
+        free(elementosCopy);
+        
+        for (int i = 0; i < numFilas; i++) {
+            free(filas[i]);
+        }
+        free(matrixCopy);
+        free(matrixStr);
+        
+        r.inicializado = 0;
+        return r;
+    }
+    
+    // Convertir elemento según el tipo
+    printf("[EVALUADOR] Accediendo a elemento [%d][%d] = '%s'\n", 
+        filaIdx, colIdx, elementos[colIdx]);
+    
+    switch (simbolo->tipo) {
+        case TIPO_INT:
+            r.v.i = atoi(elementos[colIdx]);
+            break;
+        case TIPO_FLOAT:
+            r.v.f = strtof(elementos[colIdx], NULL);
+            break;
+        case TIPO_DOUBLE:
+            r.v.d = strtod(elementos[colIdx], NULL);
+            break;
+        case TIPO_CHAR:
+            r.v.c = elementos[colIdx][0];
+            break;
+        case TIPO_BOOLEAN:
+            r.v.b = (strcmp(elementos[colIdx], "true") == 0);
+            break;
+        case TIPO_STRING:
+            r.v.s = strdup(elementos[colIdx]);
+            break;
+        default:
+            r.inicializado = 0;
+            break;
+    }
+    
+    // Liberar toda la memoria
+    for (int i = 0; i < numElementos; i++) {
+        free(elementos[i]);
+    }
+    free(elementosCopy);
+    
+    for (int i = 0; i < numFilas; i++) {
+        free(filas[i]);
+    }
+    free(matrixCopy);
+    free(matrixStr);
+    
+    printf("[EVALUADOR] Matriz '%s[%d][%d]' evaluada correctamente\n", 
+        simbolo->nombre, filaIdx, colIdx);
+    
+    return r;
+}
+
+
+
 ValorSimbolo evaluarAccesoArrays(NodoAST* nodo) {
     ValorSimbolo r;
     memset(&r, 0, sizeof(r));
     r.tipo = TIPO_DESCONOCIDO;
     
+    // Validación básica del nodo
     if (!nodo || nodo->tipo != AST_ACCESO || nodo->num_hijos < 2) {
         printf("[EVALUADOR] Nodo de acceso inválido\n");
         return r;
@@ -253,6 +601,7 @@ ValorSimbolo evaluarAccesoArrays(NodoAST* nodo) {
     NodoAST* idNodo = nodo->hijos[0];
     NodoAST* dimensionesNodo = nodo->hijos[1];
     
+    // Validar estructura del nodo
     if (!idNodo || idNodo->tipo != AST_IDENTIFICADOR) {
         printf("[EVALUADOR] Primer hijo no es un identificador\n");
         return r;
@@ -263,6 +612,7 @@ ValorSimbolo evaluarAccesoArrays(NodoAST* nodo) {
         return r;
     }
 
+    // Buscar el símbolo en la tabla
     Simbolo* simbolo = buscarSimbolo(idNodo->valor);
     if (!simbolo) {
         printf("[EVALUADOR] Variable '%s' no declarada\n", idNodo->valor);
@@ -286,50 +636,7 @@ ValorSimbolo evaluarAccesoArrays(NodoAST* nodo) {
     int dimensionesOriginales[10] = {0};
     int numDimensionesOriginales = 0;
     
-    if (simbolo->valor.v.s) {
-        // Verificar formato con mayor flexibilidad
-        if (simbolo->valor.v.s[0] == '[' && simbolo->valor.v.s[1] != '[') {
-            // NUEVO: Formato especial [2,3,5,7,11] - corchetes simples sin indicar dimensión
-            char* valorCopy = strdup(simbolo->valor.v.s);
-            
-            // Eliminar corchetes
-            if (valorCopy[0] == '[') {
-                memmove(valorCopy, valorCopy + 1, strlen(valorCopy));
-            }
-            int len = strlen(valorCopy);
-            if (len > 0 && valorCopy[len - 1] == ']') {
-                valorCopy[len - 1] = '\0';
-            }
-            
-            // Contar elementos
-            int count = 1;
-            for (char* p = valorCopy; *p; p++) {
-                if (*p == ',') count++;
-            }
-            
-            dimensionesOriginales[0] = count;
-            numDimensionesOriginales = 1;
-            
-            free(valorCopy);
-            printf("[EVALUADOR] Vector '%s' con formato [valores], contiene %d elementos\n", 
-                idNodo->valor, dimensionesOriginales[0]);
-        } else if (simbolo->clase == SIMBOLO_VECTOR) {
-            // Formato simple: valores separados por comas
-            char* valorCopy = strdup(simbolo->valor.v.s);
-            int count = 1; // Al menos un elemento
-            
-            for (char* p = valorCopy; *p; p++) {
-                if (*p == ',') count++;
-            }
-            
-            dimensionesOriginales[0] = count;
-            numDimensionesOriginales = 1;
-            
-            free(valorCopy);
-            printf("[EVALUADOR] Vector '%s' con formato simple tiene %d elementos\n", 
-                   idNodo->valor, dimensionesOriginales[0]);
-        }
-    }
+    obtenerDimensionesArray(simbolo, dimensionesOriginales, &numDimensionesOriginales);
     
     // Verificar que tengamos dimensiones
     if (numDimensionesOriginales == 0) {
@@ -337,278 +644,40 @@ ValorSimbolo evaluarAccesoArrays(NodoAST* nodo) {
         return r;
     }
     
-    // Contar dimensiones de acceso y evaluar índices
-    int numDimensionesAcceso = 0;
-    int indices[10] = {0}; // Guardar índices evaluados
+    // Evaluar índices
+    int indices[10] = {0};
+    int numDimensionesAcceso = evaluarIndices(dimensionesNodo, indices, 10);
     
-    for (int i = 0; i < dimensionesNodo->num_hijos; i++) {
-        NodoAST* dimNodo = dimensionesNodo->hijos[i];
-        if (dimNodo->tipo == AST_1DIMENSION) {
-            if (dimNodo->num_hijos < 1) {
-                printf("[EVALUADOR] Dimensión sin expresión\n");
-                return r;
-            }
-            
-            // Evaluar índice
-            ValorSimbolo idxVal = evaluarExpr(dimNodo->hijos[0]);
-            if (!idxVal.inicializado || idxVal.tipo != TIPO_INT) {
-                printf("[EVALUADOR] Índice debe ser entero\n");
-                return r;
-            }
-            
-            // Verificar rango
-            if (numDimensionesAcceso < numDimensionesOriginales) {
-                if (idxVal.v.i < 0 || idxVal.v.i >= dimensionesOriginales[numDimensionesAcceso]) {
-                    printf("[EVALUADOR] Índice %d fuera de rango: %d (válido: 0-%d)\n", 
-                           numDimensionesAcceso + 1, idxVal.v.i, 
-                           dimensionesOriginales[numDimensionesAcceso] - 1);
-                    return r;
-                }
-            } else {
-                printf("[EVALUADOR] Acceso con más dimensiones de las que tiene el array\n");
-                return r;
-            }
-            
-            // Guardar índice validado
-            indices[numDimensionesAcceso++] = idxVal.v.i;
+    if (numDimensionesAcceso <= 0) {
+        printf("[EVALUADOR] Error al evaluar índices de acceso\n");
+        return r;
+    }
+    
+    // Verificar compatibilidad de dimensiones
+    if ((simbolo->clase == SIMBOLO_VECTOR && numDimensionesAcceso != 1) ||
+        (simbolo->clase == SIMBOLO_MATRIZ && numDimensionesAcceso != 2) ||
+        (simbolo->clase == SIMBOLO_ARRAY_MULTIDIMENSIONAL && numDimensionesAcceso != numDimensionesOriginales)) {
+        printf("[EVALUADOR] Número incorrecto de dimensiones para '%s'\n", idNodo->valor);
+        return r;
+    }
+    
+    // Verificar rangos de índices
+    for (int i = 0; i < numDimensionesAcceso; i++) {
+        if (indices[i] < 0 || indices[i] >= dimensionesOriginales[i]) {
+            printf("[EVALUADOR] Índice %d fuera de rango: %d (válido: 0-%d)\n", 
+                   i + 1, indices[i], dimensionesOriginales[i] - 1);
+            return r;
         }
     }
     
     printf("[EVALUADOR] Accediendo a '%s' con %d índices\n", idNodo->valor, numDimensionesAcceso);
     
-    // El tipo del resultado será el tipo del elemento del array
-    r.tipo = simbolo->tipo;
-    r.inicializado = 1;
-    
-    // Vector unidimensional
+    // Procesar según el tipo de estructura
     if (simbolo->clase == SIMBOLO_VECTOR) {
-        char* valCopy = strdup(simbolo->valor.v.s);
-        char* valores = NULL;
-        
-        // Determinar formato y extraer valores
-        if (valCopy[0] == '[' && strstr(valCopy, "][")){
-            // Formato con dimensiones: [dim][val1,val2,...]
-            char* secondPartStart = strstr(valCopy, "][");
-            if (secondPartStart) {
-                valores = secondPartStart + 2; // Saltar "]["
-                
-                // Quitar último corchete si existe
-                int len = strlen(valores);
-                if (len > 0 && valores[len-1] == ']') {
-                    valores[len-1] = '\0';
-                }
-            } else {
-                printf("[EVALUADOR] Formato de vector incorrecto\n");
-                free(valCopy);
-                return r;
-            }
-        } else {
-            // MODIFICAR: Para formato [2,3,5,7,11] o val1,val2,...
-            valores = valCopy;
-            
-            // Eliminar corchetes si existen
-            if (valores[0] == '[') {
-                // Hacer una copia antes de modificar
-                char* temp = strdup(valores);
-                // Quitar corchete inicial
-                memmove(temp, temp + 1, strlen(temp));
-                // Quitar corchete final si existe
-                int len = strlen(temp);
-                if (len > 0 && temp[len - 1] == ']') {
-                    temp[len - 1] = '\0';
-                }
-                free(valCopy);
-                valCopy = temp;
-                valores = valCopy;
-            }
-        }
-        
-        
-        // Ahora necesitamos una copia independiente para tokenizar sin afectar valores/valCopy
-        char* valoresCopy = strdup(valores);
-        char* elementos[256]; // Máximo 256 elementos
-        int numElementos = 0;
-        
-        char* token = strtok(valoresCopy, ",");
-        while (token && numElementos < 256) {
-            elementos[numElementos++] = strdup(token);
-            token = strtok(NULL, ",");
-        }
-        
-        // Verificar índice dentro del rango
-        if (indices[0] >= 0 && indices[0] < numElementos) {
-            // Convertir según el tipo
-            switch (simbolo->tipo) {
-                case TIPO_INT:
-                    r.v.i = atoi(elementos[indices[0]]);
-                    break;
-                case TIPO_FLOAT:
-                    r.v.f = strtof(elementos[indices[0]], NULL);
-                    break;
-                case TIPO_DOUBLE:
-                    r.v.d = strtod(elementos[indices[0]], NULL);
-                    break;
-                case TIPO_CHAR:
-                    r.v.c = elementos[indices[0]][0];
-                    break;
-                case TIPO_BOOLEAN:
-                    r.v.b = (strcmp(elementos[indices[0]], "true") == 0);
-                    break;
-                case TIPO_STRING:
-                    r.v.s = strdup(elementos[indices[0]]);
-                    break;
-                default:
-                    r.inicializado = 0;
-                    break;
-            }
-            printf("[EVALUADOR] Vector '%s[%d]' = '%s'\n", 
-                idNodo->valor, indices[0], elementos[indices[0]]);
-        } else {
-            printf("[EVALUADOR] Índice %d fuera de rango (0-%d)\n", 
-                indices[0], numElementos-1);
-            r.inicializado = 0;
-        }
-        
-        // Liberar memoria
-        for (int i = 0; i < numElementos; i++) {
-            free(elementos[i]);
-        }
-        free(valoresCopy);
-        free(valCopy);
-    }
-    // Matriz bidimensional
-    else if (simbolo->clase == SIMBOLO_MATRIZ && numDimensionesAcceso == 2) {
-        char* matrixStr = strdup(simbolo->valor.v.s);
-        char* dataStart = NULL;
-        
-        // Extraer datos según formato
-        if (matrixStr[0] == '[') {
-            // Formato con dimensiones: [filas,columnas][[val1,val2,...],[val1,val2,...],...]
-            dataStart = strstr(matrixStr, "][");
-            if (dataStart) {
-                dataStart += 2; // Saltar "]["
-            } else {
-                printf("[EVALUADOR] Formato de matriz incorrecto\n");
-                free(matrixStr);
-                return r;
-            }
-        } else {
-            // Formato simple (improbable para matrices, pero por si acaso)
-            dataStart = matrixStr;
-        }
-        
-        // Quitar corchetes externos si existen
-        if (dataStart[0] == '[') {
-            dataStart++; // Saltar '['
-            int len = strlen(dataStart);
-            if (len > 0 && dataStart[len-1] == ']') {
-                dataStart[len-1] = '\0';
-            }
-        }
-        
-        // Separar filas: [val1,val2,...],[val1,val2,...],...]
-        char* filasCopy = strdup(dataStart);
-        char* filas[50]; // Máximo 50 filas
-        int numFilas = 0;
-        
-        // Extraer filas (más complejo porque cada fila tiene corchetes)
-        char* p = filasCopy;
-        int nivel = 0;
-        char* inicioFila = p;
-        
-        while (*p) {
-            if (*p == '[') nivel++;
-            else if (*p == ']') nivel--;
-            else if (*p == ',' && nivel == 0) {
-                // Fin de una fila
-                *p = '\0';
-                filas[numFilas++] = strdup(inicioFila);
-                inicioFila = p + 1;
-            }
-            p++;
-        }
-        
-        // Última fila
-        if (*inicioFila) {
-            filas[numFilas++] = strdup(inicioFila);
-        }
-        
-        // Verificar fila dentro del rango
-        if (indices[0] >= 0 && indices[0] < numFilas) {
-            // Extraer elementos de la fila seleccionada
-            char* filaStr = filas[indices[0]];
-            
-            // Quitar corchetes de la fila si existen
-            if (filaStr[0] == '[') {
-                filaStr++; // Saltar '['
-                int len = strlen(filaStr);
-                if (len > 0 && filaStr[len-1] == ']') {
-                    filaStr[len-1] = '\0';
-                }
-            }
-            
-            // Separar elementos de la fila
-            char* elementosCopy = strdup(filaStr);
-            char* elementos[100]; // Máximo 100 columnas
-            int numElementos = 0;
-            
-            char* token = strtok(elementosCopy, ",");
-            while (token && numElementos < 100) {
-                elementos[numElementos++] = strdup(token);
-                token = strtok(NULL, ",");
-            }
-            
-            // Verificar columna dentro del rango
-            if (indices[1] >= 0 && indices[1] < numElementos) {
-                // Convertir según el tipo
-                switch (simbolo->tipo) {
-                    case TIPO_INT:
-                        r.v.i = atoi(elementos[indices[1]]);
-                        break;
-                    case TIPO_FLOAT:
-                        r.v.f = strtof(elementos[indices[1]], NULL);
-                        break;
-                    case TIPO_DOUBLE:
-                        r.v.d = strtod(elementos[indices[1]], NULL);
-                        break;
-                    case TIPO_CHAR:
-                        r.v.c = elementos[indices[1]][0];
-                        break;
-                    case TIPO_BOOLEAN:
-                        r.v.b = (strcmp(elementos[indices[1]], "true") == 0);
-                        break;
-                    case TIPO_STRING:
-                        r.v.s = strdup(elementos[indices[1]]);
-                        break;
-                    default:
-                        r.inicializado = 0;
-                        break;
-                }
-                printf("[EVALUADOR] Matriz '%s[%d][%d]' = '%s'\n", 
-                       idNodo->valor, indices[0], indices[1], elementos[indices[1]]);
-            } else {
-                printf("[EVALUADOR] Índice de columna %d fuera de rango (0-%d)\n", 
-                       indices[1], numElementos-1);
-                r.inicializado = 0;
-            }
-            
-            // Liberar memoria de elementos
-            for (int i = 0; i < numElementos; i++) {
-                free(elementos[i]);
-            }
-            free(elementosCopy);
-        } else {
-            printf("[EVALUADOR] Índice de fila %d fuera de rango (0-%d)\n", 
-                   indices[0], numFilas-1);
-            r.inicializado = 0;
-        }
-        
-        // Liberar memoria de filas
-        for (int i = 0; i < numFilas; i++) {
-            free(filas[i]);
-        }
-        free(filasCopy);
-        free(matrixStr);
+        return procesarAccesoVector(simbolo, indices[0]);
+    } 
+    else if (simbolo->clase == SIMBOLO_MATRIZ) {
+        return procesarAccesoMatriz(simbolo, indices[0], indices[1]);
     }
     // Arrays multidimensionales (caso general)
     else if (simbolo->clase == SIMBOLO_ARRAY_MULTIDIMENSIONAL) {
