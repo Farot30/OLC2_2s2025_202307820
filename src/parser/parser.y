@@ -52,6 +52,9 @@
 %token <str> TOKEN_WHILE TOKEN_CONTINUE
 %token <str> TOKEN_FOR
 %token <str> TOKEN_STRING_VALUEOF TOKEN_EQUAL
+%token <str> TOKEN_PARSEINT TOKEN_PARSEFLOAT
+%token <str> TOKEN_PARSEDOUBLE
+%token <str> TOKEN_PARSEJOIN TOKEN_INDEXOF
 
 /* Tokens para asignaciones compuestas */
 %token <str> TOKEN_MAS_IGUAL TOKEN_MENOS_IGUAL TOKEN_POR_IGUAL
@@ -71,7 +74,7 @@
 %type <nodo> instruccion_print instruccion_if bloque
 %type <nodo> intruccion_switch lista_casos caso
 %type <nodo> instruccion_while instruccion_break instruccion_continue
-%type <nodo> instruccion_for
+%type <nodo> instruccion_for lista_expresiones_join
 %type <str> tipo_primitivo
 
 /* ========== PRECEDENCIA CORREGIDA ========== */
@@ -712,6 +715,48 @@ primary:
           $$ = crearNodo(AST_IDENTIFICADOR, $1);
           $$->linea = @1.first_line; $$->columna = @1.first_column;
       }
+    | TOKEN_PARSEINT TOKEN_PARIZQ expresion TOKEN_PARDER {
+        $$ = crearNodo(AST_PARSEINT, "Integer.parseInt");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+        agregarHijo($$, $3);
+    }
+    | TOKEN_PARSEDOUBLE TOKEN_PARIZQ expresion TOKEN_PARDER {
+        $$ = crearNodo(AST_PARSEDOUBLE, "Double.parseDouble");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+        agregarHijo($$, $3);
+    }
+    | TOKEN_PARSEFLOAT TOKEN_PARIZQ expresion TOKEN_PARDER {
+        $$ = crearNodo(AST_PARSEFLOAT, "Float.parseFloat");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+        agregarHijo($$, $3);
+    }
+    | TOKEN_STRING_VALUEOF TOKEN_PARIZQ expresion TOKEN_PARDER {
+        $$ = crearNodo(AST_VALUEOF, "String.valueOf");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+        agregarHijo($$, $3);
+    }
+    | TOKEN_INDEXOF TOKEN_PARIZQ expresion TOKEN_COMA expresion TOKEN_PARDER {
+        $$ = crearNodo(AST_INDEXOF, "Arrays.indexOf");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+        agregarHijo($$, $3);  // El array/vector
+        agregarHijo($$, $5);  // La clave a buscar
+    }
+    | TOKEN_PARSEJOIN TOKEN_PARIZQ expresion TOKEN_COMA lista_expresiones_join TOKEN_PARDER {
+        $$ = crearNodo(AST_PARSEJOIN, "Strings.join");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+        agregarHijo($$, $3);  // El delimitador
+        agregarHijo($$, $5);  // Lista de expresiones a unir
+    }
+    | TOKEN_PARSEJOIN TOKEN_PARIZQ expresion TOKEN_COMA expresion TOKEN_PARDER {
+        $$ = crearNodo(AST_PARSEJOIN, "Strings.join");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+        agregarHijo($$, $3);  // El delimitador
+        
+        // Para un solo elemento, creamos una lista con ese elemento
+        NodoAST* lista = crearNodo(AST_LISTA, "Lista Strings");
+        agregarHijo(lista, $5);
+        agregarHijo($$, lista);
+    }
     | acceso {
           $$ = $1;
       }
@@ -720,7 +765,23 @@ primary:
       }
     ;
 
-
+lista_expresiones_join:
+    lista_expresiones_join TOKEN_COMA expresion {
+        if ($1->tipo != AST_LISTA) {
+            NodoAST* lista = crearNodo(AST_LISTA, "Lista Strings");
+            agregarHijo(lista, $1);
+            agregarHijo(lista, $3);
+            $$ = lista;
+        } else {
+            agregarHijo($1, $3);
+            $$ = $1;
+        }
+    }
+    | expresion {
+        $$ = crearNodo(AST_LISTA, "Lista Strings");
+        agregarHijo($$, $1);
+    }
+;
 
 /* ========== INSTRUCCIONES ESPECÍFICAS ========== */
 instruccion_print:

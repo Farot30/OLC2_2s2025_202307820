@@ -40,6 +40,12 @@ typedef enum {
     AST_TIPO,
     AST_INTERNO,
     AST_ACCESO,
+    AST_PARSEINT,
+    AST_PARSEDOUBLE,
+    AST_PARSEFLOAT,
+    AST_PARSEJOIN,
+    AST_VALUEOF,
+    AST_INDEXOF,
 
     // Por si se me olvida, aquí es agregar más tipos
 } TipoNodoAST;

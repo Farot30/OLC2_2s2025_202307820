@@ -45,8 +45,58 @@ int verificarDeclaracion(NodoAST* nodo) {
     Simbolo* sim = buscarSimbolo(identificador->valor);
     
     if (sim && nodo->num_hijos > 1) {
+        // Verificación para métodos de parseo
+        if (valor->tipo == AST_PARSEINT || valor->tipo == AST_PARSEFLOAT || valor->tipo == AST_PARSEDOUBLE) {
+            TipoDato tipoParse;
+            const char* nombreFuncion;
+            
+            if (valor->tipo == AST_PARSEINT) {
+                tipoParse = TIPO_INT;
+                nombreFuncion = "Integer.parseInt";
+            } else if (valor->tipo == AST_PARSEFLOAT) {
+                tipoParse = TIPO_FLOAT;
+                nombreFuncion = "Float.parseFloat";
+            } else {
+                tipoParse = TIPO_DOUBLE;
+                nombreFuncion = "Double.parseDouble";
+            }
+            
+            // Verificar que el tipo de la declaración coincida con el tipo del parse
+            if (tipoDeclarado != tipoParse) {
+                char msg[200];
+                snprintf(msg, sizeof(msg), 
+                        "Tipo incompatible: '%s' devuelve %s pero se está asignando a una variable de tipo %s", 
+                        nombreFuncion, nombreTipo(tipoParse), nombreTipo(tipoDeclarado));
+                addError(msg, ambitoActual(), identificador->linea, identificador->columna);
+                printf("[ERROR] %s\n", msg);
+                identificador->valido = 0;
+                nodo->valido = 0;
+                return 0;
+            }
+            
+            printf("[DEBUG] Tipo correcto para %s: %s\n", nombreFuncion, nombreTipo(tipoParse));
+            
+            // Continuar con la evaluación normal después de verificar el tipo
+            ValorSimbolo v = evaluarExpr(valor);
+            if(v.inicializado){
+                setValorSimbolo(sim, sim->tipo, v);
+                
+                // Mostrar valor convertido según el tipo
+                if (tipoParse == TIPO_INT) {
+                    printf("[DEBUG] Variable '%s' inicializada con valor %d\n", identificador->valor, v.v.i);
+                } else if (tipoParse == TIPO_FLOAT) {
+                    printf("[DEBUG] Variable '%s' inicializada con valor %f\n", identificador->valor, v.v.f);
+                } else {
+                    printf("[DEBUG] Variable '%s' inicializada con valor %f\n", identificador->valor, v.v.d);
+                }
+            } else {
+                printf("[ERROR] Error al evaluar %s para '%s'\n", nombreFuncion, identificador->valor);
+                nodo->valido = 0;
+                return 0;
+            }
+        }
         // Si el valor es un acceso a vector/matriz
-        if (valor->tipo == AST_ACCESO) {
+        else if (valor->tipo == AST_ACCESO) {
             // Verificar primero que el acceso sea válido
             if (verificarAccesoVector(valor)) {
                 // Obtener el símbolo del vector/matriz accedido
@@ -129,8 +179,25 @@ int verificarDeclaracion(NodoAST* nodo) {
                 }
                 
                 setValorSimbolo(sim, sim->tipo, v);
-                printf("[DEBUG] Variable '%s' inicializada con valor %d\n", 
-                       identificador->valor, v.v.i); // Para valores enteros
+                
+                // Mostrar valor según el tipo
+                if (sim->tipo == TIPO_INT) {
+                    printf("[DEBUG] Variable '%s' inicializada con valor %d\n", identificador->valor, v.v.i);
+                } else if (sim->tipo == TIPO_FLOAT) {
+                    printf("[DEBUG] Variable '%s' inicializada con valor %f\n", identificador->valor, v.v.f);
+                } else if (sim->tipo == TIPO_DOUBLE) {
+                    printf("[DEBUG] Variable '%s' inicializada con valor %f\n", identificador->valor, v.v.d);
+                } else if (sim->tipo == TIPO_CHAR) {
+                    printf("[DEBUG] Variable '%s' inicializada con valor '%c'\n", identificador->valor, v.v.c);
+                } else if (sim->tipo == TIPO_BOOLEAN) {
+                    printf("[DEBUG] Variable '%s' inicializada con valor %s\n", 
+                           identificador->valor, v.v.b ? "true" : "false");
+                } else if (sim->tipo == TIPO_STRING) {
+                    printf("[DEBUG] Variable '%s' inicializada con valor \"%s\"\n", 
+                           identificador->valor, v.v.s ? v.v.s : "(null)");
+                } else {
+                    printf("[DEBUG] Variable '%s' inicializada con valor (tipo desconocido)\n", identificador->valor);
+                }
             } else {
                 printf("[ERROR] Expresión no inicializada para '%s'\n", identificador->valor);
                 nodo->valido = 0;

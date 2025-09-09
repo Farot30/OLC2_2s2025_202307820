@@ -136,47 +136,231 @@ int verificarDeclaracionMatriz(NodoAST* nodo) {
             for (int j = 0; j < columnas; j++) {
                 NodoAST* elemento = elementosFila->hijos[j];
                 
-                // Evaluar el elemento
-                ValorSimbolo valorElemento = evaluarExpr(elemento);
-                if (!valorElemento.inicializado) {
-                    printf("[ERROR] Elemento [%d][%d] no está inicializado\n", i, j);
-                    
-                    // Liberar memoria asignada hasta ahora
-                    for (int x = 0; x <= i; x++) {
-                        for (int y = 0; y < (x == i ? j : numColumnas); y++) {
-                            if (valores_matriz[x][y]) free(valores_matriz[x][y]);
+                // Manejar cada tipo de elemento según su tipo de nodo
+                if (elemento->tipo == AST_NUMERO && elemento->valor) {
+                    // Número literal
+                    switch (tipo) {
+                        case TIPO_INT: {
+                            int val = atoi(elemento->valor);
+                            char buffer[16];
+                            snprintf(buffer, sizeof(buffer), "%d", val);
+                            valores_matriz[i][j] = strdup(buffer);
+                            break;
                         }
-                        free(valores_matriz[x]);
+                        case TIPO_FLOAT:
+                        case TIPO_DOUBLE: {
+                            double val = atof(elemento->valor);
+                            char buffer[32];
+                            snprintf(buffer, sizeof(buffer), "%f", val);
+                            valores_matriz[i][j] = strdup(buffer);
+                            break;
+                        }
+                        default: {
+                            valores_matriz[i][j] = strdup(elemento->valor);
+                            break;
+                        }
                     }
-                    free(valores_matriz);
+                } else if (elemento->tipo == AST_CADENA && elemento->valor) {
+                    // Cadena literal
+                    if (tipo == TIPO_STRING) {
+                        char buffer[1024]; // Tamaño suficiente para cadenas típicas
+                        snprintf(buffer, sizeof(buffer), "\"%s\"", elemento->valor);
+                        valores_matriz[i][j] = strdup(buffer);
+                    } else {
+                        printf("[ERROR] Tipo incompatible: string en matriz de tipo %s\n", 
+                            nombreTipo(tipo));
+                        
+                        // Liberar memoria asignada hasta ahora
+                        for (int x = 0; x <= i; x++) {
+                            for (int y = 0; y < (x == i ? j : numColumnas); y++) {
+                                if (valores_matriz[x][y]) free(valores_matriz[x][y]);
+                            }
+                            free(valores_matriz[x]);
+                        }
+                        free(valores_matriz);
+                        
+                        return 0;
+                    }
+                } else if (elemento->tipo == AST_CARACTER && elemento->valor) {
+                    // Carácter literal
+                    if (tipo == TIPO_CHAR) {
+                        char buffer[16];
+                        snprintf(buffer, sizeof(buffer), "'%s'", elemento->valor);
+                        valores_matriz[i][j] = strdup(buffer);
+                    } else {
+                        printf("[ERROR] Tipo incompatible: char en matriz de tipo %s\n", 
+                            nombreTipo(tipo));
+                        
+                        // Liberar memoria asignada hasta ahora
+                        for (int x = 0; x <= i; x++) {
+                            for (int y = 0; y < (x == i ? j : numColumnas); y++) {
+                                if (valores_matriz[x][y]) free(valores_matriz[x][y]);
+                            }
+                            free(valores_matriz[x]);
+                        }
+                        free(valores_matriz);
+                        
+                        return 0;
+                    }
+                } else if (elemento->tipo == AST_BOOLEAN && elemento->valor) {
+                    // Booleano literal
+                    if (tipo == TIPO_BOOLEAN) {
+                        valores_matriz[i][j] = strdup(elemento->valor); // true o false
+                    } else {
+                        printf("[ERROR] Tipo incompatible: boolean en matriz de tipo %s\n", 
+                            nombreTipo(tipo));
+                        
+                        // Liberar memoria asignada hasta ahora
+                        for (int x = 0; x <= i; x++) {
+                            for (int y = 0; y < (x == i ? j : numColumnas); y++) {
+                                if (valores_matriz[x][y]) free(valores_matriz[x][y]);
+                            }
+                            free(valores_matriz[x]);
+                        }
+                        free(valores_matriz);
+                        
+                        return 0;
+                    }
+                } else {
+                    // Evaluar el elemento usando evaluarExpr
+                    ValorSimbolo valorElemento = evaluarExpr(elemento);
+                    if (!valorElemento.inicializado) {
+                        printf("[ERROR] Elemento [%d][%d] no está inicializado\n", i, j);
+                        
+                        // Liberar memoria asignada hasta ahora
+                        for (int x = 0; x <= i; x++) {
+                            for (int y = 0; y < (x == i ? j : numColumnas); y++) {
+                                if (valores_matriz[x][y]) free(valores_matriz[x][y]);
+                            }
+                            free(valores_matriz[x]);
+                        }
+                        free(valores_matriz);
+                        
+                        return 0;
+                    }
                     
-                    return 0;
+                    // Convertir el valor a string según el tipo y con verificación de compatibilidad
+                    char buffer[1024]; // Buffer más grande para strings
+                    switch (tipo) {
+                        case TIPO_INT:
+                            if (valorElemento.tipo != TIPO_INT && !esWidening(valorElemento.tipo, TIPO_INT)) {
+                                printf("[ERROR] Tipo incompatible en matriz: %s no es compatible con %s\n",
+                                    nombreTipo(valorElemento.tipo), nombreTipo(TIPO_INT));
+                                
+                                // Liberar memoria
+                                for (int x = 0; x <= i; x++) {
+                                    for (int y = 0; y < (x == i ? j : numColumnas); y++) {
+                                        if (valores_matriz[x][y]) free(valores_matriz[x][y]);
+                                    }
+                                    free(valores_matriz[x]);
+                                }
+                                free(valores_matriz);
+                                
+                                return 0;
+                            }
+                            snprintf(buffer, sizeof(buffer), "%d", valorElemento.v.i);
+                            break;
+                        case TIPO_FLOAT:
+                            if (valorElemento.tipo != TIPO_FLOAT && !esWidening(valorElemento.tipo, TIPO_FLOAT)) {
+                                printf("[ERROR] Tipo incompatible en matriz: %s no es compatible con %s\n",
+                                    nombreTipo(valorElemento.tipo), nombreTipo(TIPO_FLOAT));
+                                
+                                // Liberar memoria
+                                for (int x = 0; x <= i; x++) {
+                                    for (int y = 0; y < (x == i ? j : numColumnas); y++) {
+                                        if (valores_matriz[x][y]) free(valores_matriz[x][y]);
+                                    }
+                                    free(valores_matriz[x]);
+                                }
+                                free(valores_matriz);
+                                
+                                return 0;
+                            }
+                            snprintf(buffer, sizeof(buffer), "%f", valorElemento.v.f);
+                            break;
+                        case TIPO_DOUBLE:
+                            if (valorElemento.tipo != TIPO_DOUBLE && !esWidening(valorElemento.tipo, TIPO_DOUBLE)) {
+                                printf("[ERROR] Tipo incompatible en matriz: %s no es compatible con %s\n",
+                                    nombreTipo(valorElemento.tipo), nombreTipo(TIPO_DOUBLE));
+                                
+                                // Liberar memoria
+                                for (int x = 0; x <= i; x++) {
+                                    for (int y = 0; y < (x == i ? j : numColumnas); y++) {
+                                        if (valores_matriz[x][y]) free(valores_matriz[x][y]);
+                                    }
+                                    free(valores_matriz[x]);
+                                }
+                                free(valores_matriz);
+                                
+                                return 0;
+                            }
+                            snprintf(buffer, sizeof(buffer), "%lf", valorElemento.v.d);
+                            break;
+                        case TIPO_CHAR:
+                            if (valorElemento.tipo != TIPO_CHAR) {
+                                printf("[ERROR] Tipo incompatible en matriz: %s no es compatible con %s\n",
+                                    nombreTipo(valorElemento.tipo), nombreTipo(TIPO_CHAR));
+                                
+                                // Liberar memoria
+                                for (int x = 0; x <= i; x++) {
+                                    for (int y = 0; y < (x == i ? j : numColumnas); y++) {
+                                        if (valores_matriz[x][y]) free(valores_matriz[x][y]);
+                                    }
+                                    free(valores_matriz[x]);
+                                }
+                                free(valores_matriz);
+                                
+                                return 0;
+                            }
+                            snprintf(buffer, sizeof(buffer), "'%c'", valorElemento.v.c);
+                            break;
+                        case TIPO_BOOLEAN:
+                            if (valorElemento.tipo != TIPO_BOOLEAN) {
+                                printf("[ERROR] Tipo incompatible en matriz: %s no es compatible con %s\n",
+                                    nombreTipo(valorElemento.tipo), nombreTipo(TIPO_BOOLEAN));
+                                
+                                // Liberar memoria
+                                for (int x = 0; x <= i; x++) {
+                                    for (int y = 0; y < (x == i ? j : numColumnas); y++) {
+                                        if (valores_matriz[x][y]) free(valores_matriz[x][y]);
+                                    }
+                                    free(valores_matriz[x]);
+                                }
+                                free(valores_matriz);
+                                
+                                return 0;
+                            }
+                            snprintf(buffer, sizeof(buffer), "%s", valorElemento.v.b ? "true" : "false");
+                            break;
+                        case TIPO_STRING:
+                            if (valorElemento.tipo != TIPO_STRING) {
+                                printf("[ERROR] Tipo incompatible en matriz: %s no es compatible con %s\n",
+                                    nombreTipo(valorElemento.tipo), nombreTipo(TIPO_STRING));
+                                
+                                // Liberar memoria
+                                for (int x = 0; x <= i; x++) {
+                                    for (int y = 0; y < (x == i ? j : numColumnas); y++) {
+                                        if (valores_matriz[x][y]) free(valores_matriz[x][y]);
+                                    }
+                                    free(valores_matriz[x]);
+                                }
+                                free(valores_matriz);
+                                
+                                return 0;
+                            }
+                            if (valorElemento.v.s) {
+                                snprintf(buffer, sizeof(buffer), "\"%s\"", valorElemento.v.s);
+                            } else {
+                                snprintf(buffer, sizeof(buffer), "\"\"");
+                            }
+                            break;
+                        default:
+                            buffer[0] = '\0';
+                            break;
+                    }
+                    valores_matriz[i][j] = strdup(buffer);
                 }
                 
-                // Convertir el valor a string según el tipo
-                char buffer[32];
-                switch (tipo) {
-                    case TIPO_INT:
-                        snprintf(buffer, sizeof(buffer), "%d", valorElemento.v.i);
-                        break;
-                    case TIPO_FLOAT:
-                        snprintf(buffer, sizeof(buffer), "%f", valorElemento.v.f);
-                        break;
-                    case TIPO_DOUBLE:
-                        snprintf(buffer, sizeof(buffer), "%lf", valorElemento.v.d);
-                        break;
-                    case TIPO_CHAR:
-                        snprintf(buffer, sizeof(buffer), "%c", valorElemento.v.c);
-                        break;
-                    case TIPO_BOOLEAN:
-                        snprintf(buffer, sizeof(buffer), "%s", valorElemento.v.b ? "true" : "false");
-                        break;
-                    default:
-                        snprintf(buffer, sizeof(buffer), "?");
-                        break;
-                }
-                
-                valores_matriz[i][j] = strdup(buffer);
                 printf("[DEBUG] Elemento [%d][%d] = %s\n", i, j, valores_matriz[i][j]);
             }
         }
@@ -332,6 +516,9 @@ int verificarDeclaracionMatriz(NodoAST* nodo) {
                             break;
                         case TIPO_BOOLEAN:
                             strcat(matriz_str, "false");
+                            break;
+                        case TIPO_STRING:
+                            strcat(matriz_str, "\"\"");
                             break;
                         default:
                             strcat(matriz_str, "0");

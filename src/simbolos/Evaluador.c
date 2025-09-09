@@ -2,10 +2,13 @@
 #include "Operador.h"
 #include "../semantico/semantico.h"
 #include "../semantico/Vectores/acceso_vector.h"
+#include "../AST/err.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h> 
+#include <limits.h>
+#include <math.h>
 
 // Función auxiliar para crear un ValorSimbolo numérico
 ValorSimbolo makeNum(TipoDato tipo, double d) {
@@ -21,6 +24,24 @@ ValorSimbolo makeNum(TipoDato tipo, double d) {
         default: break;
     }
     return v;
+}
+
+// Añade esta función auxiliar al principio de Evaluador.c
+static char* concat3(const char* s1, const char* s2, const char* s3) {
+    size_t len1 = s1 ? strlen(s1) : 0;
+    size_t len2 = s2 ? strlen(s2) : 0;
+    size_t len3 = s3 ? strlen(s3) : 0;
+    
+    char* result = (char*)malloc(len1 + len2 + len3 + 1);
+    if (!result) return NULL;
+    
+    if (s1) strcpy(result, s1);
+    else result[0] = '\0';
+    
+    if (s2) strcat(result, s2);
+    if (s3) strcat(result, s3);
+    
+    return result;
 }
 
 // Función auxiliar para verificar si un tipo es numérico
@@ -148,6 +169,484 @@ ValorSimbolo evaluarExpr(NodoAST* e) {
             }
             return r;
         }
+        // En el switch de evaluarExpr, añade este caso:
+        case AST_PARSEINT: {
+            if (e->num_hijos < 1) {
+                printf("[ERROR] Integer.parseInt requiere un argumento\n");
+                break;
+            }
+            
+            ValorSimbolo argVal = evaluarExpr(e->hijos[0]);
+            
+            if (!argVal.inicializado) {
+                printf("[ERROR] Argumento de Integer.parseInt no inicializado\n");
+                break;
+            }
+            
+            // Verificar que el argumento sea una cadena
+            if (argVal.tipo != TIPO_STRING) {
+                printf("[ERROR] Integer.parseInt requiere una cadena como argumento, se recibió %s\n", 
+                    nombreTipo(argVal.tipo));
+                break;
+            }
+            
+            // Verificar que la cadena contenga un número válido
+            char* endptr;
+            long val = strtol(argVal.v.s, &endptr, 10);
+            
+            if (*endptr != '\0') {
+                // No se pudo convertir toda la cadena
+                char msg[200];
+                snprintf(msg, sizeof(msg), "La cadena '%s' no es un número válido para Integer.parseInt", 
+                        argVal.v.s);
+                addError(msg, ambitoActual(), e->linea, e->columna);
+                printf("[ERROR] %s\n", msg);
+                break;
+            }
+            
+            // Verificar rango de int en Java (típicamente 32 bits)
+            if (val < INT_MIN || val > INT_MAX) {
+                char msg[200];
+                snprintf(msg, sizeof(msg), "El número '%s' está fuera del rango válido para int", 
+                        argVal.v.s);
+                addError(msg, ambitoActual(), e->linea, e->columna);
+                printf("[ERROR] %s\n", msg);
+                break;
+            }
+            
+            // Si llegamos aquí, la conversión fue exitosa
+            r = makeNum(TIPO_INT, (double)val);
+            r.tipo = TIPO_INT;
+            printf("[DEBUG] Integer.parseInt('%s') = %d\n", argVal.v.s, r.v.i);
+            
+            // Liberar memoria si es necesario
+            if (argVal.tipo == TIPO_STRING && argVal.v.s) {
+                // Dependiendo de tu implementación, tal vez debas liberar la memoria
+                // free(argVal.v.s);
+            }
+            
+            return r;
+        }
+        case AST_PARSEFLOAT: {
+            if (e->num_hijos < 1) {
+                printf("[ERROR] Float.parseFloat requiere un argumento\n");
+                return r;
+            }
+            
+            ValorSimbolo argVal = evaluarExpr(e->hijos[0]);
+            
+            if (!argVal.inicializado) {
+                printf("[ERROR] Argumento de Float.parseFloat no inicializado\n");
+                return r;
+            }
+            
+            // Verificar que el argumento sea una cadena
+            if (argVal.tipo != TIPO_STRING) {
+                char msg[200];
+                snprintf(msg, sizeof(msg), "Float.parseFloat requiere una cadena como argumento, se recibió %s", 
+                        nombreTipo(argVal.tipo));
+                addError(msg, ambitoActual(), e->linea, e->columna);
+                printf("[ERROR] %s\n", msg);
+                return r;
+            }
+            
+            // Verificar que la cadena contenga un número válido
+            char* endptr;
+            float val = strtof(argVal.v.s, &endptr);
+            
+            if (*endptr != '\0') {
+                // No se pudo convertir toda la cadena
+                char msg[200];
+                snprintf(msg, sizeof(msg), "La cadena '%s' no es un número válido para Float.parseFloat", 
+                        argVal.v.s);
+                addError(msg, ambitoActual(), e->linea, e->columna);
+                printf("[ERROR] %s\n", msg);
+                return r;
+            }
+            
+            // Verificar si hay overflow (menos crítico para float que para int)
+            if (val == HUGE_VALF) {
+                char msg[200];
+                snprintf(msg, sizeof(msg), "El número '%s' está fuera del rango válido para float", 
+                        argVal.v.s);
+                addError(msg, ambitoActual(), e->linea, e->columna);
+                printf("[ERROR] %s\n", msg);
+                return r;
+            }
+            
+            // Si llegamos aquí, la conversión fue exitosa
+            r = makeNum(TIPO_FLOAT, (double)val);
+            r.tipo = TIPO_FLOAT;
+            printf("[DEBUG] Float.parseFloat('%s') = %f\n", argVal.v.s, r.v.f);
+            
+            return r;
+        }
+
+        case AST_PARSEDOUBLE: {
+            if (e->num_hijos < 1) {
+                printf("[ERROR] Double.parseDouble requiere un argumento\n");
+                return r;
+            }
+            
+            ValorSimbolo argVal = evaluarExpr(e->hijos[0]);
+            
+            if (!argVal.inicializado) {
+                printf("[ERROR] Argumento de Double.parseDouble no inicializado\n");
+                return r;
+            }
+            
+            // Verificar que el argumento sea una cadena
+            if (argVal.tipo != TIPO_STRING) {
+                char msg[200];
+                snprintf(msg, sizeof(msg), "Double.parseDouble requiere una cadena como argumento, se recibió %s", 
+                        nombreTipo(argVal.tipo));
+                addError(msg, ambitoActual(), e->linea, e->columna);
+                printf("[ERROR] %s\n", msg);
+                return r;
+            }
+            
+            // Verificar que la cadena contenga un número válido
+            char* endptr;
+            double val = strtod(argVal.v.s, &endptr);
+            
+            if (*endptr != '\0') {
+                // No se pudo convertir toda la cadena
+                char msg[200];
+                snprintf(msg, sizeof(msg), "La cadena '%s' no es un número válido para Double.parseDouble", 
+                        argVal.v.s);
+                addError(msg, ambitoActual(), e->linea, e->columna);
+                printf("[ERROR] %s\n", msg);
+                return r;
+            }
+            
+            // Verificar si hay overflow (menos común en double)
+            if (val == HUGE_VAL) {
+                char msg[200];
+                snprintf(msg, sizeof(msg), "El número '%s' está fuera del rango válido para double", 
+                        argVal.v.s);
+                addError(msg, ambitoActual(), e->linea, e->columna);
+                printf("[ERROR] %s\n", msg);
+                return r;
+            }
+            
+            // Si llegamos aquí, la conversión fue exitosa
+            r = makeNum(TIPO_DOUBLE, val);
+            r.tipo = TIPO_DOUBLE;
+            printf("[DEBUG] Double.parseDouble('%s') = %f\n", argVal.v.s, r.v.d);
+            
+            return r;
+        }
+
+        // Añade este caso al switch en la función evaluarExpr:
+        case AST_PARSEJOIN: {
+            if (e->num_hijos < 2) {
+                printf("[ERROR] Strings.join requiere al menos un delimitador y un elemento\n");
+                return r;
+            }
+            
+            // Evaluar el delimitador
+            ValorSimbolo delimitador = evaluarExpr(e->hijos[0]);
+            if (!delimitador.inicializado || delimitador.tipo != TIPO_STRING) {
+                printf("[ERROR] El delimitador de Strings.join debe ser una cadena\n");
+                return r;
+            }
+            
+            // Obtener el nodo de la lista de expresiones
+            NodoAST* lista = e->hijos[1];
+            if (lista->tipo != AST_LISTA) {
+                printf("[ERROR] Se esperaba una lista de expresiones para Strings.join\n");
+                return r;
+            }
+            
+            // Inicializar resultado como cadena vacía
+            r.tipo = TIPO_STRING;
+            r.inicializado = 1;
+            r.v.s = strdup("");
+            
+            // Unir las expresiones con el delimitador
+            for (int i = 0; i < lista->num_hijos; i++) {
+                // Evaluar la expresión actual
+                ValorSimbolo elem = evaluarExpr(lista->hijos[i]);
+                if (!elem.inicializado) {
+                    printf("[ERROR] Elemento no inicializado en Strings.join\n");
+                    if (r.v.s) free(r.v.s);
+                    r.inicializado = 0;
+                    return r;
+                }
+                
+                // Convertir el elemento a string si no lo es
+                char* elemStr;
+                if (elem.tipo == TIPO_STRING && elem.v.s) {
+                    elemStr = strdup(elem.v.s);
+                } else {
+                    // Convertir otros tipos a string
+                    char buffer[256];
+                    switch (elem.tipo) {
+                        case TIPO_INT:
+                            snprintf(buffer, sizeof(buffer), "%d", elem.v.i);
+                            break;
+                        case TIPO_FLOAT:
+                            snprintf(buffer, sizeof(buffer), "%f", elem.v.f);
+                            break;
+                        case TIPO_DOUBLE:
+                            snprintf(buffer, sizeof(buffer), "%f", elem.v.d);
+                            break;
+                        case TIPO_CHAR:
+                            snprintf(buffer, sizeof(buffer), "%c", elem.v.c);
+                            break;
+                        case TIPO_BOOLEAN:
+                            snprintf(buffer, sizeof(buffer), "%s", elem.v.b ? "true" : "false");
+                            break;
+                        default:
+                            buffer[0] = '\0'; 
+                            break;
+                    }
+                    elemStr = strdup(buffer);
+                }
+                
+                // Si no es el primer elemento, agregar el delimitador
+                if (i > 0 && delimitador.v.s) {
+                    char* temp = r.v.s;
+                    r.v.s = concat3(temp, delimitador.v.s, elemStr);
+                    free(temp);
+                } else {
+                    // Para el primer elemento, simplemente asignar
+                    if (r.v.s) free(r.v.s);
+                    r.v.s = elemStr;
+                }
+            }
+            
+            printf("[DEBUG] Strings.join resultado: '%s'\n", r.v.s ? r.v.s : "(null)");
+            return r;
+        }
+
+        case AST_VALUEOF: {
+            if (e->num_hijos < 1) {
+                printf("[ERROR] String.valueOf requiere un argumento\n");
+                return r;
+            }
+            
+            ValorSimbolo argVal = evaluarExpr(e->hijos[0]);
+            
+            if (!argVal.inicializado) {
+                printf("[ERROR] Argumento de String.valueOf no inicializado\n");
+                return r;
+            }
+            
+            // Convertir el argumento a cadena según su tipo
+            r.tipo = TIPO_STRING;
+            r.inicializado = 1;
+            char buffer[256];
+            switch (argVal.tipo) {
+                case TIPO_INT:
+                    snprintf(buffer, sizeof(buffer), "%d", argVal.v.i);
+                    break;
+                case TIPO_FLOAT:
+                    snprintf(buffer, sizeof(buffer), "%f", argVal.v.f);
+                    break;
+                case TIPO_DOUBLE:
+                    snprintf(buffer, sizeof(buffer), "%f", argVal.v.d);
+                    break;
+                case TIPO_CHAR:
+                    snprintf(buffer, sizeof(buffer), "%c", argVal.v.c);
+                    break;
+                case TIPO_BOOLEAN:
+                    snprintf(buffer, sizeof(buffer), "%s", argVal.v.b ? "true" : "false");
+                    break;
+                case TIPO_STRING:
+                    r.v.s = strdup(argVal.v.s ? argVal.v.s : "");
+                    return r; // Ya está en formato cadena
+                default:
+                    buffer[0] = '\0'; 
+                    break;
+            }
+            r.v.s = strdup(buffer);
+            return r;
+        }
+
+        // Añade el siguiente caso al switch en la función evaluarExpr:
+        // Reemplaza el caso AST_INDEXOF completo con esta implementación:
+        case AST_INDEXOF: {
+            if (e->num_hijos < 2) {
+                printf("[ERROR] Arrays.indexOf requiere un array y un valor a buscar\n");
+                return r;
+            }
+            
+            // Evaluar el array (solo necesitamos el identificador, no su valor)
+            NodoAST* arrayNodo = e->hijos[0];
+            if (arrayNodo->tipo != AST_IDENTIFICADOR) {
+                printf("[ERROR] El primer argumento de Arrays.indexOf debe ser un identificador de array\n");
+                return r;
+            }
+            
+            // Buscar el símbolo en la tabla
+            Simbolo* simboloArray = buscarSimbolo(arrayNodo->valor);
+            if (!simboloArray) {
+                printf("[ERROR] Vector '%s' no declarado\n", arrayNodo->valor);
+                return r;
+            }
+            
+            // Verificar que sea un vector o matriz
+            if (simboloArray->clase != SIMBOLO_VECTOR && simboloArray->clase != SIMBOLO_MATRIZ) {
+                printf("[ERROR] '%s' no es un vector o matriz\n", arrayNodo->valor);
+                return r;
+            }
+            
+            // Verificar que esté inicializado
+            if (!simboloArray->valor.inicializado || !simboloArray->valor.v.s) {
+                printf("[ERROR] Vector '%s' no inicializado\n", arrayNodo->valor);
+                return r;
+            }
+            
+            // Evaluar la clave a buscar
+            ValorSimbolo claveVal = evaluarExpr(e->hijos[1]);
+            if (!claveVal.inicializado) {
+                printf("[ERROR] Clave no inicializada en Arrays.indexOf\n");
+                return r;
+            }
+            
+            printf("[DEBUG] Buscando valor en vector '%s', formato: %s\n", 
+                simboloArray->nombre, simboloArray->valor.v.s);
+            
+            // Ahora buscamos la clave en el array
+            int indice = -1;  // Por defecto, no encontrado
+            
+            // Extraer los elementos del array
+            char* arrayStr = strdup(simboloArray->valor.v.s);
+            
+            // Eliminar corchetes si existen
+            if (arrayStr[0] == '[') {
+                memmove(arrayStr, arrayStr + 1, strlen(arrayStr));
+                int len = strlen(arrayStr);
+                if (len > 0 && arrayStr[len - 1] == ']') {
+                    arrayStr[len - 1] = '\0';
+                }
+            }
+            
+            // Extraer los elementos del array
+            char* elementos[1000];  // Max 1000 elementos
+            int numElementos = 0;
+            
+            char* elementosCopy = strdup(arrayStr);
+            char* token = strtok(elementosCopy, ",");
+            
+            while (token && numElementos < 1000) {
+                // Limpiar espacios al inicio y final
+                while (*token && isspace(*token)) token++;
+                char* end = token + strlen(token) - 1;
+                while (end > token && isspace(*end)) *end-- = '\0';
+                
+                elementos[numElementos++] = strdup(token);
+                token = strtok(NULL, ",");
+            }
+            
+            printf("[DEBUG] Procesando %d elementos en vector\n", numElementos);
+            
+            // Convertir la clave al tipo adecuado y comparar
+            for (int i = 0; i < numElementos; i++) {
+                int found = 0;
+                
+                switch (simboloArray->tipo) {
+                    case TIPO_INT: {
+                        int elemVal = atoi(elementos[i]);
+                        int keyVal = (claveVal.tipo == TIPO_INT) ? claveVal.v.i : 
+                                    (claveVal.tipo == TIPO_FLOAT) ? (int)claveVal.v.f : 
+                                    (claveVal.tipo == TIPO_DOUBLE) ? (int)claveVal.v.d : 0;
+                        
+                        printf("[DEBUG] Comparando elemento[%d]=%d con clave=%d\n", i, elemVal, keyVal);
+                        found = (elemVal == keyVal);
+                        break;
+                    }
+                    case TIPO_FLOAT: {
+                        float elemVal = strtof(elementos[i], NULL);
+                        float keyVal = (claveVal.tipo == TIPO_INT) ? (float)claveVal.v.i : 
+                                    (claveVal.tipo == TIPO_FLOAT) ? claveVal.v.f : 
+                                    (claveVal.tipo == TIPO_DOUBLE) ? (float)claveVal.v.d : 0.0f;
+                        
+                        printf("[DEBUG] Comparando elemento[%d]=%f con clave=%f\n", i, elemVal, keyVal);
+                        found = (fabs(elemVal - keyVal) < 0.00001f);  // Tolerancia para float
+                        break;
+                    }
+                    case TIPO_DOUBLE: {
+                        double elemVal = strtod(elementos[i], NULL);
+                        double keyVal = (claveVal.tipo == TIPO_INT) ? (double)claveVal.v.i : 
+                                        (claveVal.tipo == TIPO_FLOAT) ? (double)claveVal.v.f : 
+                                        (claveVal.tipo == TIPO_DOUBLE) ? claveVal.v.d : 0.0;
+                        
+                        printf("[DEBUG] Comparando elemento[%d]=%f con clave=%f\n", i, elemVal, keyVal);
+                        found = (fabs(elemVal - keyVal) < 0.00001);  // Tolerancia para double
+                        break;
+                    }
+                    case TIPO_CHAR: {
+                        char elemVal = elementos[i][0];
+                        char keyVal = (claveVal.tipo == TIPO_CHAR) ? claveVal.v.c : 
+                                    (claveVal.tipo == TIPO_INT) ? (char)claveVal.v.i : '\0';
+                        
+                        printf("[DEBUG] Comparando elemento[%d]=%c con clave=%c\n", i, elemVal, keyVal);
+                        found = (elemVal == keyVal);
+                        break;
+                    }
+                    case TIPO_BOOLEAN: {
+                        int elemVal = (strcmp(elementos[i], "true") == 0) ? 1 : 0;
+                        int keyVal = (claveVal.tipo == TIPO_BOOLEAN) ? claveVal.v.b : 0;
+                        
+                        printf("[DEBUG] Comparando elemento[%d]=%s con clave=%s\n", 
+                            i, elemVal ? "true" : "false", keyVal ? "true" : "false");
+                        found = (elemVal == keyVal);
+                        break;
+                    }
+                    case TIPO_STRING: {
+                        if (claveVal.tipo == TIPO_STRING && claveVal.v.s) {
+                            // Eliminar comillas de los elementos si existen
+                            char* elemStrTemp = strdup(elementos[i]);
+                            size_t len = strlen(elemStrTemp);
+
+                            // Eliminar las comillas del principio y final si existen
+                            if (len >= 2 && elemStrTemp[0] == '"' && elemStrTemp[len-1] == '"') {
+                                elemStrTemp[len-1] = '\0';  // Eliminar comilla final
+                                char* strippedElem = elemStrTemp + 1;  // Saltar comilla inicial
+                                
+                                printf("[DEBUG] Comparando elemento[%d]=%s con clave=%s\n", 
+                                    i, strippedElem, claveVal.v.s);
+                                    
+                                found = (strcmp(strippedElem, claveVal.v.s) == 0);
+                            } else {
+                                // Si no tiene comillas, comparar directamente
+                                printf("[DEBUG] Comparando elemento[%d]=%s con clave=%s\n", 
+                                    i, elemStrTemp, claveVal.v.s);
+                                    
+                                found = (strcmp(elemStrTemp, claveVal.v.s) == 0);
+                            }
+                            
+                            free(elemStrTemp);
+                        }
+                        break;
+                    }
+                    default:
+                        break;
+                }
+                
+                if (found) {
+                    indice = i;
+                    printf("[DEBUG] ¡Encontrado! en índice %d\n", i);
+                    break;  // Encontrado, salimos del bucle
+                }
+            }
+            
+            // Liberar memoria
+            for (int i = 0; i < numElementos; i++) {
+                free(elementos[i]);
+            }
+            free(elementosCopy);
+            free(arrayStr);
+            
+            // Devolver el índice como un entero
+            r = makeNum(TIPO_INT, (double)indice);
+            r.tipo = TIPO_INT;
+            printf("[DEBUG] Arrays.indexOf resultado: %d\n", indice);
+            
+            return r;
+        }
 
         case AST_ACCESO: {
             printf("[DEBUG EVALUADOR] Evaluando acceso a vector/matriz en expresión\n");
@@ -239,6 +738,7 @@ ValorSimbolo evaluarExpr(NodoAST* e) {
         
         default: return r;
     }
+    return r;
 }
 
 static void obtenerDimensionesArray(Simbolo* simbolo, int* dimensiones, int* numDimensiones) {

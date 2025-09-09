@@ -64,6 +64,11 @@ else                        { yylval.str = strdup("else"); return TOKEN_ELSE; }
 false                       { yylval.str = strdup("false"); return TOKEN_BOOLEANO; }
 String\.valueOf             { return TOKEN_STRING_VALUEOF; }
 \.equals                    { return TOKEN_EQUAL; }
+Integer\.parseInt           { yylval.str = strdup("Integer.parseInt"); return TOKEN_PARSEINT; }
+Double\.parseDouble         { yylval.str = strdup("Double.parseDouble"); return TOKEN_PARSEDOUBLE; }
+Float\.parseFloat           { yylval.str = strdup("Float.parseFloat"); return TOKEN_PARSEFLOAT; }
+Strings\.join               { yylval.str = strdup("Strings.join"); return TOKEN_PARSEJOIN; }
+Arrays\.indexOf             { yylval.str = strdup("Arrays.indexOf"); return TOKEN_INDEXOF; }
 switch                      { yylval.str = strdup("switch"); return TOKEN_SWITCH; }
 case                        { yylval.str = strdup("case"); return TOKEN_CASE; }
 default                     { yylval.str = strdup("default"); return TOKEN_DEFAULT; }

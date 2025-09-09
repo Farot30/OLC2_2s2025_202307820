@@ -110,3 +110,14 @@ int y = 2;
 int z = 8;
 
 System.out.println("restultado de: " + (x + y * z - 3) );
+
+int[] numeros = {2, 5, 7, 8, 11, 12};
+int clave = 7;
+int indice = Arrays.indexOf(numeros, clave);
+System.out.println(indice); 
+
+
+String[] frutas = {"manzana", "banana", "cereza"};
+String buscar = "banana";
+int pos = Arrays.indexOf(frutas, buscar);
+System.out.println(pos);

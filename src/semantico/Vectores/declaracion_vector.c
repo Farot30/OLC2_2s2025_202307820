@@ -88,11 +88,11 @@ int verificarDeclaracionVector(NodoAST* nodo) {
         for (int i = 0; i < numElementos; i++) {
             NodoAST* elemento = listaReal->hijos[i];
             printf("[DEBUG] Evaluando elemento %d tipo=%d valor=%s\n", 
-                   i, elemento->tipo, elemento->valor ? elemento->valor : "NULL");
+                i, elemento->tipo, elemento->valor ? elemento->valor : "NULL");
             
-            // Para números literales, usar directamente el valor
+            // Manejar cada tipo de elemento según su tipo de nodo
             if (elemento->tipo == AST_NUMERO && elemento->valor) {
-                // Convertir el valor directamente según el tipo
+                // Número literal
                 switch (tipoDeclarado) {
                     case TIPO_INT: {
                         int val = atoi(elemento->valor);
@@ -109,12 +109,47 @@ int verificarDeclaracionVector(NodoAST* nodo) {
                         strcat(valores, buffer);
                         break;
                     }
-                    case TIPO_CHAR:
-                    case TIPO_BOOLEAN:
                     default: {
                         strcat(valores, elemento->valor);
                         break;
                     }
+                }
+            } else if (elemento->tipo == AST_CADENA && elemento->valor) {
+                // Cadena literal
+                if (tipoDeclarado == TIPO_STRING) {
+                    char buffer[1024]; // Tamaño suficiente para cadenas típicas
+                    snprintf(buffer, sizeof(buffer), "\"%s\"", elemento->valor);
+                    strcat(valores, buffer);
+                } else {
+                    printf("[ERROR] Tipo incompatible: string en vector de tipo %s\n", 
+                        nombreTipo(tipoDeclarado));
+                    nodo->valido = 0;
+                    free(valores);
+                    return 0;
+                }
+            } else if (elemento->tipo == AST_CARACTER && elemento->valor) {
+                // Carácter literal
+                if (tipoDeclarado == TIPO_CHAR) {
+                    char buffer[16];
+                    snprintf(buffer, sizeof(buffer), "'%s'", elemento->valor);
+                    strcat(valores, buffer);
+                } else {
+                    printf("[ERROR] Tipo incompatible: char en vector de tipo %s\n", 
+                        nombreTipo(tipoDeclarado));
+                    nodo->valido = 0;
+                    free(valores);
+                    return 0;
+                }
+            } else if (elemento->tipo == AST_BOOLEAN && elemento->valor) {
+                // Booleano literal
+                if (tipoDeclarado == TIPO_BOOLEAN) {
+                    strcat(valores, elemento->valor); // true o false
+                } else {
+                    printf("[ERROR] Tipo incompatible: boolean en vector de tipo %s\n", 
+                        nombreTipo(tipoDeclarado));
+                    nodo->valido = 0;
+                    free(valores);
+                    return 0;
                 }
             } else {
                 // Para expresiones más complejas, usar evaluarExpr
@@ -124,31 +159,75 @@ int verificarDeclaracionVector(NodoAST* nodo) {
                     printf("[ERROR] Elemento %d no está inicializado\n", i);
                     // Intentemos obtener más información para depurar
                     printf("[DEBUG] Tipo del elemento: %d, Valor: %s\n", 
-                           elemento->tipo, elemento->valor ? elemento->valor : "NULL");
+                        elemento->tipo, elemento->valor ? elemento->valor : "NULL");
                     nodo->valido = 0;
                     free(valores);
                     return 0;
                 }
                 
-                char buffer[32];
+                // Convertir según el tipo declarado
+                char buffer[1024]; // Ampliamos el buffer para strings
                 switch (tipoDeclarado) {
                     case TIPO_INT:
+                        if (valorElemento.tipo != TIPO_INT && !esWidening(valorElemento.tipo, TIPO_INT)) {
+                            printf("[ERROR] Tipo incompatible en vector: %s no es compatible con %s\n",
+                                nombreTipo(valorElemento.tipo), nombreTipo(TIPO_INT));
+                            free(valores);
+                            return 0;
+                        }
                         snprintf(buffer, sizeof(buffer), "%d", valorElemento.v.i);
                         break;
                     case TIPO_FLOAT:
+                        if (valorElemento.tipo != TIPO_FLOAT && !esWidening(valorElemento.tipo, TIPO_FLOAT)) {
+                            printf("[ERROR] Tipo incompatible en vector: %s no es compatible con %s\n",
+                                nombreTipo(valorElemento.tipo), nombreTipo(TIPO_FLOAT));
+                            free(valores);
+                            return 0;
+                        }
                         snprintf(buffer, sizeof(buffer), "%f", valorElemento.v.f);
                         break;
                     case TIPO_DOUBLE:
+                        if (valorElemento.tipo != TIPO_DOUBLE && !esWidening(valorElemento.tipo, TIPO_DOUBLE)) {
+                            printf("[ERROR] Tipo incompatible en vector: %s no es compatible con %s\n",
+                                nombreTipo(valorElemento.tipo), nombreTipo(TIPO_DOUBLE));
+                            free(valores);
+                            return 0;
+                        }
                         snprintf(buffer, sizeof(buffer), "%lf", valorElemento.v.d);
                         break;
                     case TIPO_CHAR:
-                        snprintf(buffer, sizeof(buffer), "%c", valorElemento.v.c);
+                        if (valorElemento.tipo != TIPO_CHAR) {
+                            printf("[ERROR] Tipo incompatible en vector: %s no es compatible con %s\n",
+                                nombreTipo(valorElemento.tipo), nombreTipo(TIPO_CHAR));
+                            free(valores);
+                            return 0;
+                        }
+                        snprintf(buffer, sizeof(buffer), "'%c'", valorElemento.v.c);
                         break;
                     case TIPO_BOOLEAN:
+                        if (valorElemento.tipo != TIPO_BOOLEAN) {
+                            printf("[ERROR] Tipo incompatible en vector: %s no es compatible con %s\n",
+                                nombreTipo(valorElemento.tipo), nombreTipo(TIPO_BOOLEAN));
+                            free(valores);
+                            return 0;
+                        }
                         snprintf(buffer, sizeof(buffer), "%s", valorElemento.v.b ? "true" : "false");
                         break;
+                    case TIPO_STRING:
+                        if (valorElemento.tipo != TIPO_STRING) {
+                            printf("[ERROR] Tipo incompatible en vector: %s no es compatible con %s\n",
+                                nombreTipo(valorElemento.tipo), nombreTipo(TIPO_STRING));
+                            free(valores);
+                            return 0;
+                        }
+                        if (valorElemento.v.s) {
+                            snprintf(buffer, sizeof(buffer), "\"%s\"", valorElemento.v.s);
+                        } else {
+                            snprintf(buffer, sizeof(buffer), "\"\"");
+                        }
+                        break;
                     default:
-                        snprintf(buffer, sizeof(buffer), "?");
+                        buffer[0] = '\0';
                         break;
                 }
                 strcat(valores, buffer);
@@ -277,10 +356,13 @@ int verificarDeclaracionVector(NodoAST* nodo) {
                             snprintf(buffer, sizeof(buffer), "0.0");
                             break;
                         case TIPO_CHAR:
-                            snprintf(buffer, sizeof(buffer), "\\0");
+                            snprintf(buffer, sizeof(buffer), "\\0000");
                             break;
                         case TIPO_BOOLEAN:
                             snprintf(buffer, sizeof(buffer), "false");
+                            break;
+                        case TIPO_STRING:
+                            snprintf(buffer, sizeof(buffer), "\"\"");
                             break;
                         default:
                             snprintf(buffer, sizeof(buffer), "0");

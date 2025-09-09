@@ -85,7 +85,13 @@ static const char* nombreNodoTipo(TipoNodoAST t){
         case AST_LISTA_ELEMENTOS: return "LISTA_ELEMENTOS";
         case AST_1DIMENSION: return "1DIMENSION";
         case AST_ACCESO: return "ACCESO";
-        
+        case AST_PARSEINT: return "PARSEINT";
+        case AST_PARSEFLOAT: return "PARSEFLOAT";
+        case AST_PARSEDOUBLE: return "PARSEDOUBLE";
+        case AST_PARSEJOIN: return "PARSEJOIN";
+        case AST_VALUEOF: return "VALUEOF";
+        case AST_INDEXOF: return "INDEXOF";
+
         default: return "UNK";
     }
 }

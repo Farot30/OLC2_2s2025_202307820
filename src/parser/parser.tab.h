@@ -120,17 +120,22 @@ extern int yydebug;
     TOKEN_FOR = 312,               /* TOKEN_FOR  */
     TOKEN_STRING_VALUEOF = 313,    /* TOKEN_STRING_VALUEOF  */
     TOKEN_EQUAL = 314,             /* TOKEN_EQUAL  */
-    TOKEN_MAS_IGUAL = 315,         /* TOKEN_MAS_IGUAL  */
-    TOKEN_MENOS_IGUAL = 316,       /* TOKEN_MENOS_IGUAL  */
-    TOKEN_POR_IGUAL = 317,         /* TOKEN_POR_IGUAL  */
-    TOKEN_DIV_IGUAL = 318,         /* TOKEN_DIV_IGUAL  */
-    TOKEN_MOD_IGUAL = 319,         /* TOKEN_MOD_IGUAL  */
-    TOKEN_AND_IGUAL = 320,         /* TOKEN_AND_IGUAL  */
-    TOKEN_OR_IGUAL = 321,          /* TOKEN_OR_IGUAL  */
-    TOKEN_XOR_IGUAL = 322,         /* TOKEN_XOR_IGUAL  */
-    TOKEN_DESIZQ_IGUAL = 323,      /* TOKEN_DESIZQ_IGUAL  */
-    TOKEN_DESDER_IGUAL = 324,      /* TOKEN_DESDER_IGUAL  */
-    UMINUS = 325                   /* UMINUS  */
+    TOKEN_PARSEINT = 315,          /* TOKEN_PARSEINT  */
+    TOKEN_PARSEFLOAT = 316,        /* TOKEN_PARSEFLOAT  */
+    TOKEN_PARSEDOUBLE = 317,       /* TOKEN_PARSEDOUBLE  */
+    TOKEN_PARSEJOIN = 318,         /* TOKEN_PARSEJOIN  */
+    TOKEN_INDEXOF = 319,           /* TOKEN_INDEXOF  */
+    TOKEN_MAS_IGUAL = 320,         /* TOKEN_MAS_IGUAL  */
+    TOKEN_MENOS_IGUAL = 321,       /* TOKEN_MENOS_IGUAL  */
+    TOKEN_POR_IGUAL = 322,         /* TOKEN_POR_IGUAL  */
+    TOKEN_DIV_IGUAL = 323,         /* TOKEN_DIV_IGUAL  */
+    TOKEN_MOD_IGUAL = 324,         /* TOKEN_MOD_IGUAL  */
+    TOKEN_AND_IGUAL = 325,         /* TOKEN_AND_IGUAL  */
+    TOKEN_OR_IGUAL = 326,          /* TOKEN_OR_IGUAL  */
+    TOKEN_XOR_IGUAL = 327,         /* TOKEN_XOR_IGUAL  */
+    TOKEN_DESIZQ_IGUAL = 328,      /* TOKEN_DESIZQ_IGUAL  */
+    TOKEN_DESDER_IGUAL = 329,      /* TOKEN_DESDER_IGUAL  */
+    UMINUS = 330                   /* UMINUS  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -144,7 +149,7 @@ union YYSTYPE
     char* str;
     NodoAST* nodo;
 
-#line 148 "src/parser/parser.tab.h"
+#line 153 "src/parser/parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
