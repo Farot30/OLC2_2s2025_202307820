@@ -60,4 +60,6 @@ void asignarElementoVector(Simbolo* simbolo, int indice, ValorSimbolo valor);
 void asignarElementoMatriz(Simbolo* simbolo, int fila, int columna, ValorSimbolo valor);
 void asignarElementoArrayMultidimensional(Simbolo* simbolo, int* indices, int numIndices, ValorSimbolo valor);
 
+void modificarClaseSimbolo(const char* nombre, TipoSimbolo nuevaClase);
+
 #endif

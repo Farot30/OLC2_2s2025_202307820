@@ -49,6 +49,81 @@ int esNum(TipoDato t) {
     return t == TIPO_INT || t == TIPO_FLOAT || t == TIPO_DOUBLE || t == TIPO_CHAR;
 }
 
+void obtenerDimensionesArray(Simbolo* simbolo, int* dimensiones, int* numDimensiones) {
+    if (!simbolo || !simbolo->valor.v.s || !dimensiones || !numDimensiones) return;
+    
+    // Inicializar
+    *numDimensiones = 0;
+    
+    // Si es una matriz, procesar su formato específico
+    if (simbolo->clase == SIMBOLO_MATRIZ) {
+        // Formato matriz: [[val1,val2,...],[val1,val2,...],...]
+        char* matrixCopy = strdup(simbolo->valor.v.s);
+        if (matrixCopy) {
+            // Contar filas (corchetes internos)
+            int numFilas = 0;
+            int numColumnas = 0;
+            char* p = matrixCopy;
+            
+            // Contar filas (separadas por ],[)
+            while (*p) {
+                if (*p == '[' && (p == matrixCopy || *(p-1) == ',')) numFilas++;
+                p++;
+            }
+            
+            // Contar columnas en la primera fila
+            if (numFilas > 0) {
+                p = strchr(matrixCopy, '[');
+                if (p) {
+                    p++; // Saltar el primer corchete
+                    char* endRow = strchr(p, ']');
+                    if (endRow) {
+                        // Contar comas dentro de la primera fila + 1
+                        numColumnas = 1; // Al menos un elemento
+                        while (p < endRow) {
+                            if (*p == ',') numColumnas++;
+                            p++;
+                        }
+                    }
+                }
+            }
+            
+            printf("[EVALUADOR] Matriz '%s' detectada con formato: %d filas, %d columnas\n", 
+                simbolo->nombre, numFilas, numColumnas);
+            
+            dimensiones[0] = numFilas;
+            dimensiones[1] = numColumnas;
+            *numDimensiones = 2;
+            
+            free(matrixCopy);
+        }
+    } else if (simbolo->clase == SIMBOLO_VECTOR) {
+        // Vector: contar elementos directamente
+        char* valorCopy = strdup(simbolo->valor.v.s);
+        int count = 1; // Al menos un elemento
+        
+        // Eliminar corchetes si existen
+        if (valorCopy[0] == '[') {
+            memmove(valorCopy, valorCopy + 1, strlen(valorCopy));
+            int len = strlen(valorCopy);
+            if (len > 0 && valorCopy[len - 1] == ']') {
+                valorCopy[len - 1] = '\0';
+            }
+        }
+        
+        // Contar comas para determinar número de elementos
+        for (char* p = valorCopy; *p; p++) {
+            if (*p == ',') count++;
+        }
+        
+        dimensiones[0] = count;
+        *numDimensiones = 1;
+        
+        free(valorCopy);
+        printf("[EVALUADOR] Vector '%s' con %d elementos\n", simbolo->nombre, count);
+    }
+}
+
 // Función para evaluar expresiones
 ValorSimbolo evaluarExpr(NodoAST* e) {
     ValorSimbolo r;
@@ -647,6 +722,141 @@ ValorSimbolo evaluarExpr(NodoAST* e) {
             
             return r;
         }
+        case AST_LENGHT: {
+            if (e->num_hijos < 1) {
+                printf("[ERROR] Array.length requiere un identificador\n");
+                return r;
+            }
+            NodoAST* idNodo = e->hijos[0];
+            if (idNodo->tipo != AST_IDENTIFICADOR) {
+                printf("[ERROR] Array.length solo se puede aplicar a identificadores\n");
+                return r;
+            }
+            Simbolo* simbolo = buscarSimbolo(idNodo->valor);
+            if (!simbolo) {
+                printf("[ERROR] Variable '%s' no declarada\n", idNodo->valor);
+                return r;
+            }
+            if (simbolo->clase != SIMBOLO_VECTOR && simbolo->clase != SIMBOLO_MATRIZ && simbolo->clase != SIMBOLO_ARRAY_MULTIDIMENSIONAL) {
+                printf("[ERROR] Array.length solo se puede aplicar a arreglos\n");
+                return r;
+            }
+            int dimensiones[10] = {0};
+            int numDimensiones = 0;
+            obtenerDimensionesArray(simbolo, dimensiones, &numDimensiones);
+            int len = 1;
+            for (int i = 0; i < numDimensiones; i++) len *= dimensiones[i];
+            r = makeNum(TIPO_INT, (double)len);
+            r.tipo = TIPO_INT;
+            r.inicializado = 1;
+            printf("[DEBUG] Array.length de '%s' = %d\n", idNodo->valor, len);
+            return r;
+        }
+        case AST_ADD: {
+            // Verificamos que tengamos identificador como primer hijo
+            if (e->num_hijos < 1 || e->hijos[0]->tipo != AST_IDENTIFICADOR) {
+                printf("[ERROR] Array.add requiere un identificador de array\n");
+                return r;
+            }
+            
+            // Verificar si hay un elemento para añadir
+            if (e->num_hijos < 2) {
+                printf("[ERROR] Array.add requiere un elemento para añadir\n");
+                return r;
+            }
+            
+            // Buscar el símbolo del array
+            NodoAST* idNodo = e->hijos[0];
+            Simbolo* simboloArray = buscarSimbolo(idNodo->valor);
+            if (!simboloArray) {
+                printf("[ERROR] Array '%s' no declarado\n", idNodo->valor);
+                return r;
+            }
+            
+            // Verificar que sea un vector
+            if (simboloArray->clase != SIMBOLO_VECTOR) {
+                printf("[ERROR] '%s' no es un vector\n", idNodo->valor);
+                return r;
+            }
+            
+            // Verificar que esté inicializado
+            if (!simboloArray->valor.inicializado || !simboloArray->valor.v.s) {
+                printf("[ERROR] Vector '%s' no inicializado\n", idNodo->valor);
+                return r;
+            }
+            
+            // Evaluar el elemento a añadir
+            ValorSimbolo nuevoElemento = evaluarExpr(e->hijos[1]);
+            if (!nuevoElemento.inicializado) {
+                printf("[ERROR] Elemento a añadir no inicializado\n");
+                return r;
+            }
+            
+            // Verificar compatibilidad de tipos
+            if (nuevoElemento.tipo != simboloArray->tipo) {
+                printf("[ERROR] Tipo incompatible: intentando añadir %s a un array de %s\n", 
+                    nombreTipo(nuevoElemento.tipo), nombreTipo(simboloArray->tipo));
+                return r;
+            }
+            
+            // Obtener la representación del array actual
+            char* arrayActual = strdup(simboloArray->valor.v.s);
+            
+            // Convertir el nuevo elemento a string según su tipo
+            char elementoStr[256];
+            switch (nuevoElemento.tipo) {
+                case TIPO_INT:
+                    snprintf(elementoStr, sizeof(elementoStr), "%d", nuevoElemento.v.i);
+                    break;
+                case TIPO_FLOAT:
+                    snprintf(elementoStr, sizeof(elementoStr), "%f", nuevoElemento.v.f);
+                    break;
+                case TIPO_DOUBLE:
+                    snprintf(elementoStr, sizeof(elementoStr), "%f", nuevoElemento.v.d);
+                    break;
+                case TIPO_CHAR:
+                    snprintf(elementoStr, sizeof(elementoStr), "'%c'", nuevoElemento.v.c);
+                    break;
+                case TIPO_BOOLEAN:
+                    snprintf(elementoStr, sizeof(elementoStr), "%s", nuevoElemento.v.b ? "true" : "false");
+                    break;
+                case TIPO_STRING:
+                    snprintf(elementoStr, sizeof(elementoStr), "\"%s\"", nuevoElemento.v.s ? nuevoElemento.v.s : "");
+                    break;
+                default:
+                    elementoStr[0] = '\0';
+                    break;
+            }
+            
+            // Crear el nuevo array con el elemento añadido
+            char nuevoArray[4096]; // Tamaño suficiente para la mayoría de los arrays
+            
+            // Si el array actual está vacío o es [0], crear uno nuevo con solo el elemento
+            if (strcmp(arrayActual, "[]") == 0 || strcmp(arrayActual, "[0]") == 0) {
+                snprintf(nuevoArray, sizeof(nuevoArray), "[%s]", elementoStr);
+            } else {
+                // Eliminar el corchete de cierre, añadir el elemento y cerrar el array
+                size_t len = strlen(arrayActual);
+                if (len > 0 && arrayActual[len-1] == ']') {
+                    arrayActual[len-1] = '\0';
+                    snprintf(nuevoArray, sizeof(nuevoArray), "%s,%s]", arrayActual, elementoStr);
+                } else {
+                    // Formato inválido, usar formato por defecto
+                    snprintf(nuevoArray, sizeof(nuevoArray), "[%s]", elementoStr);
+                }
+            }
+            
+            // Crear el resultado como un nuevo array del mismo tipo
+            r.tipo = simboloArray->tipo;
+            r.inicializado = 1;
+            r.v.s = strdup(nuevoArray);
+            
+            printf("[DEBUG] Array.add: %s + %s = %s\n", 
+                simboloArray->valor.v.s, elementoStr, nuevoArray);
+            
+            free(arrayActual);
+            return r;
+        }
 
         case AST_ACCESO: {
             printf("[DEBUG EVALUADOR] Evaluando acceso a vector/matriz en expresión\n");
@@ -739,81 +949,6 @@ ValorSimbolo evaluarExpr(NodoAST* e) {
         default: return r;
     }
     return r;
-}
-
-static void obtenerDimensionesArray(Simbolo* simbolo, int* dimensiones, int* numDimensiones) {
-    if (!simbolo || !simbolo->valor.v.s || !dimensiones || !numDimensiones) return;
-    
-    // Inicializar
-    *numDimensiones = 0;
-    
-    // Si es una matriz, procesar su formato específico
-    if (simbolo->clase == SIMBOLO_MATRIZ) {
-        // Formato matriz: [[val1,val2,...],[val1,val2,...],...]
-        char* matrixCopy = strdup(simbolo->valor.v.s);
-        if (matrixCopy) {
-            // Contar filas (corchetes internos)
-            int numFilas = 0;
-            int numColumnas = 0;
-            char* p = matrixCopy;
-            
-            // Contar filas (separadas por ],[)
-            while (*p) {
-                if (*p == '[' && (p == matrixCopy || *(p-1) == ',')) numFilas++;
-                p++;
-            }
-            
-            // Contar columnas en la primera fila
-            if (numFilas > 0) {
-                p = strchr(matrixCopy, '[');
-                if (p) {
-                    p++; // Saltar el primer corchete
-                    char* endRow = strchr(p, ']');
-                    if (endRow) {
-                        // Contar comas dentro de la primera fila + 1
-                        numColumnas = 1; // Al menos un elemento
-                        while (p < endRow) {
-                            if (*p == ',') numColumnas++;
-                            p++;
-                        }
-                    }
-                }
-            }
-            
-            printf("[EVALUADOR] Matriz '%s' detectada con formato: %d filas, %d columnas\n", 
-                simbolo->nombre, numFilas, numColumnas);
-            
-            dimensiones[0] = numFilas;
-            dimensiones[1] = numColumnas;
-            *numDimensiones = 2;
-            
-            free(matrixCopy);
-        }
-    } else if (simbolo->clase == SIMBOLO_VECTOR) {
-        // Vector: contar elementos directamente
-        char* valorCopy = strdup(simbolo->valor.v.s);
-        int count = 1; // Al menos un elemento
-        
-        // Eliminar corchetes si existen
-        if (valorCopy[0] == '[') {
-            memmove(valorCopy, valorCopy + 1, strlen(valorCopy));
-            int len = strlen(valorCopy);
-            if (len > 0 && valorCopy[len - 1] == ']') {
-                valorCopy[len - 1] = '\0';
-            }
-        }
-        
-        // Contar comas para determinar número de elementos
-        for (char* p = valorCopy; *p; p++) {
-            if (*p == ',') count++;
-        }
-        
-        dimensiones[0] = count;
-        *numDimensiones = 1;
-        
-        free(valorCopy);
-        printf("[EVALUADOR] Vector '%s' con %d elementos\n", simbolo->nombre, count);
-    }
 }
 
 static int evaluarIndices(NodoAST* dimensionesNodo, int* indices, int maxDim) {

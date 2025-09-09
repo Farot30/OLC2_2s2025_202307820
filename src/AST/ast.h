@@ -46,6 +46,8 @@ typedef enum {
     AST_PARSEJOIN,
     AST_VALUEOF,
     AST_INDEXOF,
+    AST_LENGHT,
+    AST_ADD,
 
     // Por si se me olvida, aquí es agregar más tipos
 } TipoNodoAST;

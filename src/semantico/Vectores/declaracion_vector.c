@@ -45,6 +45,16 @@ int verificarDeclaracionVector(NodoAST* nodo) {
     printf("[DEBUG] Declarando vector '%s': tipo declarado=%s\n",
            identificador->valor, nombreTipo(tipoDeclarado));
 
+    if (buscarSimbolo(identificador->valor)) {
+        char msg[128];
+        snprintf(msg, sizeof(msg), "Variable '%s' ya declarada", identificador->valor);
+        addError(msg, ambitoActual(), identificador->linea, identificador->columna);
+        printf("[ERROR] %s\n", msg);
+        identificador->valido = 0;
+        nodo->valido = 0;
+        return 0;
+    }
+
     // Verificar si el identificador ya está declarado
     if (tercer_nodo->tipo == AST_LISTA_ELEMENTOS) {
         // Caso: Declaración con lista de elementos directamente
@@ -151,7 +161,37 @@ int verificarDeclaracionVector(NodoAST* nodo) {
                     free(valores);
                     return 0;
                 }
-            } else {
+            } else if (elemento->tipo == AST_ADD) {
+                ValorSimbolo resultado = evaluarExpr(elemento);
+                if (resultado.inicializado && resultado.v.s) {
+                    // El resultado es el string con el nuevo array, usarlo directamente
+                    char formatoCompleto[numElementos * 32 + 64];
+                    snprintf(formatoCompleto, sizeof(formatoCompleto), "%s", resultado.v.s);
+                    
+                    // Agregar el símbolo a la tabla
+                    agregarSimboloDetallado(
+                        identificador->valor,
+                        SIMBOLO_VECTOR,
+                        tipoDeclarado,
+                        ambitoActual(),
+                        identificador->linea,
+                        identificador->columna
+                    );
+                    
+                    Simbolo* simbolo = buscarSimbolo(identificador->valor);
+                    if (simbolo) {
+                        simbolo->valor.v.s = strdup(formatoCompleto);
+                        simbolo->valor.inicializado = 1;
+                        simbolo->valor.tipo = TIPO_STRING;
+                        
+                        printf("[DEBUG] Vector '%s' inicializado con resultado de add(): %s\n",
+                            identificador->valor, simbolo->valor.v.s);
+                    }
+                    
+                    free(valores);
+                    return 1;
+                }
+            }else {
                 // Para expresiones más complejas, usar evaluarExpr
                 ValorSimbolo valorElemento = evaluarExpr(elemento);
                 

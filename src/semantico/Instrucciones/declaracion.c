@@ -157,7 +157,66 @@ int verificarDeclaracion(NodoAST* nodo) {
                 nodo->valido = 0;
                 return 0;
             }
-        } else {
+        } else if (valor->tipo == AST_ADD) {
+            // Verifica que haya al menos un hijo (el identificador del array)
+            if (valor->num_hijos < 1 || valor->hijos[0]->tipo != AST_IDENTIFICADOR) {
+                printf("[ERROR] Estructura inválida para Array.add\n");
+                nodo->valido = 0;
+                return 0;
+            }
+            
+            // Obtén el identificador del array original
+            NodoAST* idArrayNodo = valor->hijos[0];
+            Simbolo* simboloArray = buscarSimbolo(idArrayNodo->valor);
+            
+            if (!simboloArray) {
+                printf("[ERROR] Array '%s' no declarado\n", idArrayNodo->valor);
+                nodo->valido = 0;
+                return 0;
+            }
+            
+            // Verifica que sea realmente un vector
+            if (simboloArray->clase != SIMBOLO_VECTOR) {
+                printf("[ERROR] '%s' no es un vector\n", idArrayNodo->valor);
+                nodo->valido = 0;
+                return 0;
+            }
+            
+            // Verifica compatibilidad de tipos
+            if (tipoDeclarado != simboloArray->tipo) {
+                char msg[200];
+                snprintf(msg, sizeof(msg), 
+                    "Tipo incompatible en declaración '%s': el método add() de '%s' devuelve %s[] pero se está asignando a %s[]",
+                    identificador->valor, idArrayNodo->valor, 
+                    nombreTipo(simboloArray->tipo), nombreTipo(tipoDeclarado));
+                addError(msg, ambitoActual(), identificador->linea, identificador->columna);
+                printf("[ERROR] %s\n", msg);
+                nodo->valido = 0;
+                return 0;
+            }
+            
+            printf("[DEBUG] Tipos compatibles: nuevo vector '%s' (%s[]) y vector original '%s' (%s[])\n",
+                identificador->valor, nombreTipo(tipoDeclarado),
+                idArrayNodo->valor, nombreTipo(simboloArray->tipo));
+            
+            // Evalúa la expresión para obtener el nuevo array
+            ValorSimbolo nuevoArray = evaluarExpr(valor);
+            if (nuevoArray.inicializado) {
+                // Actualiza el tipo de símbolo a VECTOR para que se maneje correctamente
+                modificarClaseSimbolo(identificador->valor, SIMBOLO_VECTOR);
+                
+                // Asigna el valor (formato del array como string)
+                setValorSimbolo(sim, sim->tipo, nuevoArray);
+                
+                printf("[DEBUG] Vector '%s' inicializado con el resultado de '%s.add()': %s\n",
+                    identificador->valor, idArrayNodo->valor, 
+                    nuevoArray.v.s ? nuevoArray.v.s : "(formato inválido)");
+            } else {
+                printf("[ERROR] Error al evaluar Array.add para '%s'\n", identificador->valor);
+                nodo->valido = 0;
+                return 0;
+            }
+        }else {
             // Caso normal (expresión)
             ValorSimbolo v = evaluarExpr(valor);
             if(v.inicializado){

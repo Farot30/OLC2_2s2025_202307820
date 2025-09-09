@@ -54,7 +54,7 @@
 %token <str> TOKEN_STRING_VALUEOF TOKEN_EQUAL
 %token <str> TOKEN_PARSEINT TOKEN_PARSEFLOAT
 %token <str> TOKEN_PARSEDOUBLE
-%token <str> TOKEN_PARSEJOIN TOKEN_INDEXOF
+%token <str> TOKEN_PARSEJOIN TOKEN_INDEXOF TOKEN_LENGHT TOKEN_ADD TOKEN_PUNTO
 
 /* Tokens para asignaciones compuestas */
 %token <str> TOKEN_MAS_IGUAL TOKEN_MENOS_IGUAL TOKEN_POR_IGUAL
@@ -216,6 +216,35 @@ declaracion_vector:
         agregarHijo($$, id);
         NodoAST* lista = crearNodo(AST_LISTA_ELEMENTOS, "Lista Elementos");
         agregarHijo(lista, $7);
+        agregarHijo($$, lista);
+    }
+    | tipo_primitivo TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_IDENTIFICADOR TOKEN_IGUAL TOKEN_IDENTIFICADOR TOKEN_PUNTO TOKEN_ADD TOKEN_PARIZQ expresion TOKEN_PARDER {
+        $$ = crearNodo(AST_DECLARACION_VECTOR, "Declaración Vector");
+        $$->linea = @4.first_line; $$->columna = @4.first_column;
+        
+        // Tipo declarado
+        agregarHijo($$, crearNodo(AST_TIPO, $1));
+        
+        // Identificador del nuevo vector
+        NodoAST* id = crearNodo(AST_IDENTIFICADOR, $4);
+        id->linea = @4.first_line; id->columna = @4.first_column;
+        agregarHijo($$, id);
+        
+        // Crear el nodo para la operación add
+        NodoAST* addNode = crearNodo(AST_ADD, "Array.add");
+        addNode->linea = @7.first_line; addNode->columna = @7.first_column;
+        
+        // Identificador del vector origen
+        NodoAST* idOrig = crearNodo(AST_IDENTIFICADOR, $6);
+        idOrig->linea = @6.first_line; idOrig->columna = @6.first_column;
+        agregarHijo(addNode, idOrig);
+        
+        // Valor a añadir
+        agregarHijo(addNode, $10);
+        
+        // Añadir el nodo add como lista de elementos
+        NodoAST* lista = crearNodo(AST_LISTA_ELEMENTOS, "Lista Elementos");
+        agregarHijo(lista, addNode);
         agregarHijo($$, lista);
     }
 ;
@@ -740,6 +769,21 @@ primary:
         $$->linea = @1.first_line; $$->columna = @1.first_column;
         agregarHijo($$, $3);  // El array/vector
         agregarHijo($$, $5);  // La clave a buscar
+    }
+    | TOKEN_IDENTIFICADOR TOKEN_PUNTO TOKEN_LENGHT {
+        $$ = crearNodo(AST_LENGHT, "Array.length");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+        NodoAST* id = crearNodo(AST_IDENTIFICADOR, $1);
+        id->linea = @1.first_line; id->columna = @1.first_column;
+        agregarHijo($$, id);
+    }
+    | TOKEN_IDENTIFICADOR TOKEN_PUNTO TOKEN_ADD TOKEN_PARIZQ expresion TOKEN_PARDER {
+        $$ = crearNodo(AST_ADD, "Array.add");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+        NodoAST* id = crearNodo(AST_IDENTIFICADOR, $1);
+        id->linea = @1.first_line; id->columna = @1.first_column;
+        agregarHijo($$, id);
+        agregarHijo($$, $5);  // El elemento a añadir
     }
     | TOKEN_PARSEJOIN TOKEN_PARIZQ expresion TOKEN_COMA lista_expresiones_join TOKEN_PARDER {
         $$ = crearNodo(AST_PARSEJOIN, "Strings.join");

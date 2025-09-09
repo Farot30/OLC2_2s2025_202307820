@@ -91,6 +91,8 @@ static const char* nombreNodoTipo(TipoNodoAST t){
         case AST_PARSEJOIN: return "PARSEJOIN";
         case AST_VALUEOF: return "VALUEOF";
         case AST_INDEXOF: return "INDEXOF";
+        case AST_LENGHT: return "LENGHT";
+        case AST_ADD: return "ADD";
 
         default: return "UNK";
     }

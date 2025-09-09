@@ -512,6 +512,14 @@ void asignarElementoVector(Simbolo* simbolo, int indice, ValorSimbolo valor) {
     free(vectorStr);
     free(valuesCopy);
 }
+void modificarClaseSimbolo(const char* nombre, TipoSimbolo nuevaClase) {
+    Simbolo* simbolo = buscarSimbolo(nombre);
+    if (simbolo) {
+        simbolo->clase = nuevaClase;
+        printf("[DEBUG] Modificada clase de símbolo '%s' a %d\n", nombre, nuevaClase);
+    }
+}
+
 
 void asignarElementoMatriz(Simbolo* simbolo, int fila, int columna, ValorSimbolo valor) {
     if (!simbolo || simbolo->clase != SIMBOLO_MATRIZ || !simbolo->valor.inicializado) {
