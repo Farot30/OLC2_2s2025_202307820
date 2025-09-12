@@ -42,8 +42,8 @@ int verificarDeclaracionVector(NodoAST* nodo) {
 
     TipoDato tipoDeclarado = obtenerTipoDesdeString(tipo->valor);
 
-    printf("[DEBUG] Declarando vector '%s': tipo declarado=%s\n",
-           identificador->valor, nombreTipo(tipoDeclarado));
+    //printf("[DEBUG] Declarando vector '%s': tipo declarado=%s\n",
+    //       identificador->valor, nombreTipo(tipoDeclarado));
 
     if (buscarSimbolo(identificador->valor)) {
         char msg[128];
@@ -58,7 +58,7 @@ int verificarDeclaracionVector(NodoAST* nodo) {
     // Verificar si el identificador ya está declarado
     if (tercer_nodo->tipo == AST_LISTA_ELEMENTOS) {
         // Caso: Declaración con lista de elementos directamente
-        printf("[DEBUG] Procesando vector con lista de elementos\n");
+        //printf("[DEBUG] Procesando vector con lista de elementos\n");
         NodoAST* contenido = tercer_nodo;
 
         // Verificar si el contenido tiene una lista anidada
@@ -85,8 +85,8 @@ int verificarDeclaracionVector(NodoAST* nodo) {
         }
         
         numElementos = listaReal->num_hijos;
-        printf("[DEBUG] Encontrados %d elementos en la lista\n", numElementos);
-        
+        //printf("[DEBUG] Encontrados %d elementos en la lista\n", numElementos);
+
         char* valores = malloc(numElementos * 32 + 1); // Espacio para los valores y separadores
         if (!valores) {
             printf("[ERROR] No se pudo asignar memoria para el vector '%s'\n", identificador->valor);
@@ -97,8 +97,8 @@ int verificarDeclaracionVector(NodoAST* nodo) {
         // Usar un depurador más detallado para ver qué contiene cada elemento
         for (int i = 0; i < numElementos; i++) {
             NodoAST* elemento = listaReal->hijos[i];
-            printf("[DEBUG] Evaluando elemento %d tipo=%d valor=%s\n", 
-                i, elemento->tipo, elemento->valor ? elemento->valor : "NULL");
+            //printf("[DEBUG] Evaluando elemento %d tipo=%d valor=%s\n", 
+            //    i, elemento->tipo, elemento->valor ? elemento->valor : "NULL");
             
             // Manejar cada tipo de elemento según su tipo de nodo
             if (elemento->tipo == AST_NUMERO && elemento->valor) {
@@ -183,9 +183,9 @@ int verificarDeclaracionVector(NodoAST* nodo) {
                         simbolo->valor.v.s = strdup(formatoCompleto);
                         simbolo->valor.inicializado = 1;
                         simbolo->valor.tipo = TIPO_STRING;
-                        
-                        printf("[DEBUG] Vector '%s' inicializado con resultado de add(): %s\n",
-                            identificador->valor, simbolo->valor.v.s);
+
+                        //printf("[DEBUG] Vector '%s' inicializado con resultado de add(): %s\n",
+                        //    identificador->valor, simbolo->valor.v.s);
                     }
                     
                     free(valores);
@@ -198,8 +198,8 @@ int verificarDeclaracionVector(NodoAST* nodo) {
                 if (!valorElemento.inicializado) {
                     printf("[ERROR] Elemento %d no está inicializado\n", i);
                     // Intentemos obtener más información para depurar
-                    printf("[DEBUG] Tipo del elemento: %d, Valor: %s\n", 
-                        elemento->tipo, elemento->valor ? elemento->valor : "NULL");
+                    //printf("[DEBUG] Tipo del elemento: %d, Valor: %s\n", 
+                    //    elemento->tipo, elemento->valor ? elemento->valor : "NULL");
                     nodo->valido = 0;
                     free(valores);
                     return 0;
@@ -281,9 +281,9 @@ int verificarDeclaracionVector(NodoAST* nodo) {
         snprintf(formatoCompleto, sizeof(formatoCompleto), "[%s]", valores);
         
         // Agregar el símbolo a la tabla
-        printf("[DEBUG] Agregando vector '%s' a la tabla de símbolos con formato: %s\n", 
-               identificador->valor, formatoCompleto);
-               
+        //printf("[DEBUG] Agregando vector '%s' a la tabla de símbolos con formato: %s\n", 
+        //      identificador->valor, formatoCompleto);
+
         agregarSimboloDetallado(
             identificador->valor,
             SIMBOLO_VECTOR,
@@ -299,8 +299,8 @@ int verificarDeclaracionVector(NodoAST* nodo) {
             simbolo->valor.inicializado = 1;
             simbolo->valor.tipo = TIPO_STRING;
 
-            printf("[DEBUG] Vector '%s' inicializado con lista de elementos: %s\n",
-                identificador->valor, simbolo->valor.v.s);
+            //printf("[DEBUG] Vector '%s' inicializado con lista de elementos: %s\n",
+            //    identificador->valor, simbolo->valor.v.s);
         }
 
         free(valores);
@@ -321,10 +321,10 @@ int verificarDeclaracionVector(NodoAST* nodo) {
             return 0;
         }
 
-        printf("[DEBUG] Tipos coinciden: '%s' == '%s'\n", nombreTipo(tipoDeclarado), nombreTipo(tipoNewEnum));
+        //printf("[DEBUG] Tipos coinciden: '%s' == '%s'\n", nombreTipo(tipoDeclarado), nombreTipo(tipoNewEnum));
 
         if (contenido->tipo == AST_1DIMENSION) {
-            printf("[DEBUG] Procesando vector con dimensión (new)\n");
+            //printf("[DEBUG] Procesando vector con dimensión (new)\n");
 
             // Verificar que tenga al menos un hijo
             if (contenido->num_hijos < 1) {

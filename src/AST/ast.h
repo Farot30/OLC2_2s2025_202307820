@@ -48,6 +48,7 @@ typedef enum {
     AST_INDEXOF,
     AST_LENGHT,
     AST_ADD,
+    AST_ACCESO_ESCRITURA,
 
     // Por si se me olvida, aquí es agregar más tipos
 } TipoNodoAST;
@@ -70,5 +71,6 @@ void imprimirAST(NodoAST* nodo, int nivel);
 void graphvizAST(NodoAST* nodo);
 void graphvizAST_ToFile(NodoAST* nodo, FILE* f);
 int exportarAST(NodoAST* nodo, const char* rutaDot, const char* rutaPNG);
+void interpretarAccesoEscritura(NodoAST* nodo);
 
 #endif

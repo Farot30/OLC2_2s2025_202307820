@@ -84,7 +84,6 @@ void fill_error_treeview(GtkListStore* store, const char* error_text) {
     }
 }
 
-// Función corregida para llenar la tabla de símbolos desde texto formateado
 void fill_symbol_treeview(GtkListStore* store, const char* symbol_text) {
     clear_treeview(store);
     
@@ -137,75 +136,108 @@ void fill_symbol_treeview(GtkListStore* store, const char* symbol_text) {
             // Inicializar variables
             char id[10] = "";
             char nombre[50] = "";
-            char clase[20] = "";
+            char clase[26] = "";
             char tipo[20] = "";
             char valor[200] = "";
             char ambito[30] = "";
             char linea[10] = "";
             char columna[10] = "";
             
-            // Parser basado en posiciones fijas corregidas según el printf:
+            // Parser basado en posiciones fijas CORREGIDAS:
+            // Según el printf original:
             // printf("%-4s %-15s %-15s %-10s %-35s %-10s %-6s %-6s\n",
             //        "ID", "Nombre", "Clase", "TipoDato", "Valor", "Ambito", "Linea", "Col");
-            // printf("%-4d %-15s %-15s %-10s %-35s %-10s %-6d %-6d\n",
-            //        actual->id, actual->nombre, nombreClase(actual->clase), 
-            //        nombreTipoDato(actual->tipo), valor, actual->ambito, 
-            //        actual->linea, actual->columna);
             
-            // ID (posición 0-3, ancho %-4d)
+            // ID (posición 0-3, ancho 4)
             if (strlen(line) > 0) {
-                strncpy(id, line, 4);
-                id[4] = '\0';
+                int end_pos = (strlen(line) >= 4) ? 4 : strlen(line);
+                strncpy(id, line, end_pos);
+                id[end_pos] = '\0';
                 g_strstrip(id);
             }
             
-            // Nombre (posición 5-19, ancho %-15s) 
+            // Nombre (posición 5-19, ancho 15) 
             if (strlen(line) > 5) {
-                strncpy(nombre, line + 5, 15);
-                nombre[15] = '\0';
-                g_strstrip(nombre);
+                int start_pos = 5;
+                int end_pos = (strlen(line) >= 20) ? 20 : strlen(line);
+                int copy_len = end_pos - start_pos;
+                if (copy_len > 0) {
+                    strncpy(nombre, line + start_pos, copy_len);
+                    nombre[copy_len] = '\0';
+                    g_strstrip(nombre);
+                }
             }
             
-            // Clase (posición 21-35, ancho %-15s)
-            if (strlen(line) > 21) {
-                strncpy(clase, line + 21, 15);
-                clase[15] = '\0';
-                g_strstrip(clase);
+            // Clase (posición 20-44, ancho 25)
+            if (strlen(line) > 20) {
+                int start_pos = 20;
+                int end_pos = (strlen(line) >= 45) ? 45 : strlen(line);
+                int copy_len = end_pos - start_pos;
+                if (copy_len > 0) {
+                    strncpy(clase, line + start_pos, copy_len);
+                    clase[copy_len] = '\0';
+                    g_strstrip(clase);
+                }
             }
-            
-            // Tipo (posición 37-46, ancho %-10s)
-            if (strlen(line) > 37) {
-                strncpy(tipo, line + 37, 10);
-                tipo[10] = '\0';
-                g_strstrip(tipo);
+
+            // Tipo (posición 46-55, ancho 10)
+            if (strlen(line) > 46) {
+                int start_pos = 46;
+                int end_pos = (strlen(line) >= 56) ? 56 : strlen(line);
+                int copy_len = end_pos - start_pos;
+                if (copy_len > 0) {
+                    strncpy(tipo, line + start_pos, copy_len);
+                    tipo[copy_len] = '\0';
+                    g_strstrip(tipo);
+                }
             }
-            
-            // Valor (posición 48-82, ancho %-35s)
-            if (strlen(line) > 48) {
-                strncpy(valor, line + 48, 35);
-                valor[35] = '\0';
-                g_strstrip(valor);
+
+            // Valor (posición 57-123, ancho 67)
+            if (strlen(line) > 57) {
+                int start_pos = 57;
+                int end_pos = (strlen(line) >= 124) ? 124 : strlen(line);
+                int copy_len = end_pos - start_pos;
+                if (copy_len > 0) {
+                    strncpy(valor, line + start_pos, copy_len);
+                    valor[copy_len] = '\0';
+                    g_strstrip(valor);
+                }
             }
-            
-            // Ámbito (posición 84-93, ancho %-10s)
-            if (strlen(line) > 84) {
-                strncpy(ambito, line + 84, 10);
-                ambito[10] = '\0';
-                g_strstrip(ambito);
+
+            // Ámbito (posición 125-134, ancho 10)
+            if (strlen(line) > 125) {
+                int start_pos = 125;
+                int end_pos = (strlen(line) >= 135) ? 135 : strlen(line);
+                int copy_len = end_pos - start_pos;
+                if (copy_len > 0) {
+                    strncpy(ambito, line + start_pos, copy_len);
+                    ambito[copy_len] = '\0';
+                    g_strstrip(ambito);
+                }
             }
-            
-            // Línea (posición 95-100, ancho %-6d)
-            if (strlen(line) > 95) {
-                strncpy(linea, line + 95, 6);
-                linea[6] = '\0';
-                g_strstrip(linea);
+
+            // Línea (posición 136-141, ancho 6)
+            if (strlen(line) > 136) {
+                int start_pos = 136;
+                int end_pos = (strlen(line) >= 142) ? 142 : strlen(line);
+                int copy_len = end_pos - start_pos;
+                if (copy_len > 0) {
+                    strncpy(linea, line + start_pos, copy_len);
+                    linea[copy_len] = '\0';
+                    g_strstrip(linea);
+                }
             }
-            
-            // Columna (posición 102 en adelante, ancho %-6d)
-            if (strlen(line) > 102) {
-                strncpy(columna, line + 102, 6);
-                columna[6] = '\0';
-                g_strstrip(columna);
+
+            // Columna (posición 143 en adelante, ancho 6)
+            if (strlen(line) > 143) {
+                int start_pos = 143;
+                int end_pos = (strlen(line) >= 149) ? 149 : strlen(line);
+                int copy_len = end_pos - start_pos;
+                if (copy_len > 0) {
+                    strncpy(columna, line + start_pos, copy_len);
+                    columna[copy_len] = '\0';
+                    g_strstrip(columna);
+                }
             }
             
             // Agregar a la tabla si tenemos al menos el ID
@@ -228,7 +260,6 @@ void fill_symbol_treeview(GtkListStore* store, const char* symbol_text) {
         line_start = line_end + 1;
     }
 }
-
 static char* get_code(GtkTextBuffer* b){
     GtkTextIter s,e;
     gtk_text_buffer_get_start_iter(b,&s);

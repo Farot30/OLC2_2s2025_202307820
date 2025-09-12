@@ -4,7 +4,9 @@
 #include "ast.h"
 #include "../simbolos/Evaluador.h"
 #include "../semantico/tipos.h"
-
+#include "../semantico/Vectores/acceso_vector.h"
+#include "../semantico/Vectores/acceso_matriz.h"
+#include "../semantico/semantico.h"
 
 NodoAST* crearNodo(TipoNodoAST tipo, char* valor) {
     NodoAST* nodo = (NodoAST*)malloc(sizeof(NodoAST));
@@ -93,6 +95,7 @@ static const char* nombreNodoTipo(TipoNodoAST t){
         case AST_INDEXOF: return "INDEXOF";
         case AST_LENGHT: return "LENGHT";
         case AST_ADD: return "ADD";
+        case AST_ACCESO_ESCRITURA: return "ACCESO_ESCRITURA";
 
         default: return "UNK";
     }
@@ -268,6 +271,175 @@ static void graphvizRecFile(NodoAST* n, FILE* f){
             fprintf(f, "  n%p -> n%p;\n", (void*)n, (void*)n->hijos[i]);
             graphvizRecFile(n->hijos[i], f);
         }
+    }
+}
+
+void interpretarAccesoEscritura(NodoAST* nodo) {
+    if (!nodo || nodo->tipo != AST_ACCESO_ESCRITURA) {
+        printf("[ERROR] Nodo inválido para acceso de escritura\n");
+        return;
+    }
+
+    // Obtener el nodo de acceso (identificador + dimensiones)
+    NodoAST* acceso = nodo->hijos[0];
+    NodoAST* valorExpr = nodo->hijos[1];
+
+    if (acceso->tipo != AST_ACCESO || acceso->num_hijos < 2) {
+        printf("[ERROR] Estructura de acceso inválida en escritura\n");
+        return;
+    }
+
+    // Extraer el identificador y las dimensiones
+    NodoAST* idNodo = acceso->hijos[0];
+    NodoAST* dimensionesNodo = acceso->hijos[1];
+
+    if (idNodo->tipo != AST_IDENTIFICADOR) {
+        printf("[ERROR] Identificador inválido en acceso de escritura\n");
+        return;
+    }
+
+    // Buscar el símbolo
+    Simbolo* simbolo = buscarSimbolo(idNodo->valor);
+    if (!simbolo) {
+        printf("[ERROR] Variable '%s' no declarada\n", idNodo->valor);
+        return;
+    }
+
+    // Verificar si es un vector o matriz
+    if (simbolo->clase == SIMBOLO_VECTOR) {
+        printf("[DEBUG] Escritura en vector '%s'\n", simbolo->nombre);
+        
+        // Verificar que el acceso sea válido
+        if (!verificarAccesoVector(acceso)) {
+            printf("[ERROR] Acceso inválido al vector '%s' en escritura\n", simbolo->nombre);
+            return;
+        }
+        
+        // Obtener el índice del vector
+        // - dimensionesNodo contiene la lista de dimensiones
+        // - Para vectores, debe tener un hijo de tipo AST_1DIMENSION
+        if (dimensionesNodo->tipo != AST_DIMENSIONES || dimensionesNodo->num_hijos < 1) {
+            printf("[ERROR] Dimensiones inválidas para vector en escritura\n");
+            return;
+        }
+        
+        // Buscar la primera dimensión
+        NodoAST* dimNodo = NULL;
+        for (int i = 0; i < dimensionesNodo->num_hijos; i++) {
+            if (dimensionesNodo->hijos[i]->tipo == AST_1DIMENSION) {
+                dimNodo = dimensionesNodo->hijos[i];
+                break;
+            }
+        }
+        
+        if (!dimNodo || dimNodo->num_hijos < 1) {
+            printf("[ERROR] No se encontró la dimensión para el vector en escritura\n");
+            return;
+        }
+        
+        // Evaluar el índice
+        ValorSimbolo indiceVal = evaluarExpr(dimNodo->hijos[0]);
+        if (!indiceVal.inicializado || indiceVal.tipo != TIPO_INT) {
+            printf("[ERROR] Índice debe ser entero\n");
+            return;
+        }
+        
+        int indice = indiceVal.v.i;
+        printf("[DEBUG] Índice para asignación en vector: %d\n", indice);
+        
+        // Evaluar el valor a asignar
+        ValorSimbolo valorAsignar = evaluarExpr(valorExpr);
+        if (!valorAsignar.inicializado) {
+            printf("[ERROR] Valor no inicializado para asignación en vector\n");
+            return;
+        }
+        
+        // Verificar compatibilidad de tipos
+        if (valorAsignar.tipo != simbolo->tipo && !esWidening(valorAsignar.tipo, simbolo->tipo)) {
+            printf("[ERROR] Tipo incompatible en asignación: %s vs %s\n", 
+                   nombreTipo(simbolo->tipo), nombreTipo(valorAsignar.tipo));
+            return;
+        }
+        
+        // Asignar el valor al vector
+        asignarValorVector(simbolo, indice, valorAsignar);
+        
+        // Verificar que la asignación funcionó
+        printf("[DEBUG] Vector después de asignación: %s\n", simbolo->valor.v.s);
+    } 
+    else if (simbolo->clase == SIMBOLO_MATRIZ) {
+        printf("[DEBUG] Escritura en matriz '%s'\n", simbolo->nombre);
+        
+        // Verificar que el acceso sea válido
+        if (!verificarAccesoMatriz(acceso)) {
+            printf("[ERROR] Acceso inválido a la matriz '%s' en escritura\n", simbolo->nombre);
+            return;
+        }
+        
+        // Obtener los índices (fila y columna)
+        if (dimensionesNodo->tipo != AST_DIMENSIONES || dimensionesNodo->num_hijos < 2) {
+            printf("[ERROR] Dimensiones inválidas para matriz en escritura\n");
+            return;
+        }
+        
+        // Buscar las dos dimensiones
+        NodoAST* dimFila = NULL;
+        NodoAST* dimCol = NULL;
+        int dimensionesEncontradas = 0;
+        
+        for (int i = 0; i < dimensionesNodo->num_hijos && dimensionesEncontradas < 2; i++) {
+            if (dimensionesNodo->hijos[i]->tipo == AST_1DIMENSION) {
+                if (dimensionesEncontradas == 0) {
+                    dimFila = dimensionesNodo->hijos[i];
+                } else {
+                    dimCol = dimensionesNodo->hijos[i];
+                }
+                dimensionesEncontradas++;
+            }
+        }
+        
+        if (!dimFila || !dimCol || dimFila->num_hijos < 1 || dimCol->num_hijos < 1) {
+            printf("[ERROR] No se encontraron las dimensiones para la matriz en escritura\n");
+            return;
+        }
+        
+        // Evaluar los índices
+        ValorSimbolo filaVal = evaluarExpr(dimFila->hijos[0]);
+        ValorSimbolo colVal = evaluarExpr(dimCol->hijos[0]);
+        
+        if (!filaVal.inicializado || filaVal.tipo != TIPO_INT ||
+            !colVal.inicializado || colVal.tipo != TIPO_INT) {
+            printf("[ERROR] Índices deben ser enteros\n");
+            return;
+        }
+        
+        int fila = filaVal.v.i;
+        int columna = colVal.v.i;
+        printf("[DEBUG] Índices para asignación en matriz: [%d][%d]\n", fila, columna);
+        
+        // Evaluar el valor a asignar
+        ValorSimbolo valorAsignar = evaluarExpr(valorExpr);
+        if (!valorAsignar.inicializado) {
+            printf("[ERROR] Valor no inicializado para asignación en matriz\n");
+            return;
+        }
+        
+        // Verificar compatibilidad de tipos
+        if (valorAsignar.tipo != simbolo->tipo && !esWidening(valorAsignar.tipo, simbolo->tipo)) {
+            printf("[ERROR] Tipo incompatible en asignación: %s vs %s\n", 
+                   nombreTipo(simbolo->tipo), nombreTipo(valorAsignar.tipo));
+            return;
+        }
+        
+        // Asignar el valor a la matriz
+        asignarValorMatriz(simbolo, fila, columna, valorAsignar);
+        
+        // Verificar que la asignación funcionó
+        printf("[DEBUG] Matriz después de asignación: %s\n", simbolo->valor.v.s);
+    } 
+    else {
+        printf("[ERROR] Variable '%s' no es un vector ni una matriz (clase: %d)\n", 
+               simbolo->nombre, simbolo->clase);
     }
 }
 

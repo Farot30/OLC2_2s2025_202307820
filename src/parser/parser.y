@@ -67,7 +67,7 @@
 %type <nodo> lista_sentencias sentencia
 %type <nodo> declaracion asignacion declaracion_vector declaracion_matriz 
 %type <nodo> declaracion_array_multidimensional Dimensiones lista_bloques lista_filas lista_elementos DimensionesCorchetes lista_elementos_o_bloques
-%type <nodo> acceso DimensionesAcceso
+%type <nodo> acceso DimensionesAcceso acceso_escritura
 %type <nodo> expresion expresion_or expresion_and expresion_bit_or expresion_bit_xor 
 %type <nodo> expresion_bit_and expresion_equality expresion_relacional expresion_shift 
 %type <nodo> expresion_aditiva expresion_multiplicativa expresion_unaria postfix primary
@@ -139,6 +139,7 @@ lista_sentencias:
 sentencia:
     declaracion TOKEN_PUNTOCOMA     { $$ = $1; }
     | asignacion TOKEN_PUNTOCOMA    { $$ = $1; }
+    | acceso_escritura TOKEN_PUNTOCOMA { $$ = $1; }
     | instruccion_print TOKEN_PUNTOCOMA { $$ = $1; }
     | instruccion_if                { $$ = $1; }
     | intruccion_switch             { $$ = $1; }
@@ -484,6 +485,20 @@ DimensionesAcceso:
     }
 ;
 
+/* ========== ACCESO DE ESCRITURA ========== */
+acceso_escritura:
+    acceso TOKEN_IGUAL expresion {
+        $$ = crearNodo(AST_ACCESO_ESCRITURA, "Acceso Escritura");
+        $$->linea = @2.first_line; $$->columna = @2.first_column;
+
+        // Nodo para el acceso (identificador + dimensiones)
+        agregarHijo($$, $1);
+
+        // Nodo para la expresión (valor a asignar)
+        agregarHijo($$, $3);
+    }
+;
+
 
 tipo_primitivo:
     TOKEN_DINT      { $$ = $1; }
@@ -788,6 +803,14 @@ primary:
         id->linea = @1.first_line; id->columna = @1.first_column;
         agregarHijo($$, id);
         agregarHijo($$, $5);  // El elemento a añadir
+    }
+    | TOKEN_IDENTIFICADOR TOKEN_PUNTO TOKEN_EQUAL TOKEN_PARIZQ expresion TOKEN_PARDER {
+        $$ = crearNodo(AST_EQUAL, ".equals");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+        NodoAST* id = crearNodo(AST_IDENTIFICADOR, $1);
+        id->linea = @1.first_line; id->columna = @1.first_column;
+        agregarHijo($$, id);
+        agregarHijo($$, $5);
     }
     | TOKEN_PARSEJOIN TOKEN_PARIZQ expresion TOKEN_COMA lista_expresiones_join TOKEN_PARDER {
         $$ = crearNodo(AST_PARSEJOIN, "Strings.join");

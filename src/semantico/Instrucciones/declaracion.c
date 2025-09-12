@@ -6,6 +6,7 @@
 #include "../../AST/errorTIpos.h"
 #include "../../simbolos/Evaluador.h" 
 #include "../Vectores/acceso_vector.h"
+#include "../Vectores/acceso_matriz.h"
 #include <stdio.h>
 
 const char* nombreTipo(TipoDato tipo);
@@ -97,65 +98,116 @@ int verificarDeclaracion(NodoAST* nodo) {
         }
         // Si el valor es un acceso a vector/matriz
         else if (valor->tipo == AST_ACCESO) {
-            // Verificar primero que el acceso sea válido
-            if (verificarAccesoVector(valor)) {
-                // Obtener el símbolo del vector/matriz accedido
-                NodoAST* idVectorNodo = valor->hijos[0];
-                Simbolo* simboloVector = buscarSimbolo(idVectorNodo->valor);
-                
-                if (simboloVector) {
-                    // Verificar compatibilidad de tipos entre la variable y el tipo del vector
-                    if (sim->tipo != simboloVector->tipo) {
-                        char msg[200];
-                        snprintf(msg, sizeof(msg), 
-                                "Tipo incompatible en declaración '%s': el tipo de la variable (%s) no coincide con el tipo del vector '%s' (%s)",
-                                identificador->valor, nombreTipo(sim->tipo), 
-                                idVectorNodo->valor, nombreTipo(simboloVector->tipo));
-                        addError(msg, ambitoActual(), identificador->linea, identificador->columna);
-                        printf("[ERROR] %s\n", msg);
-                        nodo->valido = 0;
-                        return 0;
-                    }
+            // Obtener el identificador para determinar si es vector o matriz
+            if (valor->num_hijos > 0 && valor->hijos[0]->tipo == AST_IDENTIFICADOR) {
+                Simbolo* simboloAcceso = buscarSimbolo(valor->hijos[0]->valor);
+
+                if (simboloAcceso) {
+                    printf("[DEBUG] Verificando acceso a %s '%s' para inicialización de '%s'\n", 
+                        simboloAcceso->clase == SIMBOLO_MATRIZ ? "matriz" :
+                        simboloAcceso->clase == SIMBOLO_VECTOR ? "vector" : "variable",
+                        valor->hijos[0]->valor, identificador->valor);
+
+                    ValorSimbolo valorAcceso; // Para almacenar el resultado del acceso
+                    memset(&valorAcceso, 0, sizeof(valorAcceso));
                     
-                    printf("[DEBUG] Tipos compatibles: variable '%s' (%s) y vector '%s' (%s)\n",
-                           identificador->valor, nombreTipo(sim->tipo),
-                           idVectorNodo->valor, nombreTipo(simboloVector->tipo));
-                }
-                
-                // Evaluar el acceso para obtener el valor concreto
-                ValorSimbolo valorAcceso = evaluarAccesoArrays(valor);
-                if (valorAcceso.inicializado) {
-                    // Verificar compatibilidad del valor obtenido
-                    if (sim->tipo != valorAcceso.tipo && valorAcceso.tipo != TIPO_DESCONOCIDO) {
-                        if (!esWidening(valorAcceso.tipo, sim->tipo)) {
-                            char msg[200];
-                            snprintf(msg, sizeof(msg), 
-                                    "Tipo incompatible en declaración '%s': el valor obtenido (%s) no es compatible con el tipo de la variable (%s)",
-                                    identificador->valor, nombreTipo(valorAcceso.tipo), nombreTipo(sim->tipo));
+                    // Dirigir a la función específica según el tipo de estructura
+                    if (simboloAcceso->clase == SIMBOLO_MATRIZ) {
+                        if (!verificarAccesoMatriz(valor)) {
+                            char msg[128];
+                            snprintf(msg, sizeof(msg), "Acceso inválido para inicialización de '%s'", identificador->valor);
                             addError(msg, ambitoActual(), identificador->linea, identificador->columna);
                             printf("[ERROR] %s\n", msg);
                             nodo->valido = 0;
                             return 0;
                         }
                         
-                        printf("[DEBUG] Conversión implícita: de %s a %s\n", 
-                               nombreTipo(valorAcceso.tipo), nombreTipo(sim->tipo));
+                        // Evaluar el acceso a matriz y obtener el valor
+                        valorAcceso = evaluarAccesoMatriz(valor);
+                    } 
+                    else if (simboloAcceso->clase == SIMBOLO_VECTOR) {
+                        if (!verificarAccesoVector(valor)) {
+                            char msg[128];
+                            snprintf(msg, sizeof(msg), "Acceso inválido para inicialización de '%s'", identificador->valor);
+                            addError(msg, ambitoActual(), identificador->linea, identificador->columna);
+                            printf("[ERROR] %s\n", msg);
+                            nodo->valido = 0;
+                            return 0;
+                        }
+                        
+                        // Evaluar el acceso a vector y obtener el valor
+                        valorAcceso = evaluarAccesoVector(valor);
+                    }
+                    else {
+                        char msg[128];
+                        snprintf(msg, sizeof(msg), "Variable '%s' no es un vector ni matriz", valor->hijos[0]->valor);
+                        addError(msg, ambitoActual(), valor->hijos[0]->linea, valor->hijos[0]->columna);
+                        printf("[ERROR] %s\n", msg);
+                        nodo->valido = 0;
+                        return 0;
                     }
                     
-                    // Asignar el valor obtenido
+                    // Verificar que el acceso haya producido un valor inicializado
+                    if (!valorAcceso.inicializado) {
+                        char msg[128];
+                        snprintf(msg, sizeof(msg), "No se pudo obtener valor del acceso para inicializar '%s'", 
+                                identificador->valor);
+                        addError(msg, ambitoActual(), identificador->linea, identificador->columna);
+                        printf("[ERROR] %s\n", msg);
+                        nodo->valido = 0;
+                        return 0;
+                    }
+                    
+                    // Verificar compatibilidad de tipos
+                    if (sim->tipo != valorAcceso.tipo && !esWidening(valorAcceso.tipo, sim->tipo)) {
+                        char msg[160];
+                        snprintf(msg, sizeof(msg), "Tipo incompatible en declaración '%s': %s vs %s",
+                                identificador->valor, nombreTipo(sim->tipo), nombreTipo(valorAcceso.tipo));
+                        addError(msg, ambitoActual(), identificador->linea, identificador->columna);
+                        printf("[ERROR] %s\n", msg);
+                        nodo->valido = 0;
+                        return 0;
+                    }
+                    
+                    // Asignar el valor obtenido al símbolo
                     setValorSimbolo(sim, sim->tipo, valorAcceso);
-                    printf("[DEBUG] Variable '%s' inicializada con valor de acceso a array\n", 
-                           identificador->valor);
+                    
+                    // Mostrar el valor asignado para depuración
+                    printf("[DEBUG] Variable '%s' inicializada con valor de acceso a %s: ", 
+                        identificador->valor,
+                        simboloAcceso->clase == SIMBOLO_MATRIZ ? "matriz" : "vector");
+                    
+                    switch (sim->tipo) {
+                        case TIPO_INT:
+                            printf("%d\n", sim->valor.v.i);
+                            break;
+                        case TIPO_FLOAT:
+                            printf("%f\n", sim->valor.v.f);
+                            break;
+                        case TIPO_DOUBLE:
+                            printf("%lf\n", sim->valor.v.d);
+                            break;
+                        case TIPO_CHAR:
+                            printf("'%c'\n", sim->valor.v.c);
+                            break;
+                        case TIPO_BOOLEAN:
+                            printf("%s\n", sim->valor.v.b ? "true" : "false");
+                            break;
+                        case TIPO_STRING:
+                            printf("\"%s\"\n", sim->valor.v.s ? sim->valor.v.s : "(null)");
+                            break;
+                        default:
+                            printf("(tipo desconocido)\n");
+                            break;
+                    }
                 } else {
-                    printf("[ERROR] No se pudo obtener un valor válido del acceso para inicializar '%s'\n", 
-                           identificador->valor);
+                    char msg[128];
+                    snprintf(msg, sizeof(msg), "Variable '%s' no declarada", valor->hijos[0]->valor);
+                    addError(msg, ambitoActual(), valor->hijos[0]->linea, valor->hijos[0]->columna);
+                    printf("[ERROR] %s\n", msg);
                     nodo->valido = 0;
                     return 0;
                 }
-            } else {
-                printf("[ERROR] Acceso inválido para inicialización de '%s'\n", identificador->valor);
-                nodo->valido = 0;
-                return 0;
             }
         } else if (valor->tipo == AST_ADD) {
             // Verifica que haya al menos un hijo (el identificador del array)

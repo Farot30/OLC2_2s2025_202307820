@@ -63,7 +63,7 @@ if                          { yylval.str = strdup("if"); return TOKEN_IF; }
 else                        { yylval.str = strdup("else"); return TOKEN_ELSE; }
 false                       { yylval.str = strdup("false"); return TOKEN_BOOLEANO; }
 String\.valueOf             { return TOKEN_STRING_VALUEOF; }
-\.equals                    { return TOKEN_EQUAL; }
+equals                      { return TOKEN_EQUAL; }
 Integer\.parseInt           { yylval.str = strdup("Integer.parseInt"); return TOKEN_PARSEINT; }
 Double\.parseDouble         { yylval.str = strdup("Double.parseDouble"); return TOKEN_PARSEDOUBLE; }
 Float\.parseFloat           { yylval.str = strdup("Float.parseFloat"); return TOKEN_PARSEFLOAT; }

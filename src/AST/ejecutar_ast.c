@@ -14,6 +14,7 @@
 #include "../semantico/Vectores/declaracion_matriz.h"
 #include "../semantico/Vectores/declaracion_array.h"
 #include "../semantico/Vectores/acceso_vector.h"
+#include "../semantico/Vectores/acceso_matriz.h"
 #include "../simbolos/Evaluador.h"
 #include "ejecutar_ast.h"
 #include "err.h"
@@ -43,20 +44,20 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
     switch (nodo->tipo) {
         case AST_LISTA:
         case AST_BLOQUE:
-            printf("[DEBUG BLOQUE] Procesando bloque con %d hijos\n", nodo->num_hijos);
+            //printf("[DEBUG BLOQUE] Procesando bloque con %d hijos\n", nodo->num_hijos);
             for (int i = 0; i < nodo->num_hijos; i++) {
                 if (nodo->hijos[i] == NULL) {
                     printf("[WARNING BLOQUE] Hijo %d es NULL, saltando\n", i);
                     continue;
                 }
-                printf("[DEBUG BLOQUE] Ejecutando hijo %d (tipo: %d)\n", i, nodo->hijos[i]->tipo);
+                //printf("[DEBUG BLOQUE] Ejecutando hijo %d (tipo: %d)\n", i, nodo->hijos[i]->tipo);
                 ResultadoEjecucion res = ejecutarNodoAST(nodo->hijos[i]);
                 if (res == EJEC_BREAK) {
-                    printf("[DEBUG BLOQUE] Propagando BREAK desde hijo %d\n", i);
+                    //printf("[DEBUG BLOQUE] Propagando BREAK desde hijo %d\n", i);
                     return EJEC_BREAK;
                 }
                 if (res == EJEC_CONTINUE) {
-                    printf("[DEBUG BLOQUE] Propagando CONTINUE desde hijo %d\n", i);
+                    //printf("[DEBUG BLOQUE] Propagando CONTINUE desde hijo %d\n", i);
                     return EJEC_CONTINUE;
                 }
             }
@@ -131,11 +132,11 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
                 
                 // Realizar la asignación según el tipo de array
                 if (simbolo->clase == SIMBOLO_VECTOR && numIndices == 1) {
-                    asignarElementoVector(simbolo, indices[0], valor);
+                    asignarValorVector(simbolo, indices[0], valor);
                     printf("[DEBUG] Asignado valor a %s[%d]\n", idNodo->valor, indices[0]);
                 }
                 else if (simbolo->clase == SIMBOLO_MATRIZ && numIndices == 2) {
-                    asignarElementoMatriz(simbolo, indices[0], indices[1], valor);
+                    asignarValorMatriz(simbolo, indices[0], indices[1], valor);
                     printf("[DEBUG] Asignado valor a %s[%d][%d]\n", idNodo->valor, indices[0], indices[1]);
                 }
                 else if (simbolo->clase == SIMBOLO_ARRAY_MULTIDIMENSIONAL) {
@@ -241,30 +242,87 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
         case AST_ACCESO: {
             printf("[DEBUG] Procesando acceso a array/vector/matriz\n");
             
-            // Verificar que el acceso sea válido
-            if (!verificarAccesoVector(nodo)) {
-                printf("[ERROR] Acceso inválido\n");
+            // Obtener el identificador para determinar si es vector o matriz
+            if (nodo->num_hijos < 1 || nodo->hijos[0]->tipo != AST_IDENTIFICADOR) {
+                printf("[ERROR] Estructura de acceso inválida\n");
                 return EJEC_OK;
             }
             
-            // Evaluar el acceso (solo para depuración, ya que como instrucción sola no hace nada)
-            ValorSimbolo valorAcceso = evaluarAccesoArrays(nodo);
-            if (valorAcceso.inicializado) {
-                printf("[DEBUG] Acceso evaluado exitosamente, valor = ");
-                switch (valorAcceso.tipo) {
-                    case TIPO_INT: printf("%d\n", valorAcceso.v.i); break;
-                    case TIPO_FLOAT: printf("%f\n", valorAcceso.v.f); break;
-                    case TIPO_DOUBLE: printf("%lf\n", valorAcceso.v.d); break;
-                    case TIPO_CHAR: printf("'%c'\n", valorAcceso.v.c); break;
-                    case TIPO_BOOLEAN: printf("%s\n", valorAcceso.v.b ? "true" : "false"); break;
-                    case TIPO_STRING: printf("\"%s\"\n", valorAcceso.v.s ? valorAcceso.v.s : "null"); break;
-                    default: printf("tipo desconocido\n"); break;
-                }
-            } else {
-                printf("[ERROR] No se pudo obtener valor del acceso\n");
+            NodoAST* idNodo = nodo->hijos[0];
+            Simbolo* simbolo = buscarSimbolo(idNodo->valor);
+            
+            if (!simbolo) {
+                printf("[ERROR] Variable '%s' no declarada\n", idNodo->valor);
+                return EJEC_OK;
             }
             
-            return EJEC_OK; // En ejecutarNodoAST, debemos retornar un ResultadoEjecucion, no un ValorSimbolo
+            // Dirigir a la función específica según el tipo de estructura
+            if (simbolo->clase == SIMBOLO_MATRIZ) {
+                printf("[DEBUG] Detectada MATRIZ '%s', verificando acceso...\n", idNodo->valor);
+                // Verificar que el acceso a matriz sea válido
+                if (!verificarAccesoMatriz(nodo)) {
+                    printf("[ERROR] Acceso inválido a matriz '%s'\n", idNodo->valor);
+                    return EJEC_OK;
+                }
+                
+                // Evaluar acceso a matriz (solo para depuración)
+                ValorSimbolo valorMatriz = evaluarAccesoMatriz(nodo);
+                if (valorMatriz.inicializado) {
+                    printf("[DEBUG] Acceso a matriz evaluado exitosamente, valor = ");
+                    // Imprimir el valor según su tipo
+                    switch (valorMatriz.tipo) {
+                        case TIPO_INT: printf("%d\n", valorMatriz.v.i); break;
+                        case TIPO_FLOAT: printf("%f\n", valorMatriz.v.f); break;
+                        case TIPO_DOUBLE: printf("%lf\n", valorMatriz.v.d); break;
+                        case TIPO_CHAR: printf("'%c'\n", valorMatriz.v.c); break;
+                        case TIPO_BOOLEAN: printf("%s\n", valorMatriz.v.b ? "true" : "false"); break;
+                        case TIPO_STRING: printf("\"%s\"\n", valorMatriz.v.s ? valorMatriz.v.s : "null"); break;
+                        default: printf("tipo desconocido\n"); break;
+                    }
+                } else {
+                    printf("[ERROR] No se pudo obtener valor del acceso a matriz\n");
+                }
+            } 
+            else if (simbolo->clase == SIMBOLO_VECTOR) {
+                printf("[DEBUG] Detectado VECTOR '%s', verificando acceso...\n", idNodo->valor);
+                // Verificar que el acceso a vector sea válido
+                if (!verificarAccesoVector(nodo)) {
+                    printf("[ERROR] Acceso inválido a vector '%s'\n", idNodo->valor);
+                    return EJEC_OK;
+                }
+                
+                // Evaluar acceso a vector (solo para depuración)
+                ValorSimbolo valorVector = evaluarAccesoVector(nodo);
+                if (valorVector.inicializado) {
+                    printf("[DEBUG] Acceso a vector evaluado exitosamente, valor = ");
+                    // Imprimir valor según su tipo
+                    switch (valorVector.tipo) {
+                        case TIPO_INT: printf("%d\n", valorVector.v.i); break;
+                        case TIPO_FLOAT: printf("%f\n", valorVector.v.f); break;
+                        case TIPO_DOUBLE: printf("%lf\n", valorVector.v.d); break;
+                        case TIPO_CHAR: printf("'%c'\n", valorVector.v.c); break;
+                        case TIPO_BOOLEAN: printf("%s\n", valorVector.v.b ? "true" : "false"); break;
+                        case TIPO_STRING: printf("\"%s\"\n", valorVector.v.s ? valorVector.v.s : "null"); break;
+                        default: printf("tipo desconocido\n"); break;
+                    }
+                } else {
+                    printf("[ERROR] No se pudo obtener valor del acceso a vector\n");
+                }
+            }
+            else {
+                printf("[ERROR] Variable '%s' no es un vector ni matriz (clase: %d)\n", 
+                    idNodo->valor, simbolo->clase);
+            }
+            
+            return EJEC_OK;
+        }
+        case AST_ACCESO_ESCRITURA: {
+            printf("[DEBUG] Procesando acceso de escritura\n");
+            
+            // Llamar a la función que ya implementaste en ast.c
+            interpretarAccesoEscritura(nodo);
+            
+            return EJEC_OK;
         }
 
         default:

@@ -5,6 +5,10 @@
         "evaluador.h": "c",
         "ejecutar_ast.h": "c",
         "err.h": "c",
-        "acceso_vector.h": "c"
+        "acceso_vector.h": "c",
+        "semantico.h": "c",
+        "string.h": "c",
+        "ctype.h": "c",
+        "limits.h": "c"
     }
 }

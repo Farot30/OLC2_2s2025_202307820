@@ -282,9 +282,9 @@ ValorSimbolo getValorSimbolo(Simbolo* sim){
 
 void mostrarTablaSimbolos() {
     printf("\n=== Tabla de Símbolos ===\n");
-    printf("%-4s %-15s %-15s %-10s %-35s %-10s %-6s %-6s\n",
+    printf("%-4s %-15s %-25s %-10s %-67s %-10s %-6s %-6s\n",
            "ID", "Nombre", "Clase", "TipoDato", "Valor", "Ambito", "Linea", "Col");
-    printf("--------------------------------------------------------------------------------------------------------\n");
+    printf("-----------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
     Simbolo* actual = tabla;
 
     while (actual) {
@@ -297,9 +297,9 @@ void mostrarTablaSimbolos() {
                 if (actual->valor.v.s != NULL) {
                     // Para vectores, matrices y arrays multidimensionales, mostrar el contenido del string
                     if (strlen(actual->valor.v.s) > 40) {
-                        char temp[44];
-                        strncpy(temp, actual->valor.v.s, 40);
-                        temp[40] = '\0';
+                        char temp[65];
+                        strncpy(temp, actual->valor.v.s, 65);
+                        temp[65] = '\0';
                         snprintf(valor, sizeof(valor), "%s...", temp);
                     } else {
                         snprintf(valor, sizeof(valor), "%s", actual->valor.v.s);
@@ -339,7 +339,7 @@ void mostrarTablaSimbolos() {
             }
         }
         
-        printf("%-4d %-15s %-15s %-10s %-35s %-10s %-6d %-6d\n",
+        printf("%-4d %-15s %-25s %-10s %-67s %-10s %-6d %-6d\n",
                actual->id,
                actual->nombre,
                nombreClase(actual->clase),
@@ -350,7 +350,7 @@ void mostrarTablaSimbolos() {
                actual->columna);
         actual = actual->siguiente;
     }
-    printf("=============================================\n");
+    printf("=========================================================================================================================================================\n");
 }
 
 // Agregar a tabla_simbolo.c o crear un archivo nuevo
@@ -421,309 +421,12 @@ void asignarValor(Simbolo* simbolo, ValorSimbolo valor) {
     simbolo->valor.tipo = simbolo->tipo;
 }
 
-void asignarElementoVector(Simbolo* simbolo, int indice, ValorSimbolo valor) {
-    if (!simbolo || simbolo->clase != SIMBOLO_VECTOR || !simbolo->valor.inicializado) {
-        printf("[ERROR] Símbolo no es un vector inicializado\n");
-        return;
-    }
-    
-    // Extraer la representación del vector (ahora directamente los valores)
-    char* vectorStr = strdup(simbolo->valor.v.s);
-    if (!vectorStr) return;
-    
-    // Tokenizar para encontrar valores
-    char* tokens[256]; // Máximo 256 elementos
-    int numTokens = 0;
-    
-    // Hacer una copia para tokenizar
-    char* valuesCopy = strdup(vectorStr);
-    char* token = strtok(valuesCopy, ",");
-    
-    while (token && numTokens < 256) {
-        tokens[numTokens++] = strdup(token);
-        token = strtok(NULL, ",");
-    }
-    
-    // Verificar que el índice sea válido
-    if (indice < 0 || indice >= numTokens) {
-        printf("[ERROR] Índice %d fuera de rango (0-%d)\n", indice, numTokens-1);
-        
-        // Limpiar memoria
-        for (int i = 0; i < numTokens; i++)
-            free(tokens[i]);
-        free(vectorStr);
-        free(valuesCopy);
-        
-        return;
-    }
-    
-    // Convertir el nuevo valor a string según el tipo
-    char newValueStr[64];
-    switch (simbolo->tipo) {
-        case TIPO_INT:
-            sprintf(newValueStr, "%d", valor.v.i);
-            break;
-        case TIPO_FLOAT:
-            sprintf(newValueStr, "%f", valor.v.f);
-            break;
-        case TIPO_DOUBLE:
-            sprintf(newValueStr, "%lf", valor.v.d);
-            break;
-        case TIPO_CHAR:
-            sprintf(newValueStr, "%c", valor.v.c);
-            break;
-        case TIPO_BOOLEAN:
-            sprintf(newValueStr, "%s", valor.v.b ? "true" : "false");
-            break;
-        case TIPO_STRING:
-            if (valor.v.s)
-                strncpy(newValueStr, valor.v.s, sizeof(newValueStr)-1);
-            else
-                strcpy(newValueStr, "");
-            newValueStr[sizeof(newValueStr)-1] = '\0';
-            break;
-        default:
-            strcpy(newValueStr, "");
-            break;
-    }
-    
-    // Reemplazar el valor en la posición correspondiente
-    free(tokens[indice]);
-    tokens[indice] = strdup(newValueStr);
-    
-    // Reconstruir el string del vector
-    char newVectorStr[2048] = "";
-    
-    // Añadir los valores separados por comas (sin [5] al principio)
-    for (int i = 0; i < numTokens; i++) {
-        strcat(newVectorStr, tokens[i]);
-        if (i < numTokens - 1)
-            strcat(newVectorStr, ",");
-    }
-    
-    // Actualizar el valor del símbolo
-    if (simbolo->valor.v.s)
-        free(simbolo->valor.v.s);
-    simbolo->valor.v.s = strdup(newVectorStr);
-    
-    // Limpiar memoria
-    for (int i = 0; i < numTokens; i++)
-        free(tokens[i]);
-    free(vectorStr);
-    free(valuesCopy);
-}
+
 void modificarClaseSimbolo(const char* nombre, TipoSimbolo nuevaClase) {
     Simbolo* simbolo = buscarSimbolo(nombre);
     if (simbolo) {
         simbolo->clase = nuevaClase;
         printf("[DEBUG] Modificada clase de símbolo '%s' a %d\n", nombre, nuevaClase);
-    }
-}
-
-
-void asignarElementoMatriz(Simbolo* simbolo, int fila, int columna, ValorSimbolo valor) {
-    if (!simbolo || simbolo->clase != SIMBOLO_MATRIZ || !simbolo->valor.inicializado) {
-        printf("[ERROR] Símbolo no es una matriz inicializada\n");
-        return;
-    }
-    
-    // Extraer la representación de la matriz
-    char* matrizStr = strdup(simbolo->valor.v.s);
-    if (!matrizStr) return;
-    
-    // Verificar formato: [filas,columnas][[val1,val2,...],[val1,val2,...],...]
-    char* dimensionesEnd = strchr(matrizStr, ']');
-    if (!dimensionesEnd) {
-        free(matrizStr);
-        return;
-    }
-    
-    // Obtener dimensiones
-    char dimensiones[32];
-    strncpy(dimensiones, matrizStr + 1, dimensionesEnd - matrizStr - 1);
-    dimensiones[dimensionesEnd - matrizStr - 1] = '\0';
-    
-    int filas = 0, columnas = 0;
-    sscanf(dimensiones, "%d,%d", &filas, &columnas);
-    
-    // Verificar que el índice esté dentro de los límites
-    if (fila < 0 || fila >= filas || columna < 0 || columna >= columnas) {
-        printf("[ERROR] Índice fuera de rango: [%d][%d], límites: [0-%d][0-%d]\n",
-               fila, columna, filas-1, columnas-1);
-        free(matrizStr);
-        return;
-    }
-    
-    // Encontrar el inicio de los datos
-    char* datosInicio = strstr(matrizStr, "][") + 2;
-    if (!datosInicio) {
-        free(matrizStr);
-        return;
-    }
-    
-    // Eliminar el último corchete
-    int longitud = strlen(datosInicio);
-    if (longitud > 0 && datosInicio[longitud-1] == ']') {
-        datosInicio[longitud-1] = '\0';
-    }
-    
-    // Separar las filas
-    char* filaTokens[50]; // Máximo 50 filas
-    int numFilas = 0;
-    
-    // Copia para tokenizar
-    char* datosCopia = strdup(datosInicio);
-    
-    // Encontrar las filas separadas por "],["
-    char* filaActual = datosCopia;
-    while (filaActual && numFilas < 50) {
-        // Encontrar el final de esta fila
-        char* finFila = strstr(filaActual, "],[");
-        if (finFila) {
-            *finFila = '\0';
-            filaTokens[numFilas++] = strdup(filaActual);
-            filaActual = finFila + 3; // Saltar "],["
-        } else {
-            // Última fila
-            filaTokens[numFilas++] = strdup(filaActual);
-            break;
-        }
-    }
-    
-    // Verificar que tengamos suficientes filas
-    if (fila >= numFilas) {
-        printf("[ERROR] Fila %d fuera de rango (0-%d)\n", fila, numFilas-1);
-        free(matrizStr);
-        free(datosCopia);
-        for (int i = 0; i < numFilas; i++) {
-            free(filaTokens[i]);
-        }
-        return;
-    }
-    
-    // Obtener los valores de la fila seleccionada
-    char* elementosFilaStr = filaTokens[fila];
-    
-    // Si la fila tiene corchetes, eliminarlos
-    if (elementosFilaStr[0] == '[') {
-        elementosFilaStr++;
-    }
-    int len = strlen(elementosFilaStr);
-    if (len > 0 && elementosFilaStr[len-1] == ']') {
-        elementosFilaStr[len-1] = '\0';
-    }
-    
-    // Separar elementos de la fila por comas
-    char* elementos[100]; // Máximo 100 columnas
-    int numElementos = 0;
-    
-    char* elemento = strtok(elementosFilaStr, ",");
-    while (elemento && numElementos < 100) {
-        elementos[numElementos++] = strdup(elemento);
-        elemento = strtok(NULL, ",");
-    }
-    
-    // Verificar que tengamos suficientes columnas
-    if (columna >= numElementos) {
-        printf("[ERROR] Columna %d fuera de rango (0-%d)\n", columna, numElementos-1);
-        free(matrizStr);
-        free(datosCopia);
-        for (int i = 0; i < numFilas; i++) {
-            free(filaTokens[i]);
-        }
-        for (int i = 0; i < numElementos; i++) {
-            free(elementos[i]);
-        }
-        return;
-    }
-    
-    // Convertir el nuevo valor a string según el tipo
-    char nuevoValorStr[64];
-    switch (simbolo->tipo) {
-        case TIPO_INT:
-            sprintf(nuevoValorStr, "%d", valor.v.i);
-            break;
-        case TIPO_FLOAT:
-            sprintf(nuevoValorStr, "%f", valor.v.f);
-            break;
-        case TIPO_DOUBLE:
-            sprintf(nuevoValorStr, "%lf", valor.v.d);
-            break;
-        case TIPO_CHAR:
-            sprintf(nuevoValorStr, "%c", valor.v.c);
-            break;
-        case TIPO_BOOLEAN:
-            sprintf(nuevoValorStr, "%s", valor.v.b ? "true" : "false");
-            break;
-        case TIPO_STRING:
-            if (valor.v.s)
-                strncpy(nuevoValorStr, valor.v.s, sizeof(nuevoValorStr)-1);
-            else
-                strcpy(nuevoValorStr, "");
-            nuevoValorStr[sizeof(nuevoValorStr)-1] = '\0';
-            break;
-        default:
-            strcpy(nuevoValorStr, "");
-            break;
-    }
-    
-    // Reemplazar el valor en la posición correspondiente
-    free(elementos[columna]);
-    elementos[columna] = strdup(nuevoValorStr);
-    
-    // Reconstruir la fila con el nuevo valor
-    char nuevaFila[1024] = "[";
-    for (int i = 0; i < numElementos; i++) {
-        strcat(nuevaFila, elementos[i]);
-        if (i < numElementos - 1) {
-            strcat(nuevaFila, ",");
-        }
-    }
-    strcat(nuevaFila, "]");
-    
-    // Actualizar la fila en el array de filas
-    free(filaTokens[fila]);
-    filaTokens[fila] = strdup(nuevaFila);
-    
-    // Reconstruir la matriz completa
-    char nuevaMatriz[4096];
-    // Copiar la parte de dimensiones
-    char* primeraParte = strndup(matrizStr, dimensionesEnd - matrizStr + 1);
-    strcpy(nuevaMatriz, primeraParte);
-    free(primeraParte);
-    
-    // Añadir corchete de inicio de datos
-    strcat(nuevaMatriz, "[");
-    
-    // Añadir todas las filas
-    for (int i = 0; i < numFilas; i++) {
-        strcat(nuevaMatriz, filaTokens[i]);
-        if (i < numFilas - 1) {
-            strcat(nuevaMatriz, ",");
-        }
-    }
-    
-    // Cerrar corchete de datos
-    strcat(nuevaMatriz, "]");
-    
-    // Actualizar el valor en el símbolo
-    if (simbolo->valor.v.s) {
-        free(simbolo->valor.v.s);
-    }
-    simbolo->valor.v.s = strdup(nuevaMatriz);
-    simbolo->valor.inicializado = 1;
-    
-    printf("[DEBUG] Matriz '%s' actualizada, valor en [%d][%d] = %s\n", 
-           simbolo->nombre, fila, columna, nuevoValorStr);
-    
-    // Limpiar memoria
-    free(matrizStr);
-    free(datosCopia);
-    for (int i = 0; i < numFilas; i++) {
-        free(filaTokens[i]);
-    }
-    for (int i = 0; i < numElementos; i++) {
-        free(elementos[i]);
     }
 }
 
