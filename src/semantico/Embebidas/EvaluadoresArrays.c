@@ -1,9 +1,9 @@
-#include "Evaluador.h"
-#include "Operador.h"
-#include "EvaluadorArray.h"
-#include "../semantico/semantico.h"
-#include "../semantico/Vectores/acceso_vector.h"
-#include "../AST/err.h"
+#include "../../simbolos/Evaluador.h"
+#include "../../simbolos/Operador.h"
+#include "../../simbolos/EvaluadorArray.h"
+#include "../semantico.h"
+#include "../Vectores/acceso_vector.h"
+#include "../../AST/err.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>

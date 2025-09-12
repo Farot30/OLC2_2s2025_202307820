@@ -55,6 +55,7 @@
 %token <str> TOKEN_PARSEINT TOKEN_PARSEFLOAT
 %token <str> TOKEN_PARSEDOUBLE
 %token <str> TOKEN_PARSEJOIN TOKEN_INDEXOF TOKEN_LENGHT TOKEN_ADD TOKEN_PUNTO
+%token <str> TOKEN_VOID
 
 /* Tokens para asignaciones compuestas */
 %token <str> TOKEN_MAS_IGUAL TOKEN_MENOS_IGUAL TOKEN_POR_IGUAL
@@ -75,6 +76,7 @@
 %type <nodo> intruccion_switch lista_casos caso
 %type <nodo> instruccion_while instruccion_break instruccion_continue
 %type <nodo> instruccion_for lista_expresiones_join
+%type <nodo> Funcion_void
 %type <str> tipo_primitivo
 
 /* ========== PRECEDENCIA CORREGIDA ========== */
@@ -148,7 +150,7 @@ sentencia:
     | declaracion_vector TOKEN_PUNTOCOMA      { $$ = $1; }
     | declaracion_matriz TOKEN_PUNTOCOMA      { $$ = $1; }
     | declaracion_array_multidimensional TOKEN_PUNTOCOMA { $$ = $1; }
-    | bloque                        { $$ = $1; }
+    | Funcion_void                  { $$ = $1; }
     | expresion TOKEN_PUNTOCOMA     { $$ = $1; }
     | instruccion_break TOKEN_PUNTOCOMA {$$ = $1; }
     | instruccion_continue TOKEN_PUNTOCOMA {$$ = $1; }
@@ -498,6 +500,22 @@ acceso_escritura:
         agregarHijo($$, $3);
     }
 ;
+
+/* ===============Funciones=======================*/
+Funcion_void:
+    TOKEN_VOID TOKEN_IDENTIFICADOR TOKEN_PARIZQ TOKEN_PARDER bloque {
+        $$ = crearNodo(AST_FUNCION_VOID, "Función void");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+
+        NodoAST* id = crearNodo(AST_IDENTIFICADOR, $2);
+        id->linea = @2.first_line; id->columna = @2.first_column;
+        agregarHijo($$, id);
+
+        agregarHijo($$, $5);
+
+    }
+
+
 
 
 tipo_primitivo:

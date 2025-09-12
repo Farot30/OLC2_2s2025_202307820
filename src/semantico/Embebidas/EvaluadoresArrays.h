@@ -1,8 +1,8 @@
 #ifndef EVALUADORES_ARRAYS_H
 #define EVALUADORES_ARRAYS_H
 
-#include "../AST/ast.h"
-#include "../semantico/tabla_simbolo.h"
+#include "../../AST/ast.h"
+#include "../tabla_simbolo.h"
 
 ValorSimbolo evaluarIndexof(NodoAST* e);
 

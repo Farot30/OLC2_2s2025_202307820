@@ -314,7 +314,7 @@ void mostrarTablaSimbolos() {
                         snprintf(valor, sizeof(valor), "%d", actual->valor.v.i);
                         break;
                     case TIPO_FLOAT:
-                        snprintf(valor, sizeof(valor), "%.2f", actual->valor.v.f);
+                        snprintf(valor, sizeof(valor), "%.2ff", actual->valor.v.f);
                         break;
                     case TIPO_STRING:
                         if (actual->valor.v.s) {

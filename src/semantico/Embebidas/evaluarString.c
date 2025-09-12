@@ -1,10 +1,11 @@
 
 #include "evaluarString.h"
-#include "Operador.h"
-#include "../AST/ast.h"
-#include "../semantico/tabla_simbolo.h"
-#include "../semantico/semantico.h"
-#include "../AST/err.h"
+#include "../../simbolos/Operador.h"
+
+#include "../../AST/ast.h"
+#include "../tabla_simbolo.h"
+#include "../semantico.h"
+#include "../../AST/err.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

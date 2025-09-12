@@ -319,7 +319,6 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
         case AST_ACCESO_ESCRITURA: {
             printf("[DEBUG] Procesando acceso de escritura\n");
             
-            // Llamar a la función que ya implementaste en ast.c
             interpretarAccesoEscritura(nodo);
             
             return EJEC_OK;

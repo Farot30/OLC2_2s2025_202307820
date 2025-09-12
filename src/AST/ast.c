@@ -96,6 +96,7 @@ static const char* nombreNodoTipo(TipoNodoAST t){
         case AST_LENGHT: return "LENGHT";
         case AST_ADD: return "ADD";
         case AST_ACCESO_ESCRITURA: return "ACCESO_ESCRITURA";
+        case AST_FUNCION_VOID: return "FUNCION_VOID";
 
         default: return "UNK";
     }

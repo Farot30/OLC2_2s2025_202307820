@@ -79,6 +79,7 @@ while                       { yylval.str = strdup("while"); return TOKEN_WHILE; 
 continue                    { yylval.str = strdup("continue"); return TOKEN_CONTINUE; }
 for                         { yylval.str = strdup("for"); return TOKEN_FOR; }
 new                         { yylval.str = strdup("new"); return TOKEN_NEW; }
+void                        { yylval.str = strdup("void"); return TOKEN_VOID; }
 
 [0-9]+                      { yylval.str = strdup(yytext); return TOKEN_NUMERO; }
 [0-9]+\.[0-9]+[fF]          { yylval.str = strdup(yytext); return TOKEN_FLOAT_LITERAL; }
