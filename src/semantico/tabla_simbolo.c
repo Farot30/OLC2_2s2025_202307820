@@ -96,6 +96,7 @@ static Simbolo* crearSimbolo(const char* nombre, TipoSimbolo clase, TipoDato tip
         case TIPO_CHAR:   nuevo->valor.v.c = '\0'; break;
         case TIPO_BOOLEAN:nuevo->valor.v.b = 0; break;
         case TIPO_STRING: nuevo->valor.v.s = NULL; break;
+        case TIPO_VOID:  nuevo->valor.v.s = NULL; break;
         default: break;
     
     }
@@ -135,6 +136,7 @@ static const char* nombreTipoDato(TipoDato t){
         case TIPO_CHAR: return "char";
         case TIPO_STRING: return "string";
         case TIPO_BOOLEAN: return "boolean";
+        case TIPO_VOID: return "void";
         default: return "desconocido";
     }
 }
@@ -146,6 +148,7 @@ static const char* nombreClase(TipoSimbolo c){
         case SIMBOLO_VECTOR: return "vector";
         case SIMBOLO_MATRIZ: return "matriz";
         case SIMBOLO_ARRAY_MULTIDIMENSIONAL: return "array_multidimensional";
+        case SIMBOLO_FUNCION_VOID: return "funcion_void";
         default: return "?";
     }
 }

@@ -50,6 +50,12 @@ typedef enum {
     AST_ADD,
     AST_ACCESO_ESCRITURA,
     AST_FUNCION_VOID,
+    AST_LLAMADA_VOID,
+    AST_FUNCION,
+    AST_LLAMADA,
+    AST_PARAMETROS,
+    AST_RETURN,
+    AST_LISTA_PARAMETROS,
 
     // Por si se me olvida, aquí es agregar más tipos
 } TipoNodoAST;

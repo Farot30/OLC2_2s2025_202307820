@@ -21,4 +21,4 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo);
 // Función auxiliar para verificar la estructura del AST
 void verificarEstructuraAST(NodoAST* nodo, int nivel);
 
-#endif // EJECUTOR_AST_H
+#endif

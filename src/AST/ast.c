@@ -97,6 +97,12 @@ static const char* nombreNodoTipo(TipoNodoAST t){
         case AST_ADD: return "ADD";
         case AST_ACCESO_ESCRITURA: return "ACCESO_ESCRITURA";
         case AST_FUNCION_VOID: return "FUNCION_VOID";
+        case AST_LLAMADA_VOID: return "LLAMADA_VOID";
+        case AST_FUNCION: return "FUNCION";
+        case AST_LLAMADA: return "LLAMADA";
+        case AST_RETURN: return "RETURN";
+        case AST_LISTA_PARAMETROS: return "LISTA_PARAMETROS";
+        case AST_PARAMETROS: return "PARAMETROS";
 
         default: return "UNK";
     }

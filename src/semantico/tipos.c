@@ -11,6 +11,7 @@ TipoDato obtenerTipoDesdeString(const char* tipoStr) {
     if (strcmp(tipoStr, "char") == 0) return TIPO_CHAR;
     if (strcmp(tipoStr, "string") == 0) return TIPO_STRING;
     if (strcmp(tipoStr, "boolean") == 0) return TIPO_BOOLEAN;
+    if (strcmp(tipoStr, "void") == 0 ) return TIPO_VOID;
     return TIPO_DESCONOCIDO;
 }
 
@@ -90,6 +91,8 @@ TipoDato deducirTipoExpr(NodoAST* expr) {
             }
             return TIPO_DESCONOCIDO;
         }
+        case AST_FUNCION_VOID:
+            return TIPO_VOID;
         default:
             return TIPO_DESCONOCIDO;
     }
@@ -103,6 +106,7 @@ const char* valorPorDefectoTipo(TipoDato t){
         case TIPO_CHAR: return "\\u0000";
         case TIPO_STRING: return "null";
         case TIPO_BOOLEAN: return "false";
+        case TIPO_VOID: return "void";
         default: return "?";
     }
 }

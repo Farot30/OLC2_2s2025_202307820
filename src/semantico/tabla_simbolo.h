@@ -8,6 +8,7 @@
 typedef enum {
     SIMBOLO_VARIABLE,
     SIMBOLO_FUNCION,
+    SIMBOLO_FUNCION_VOID,
     SIMBOLO_VECTOR,
     SIMBOLO_MATRIZ,
     SIMBOLO_ARRAY_MULTIDIMENSIONAL,
@@ -37,6 +38,7 @@ typedef struct Simbolo {
     ValorSimbolo valor; 
     struct Simbolo* siguiente;
     int inicializado;   
+    NodoAST* nodo_bloque; 
 } Simbolo;
 
 extern char* pilaAmbitos[MAX_SCOPES];

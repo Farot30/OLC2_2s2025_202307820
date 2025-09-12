@@ -10,7 +10,8 @@ typedef enum {
     TIPO_CHAR,
     TIPO_STRING,
     TIPO_BOOLEAN,
-    TIPO_DESCONOCIDO
+    TIPO_DESCONOCIDO,
+    TIPO_VOID,
 } TipoDato;
 
 TipoDato obtenerTipoDesdeString(const char* tipostr);

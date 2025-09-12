@@ -16,6 +16,8 @@
 #include "../semantico/Vectores/acceso_vector.h"
 #include "../semantico/Vectores/acceso_matriz.h"
 #include "../simbolos/Evaluador.h"
+#include "../semantico/Funciones/FuncionVoid.h"
+#include "../semantico/Funciones/LlamadasVoid.h"
 #include "ejecutar_ast.h"
 #include "err.h"
 #include <stdio.h>
@@ -322,6 +324,16 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
             interpretarAccesoEscritura(nodo);
             
             return EJEC_OK;
+        }
+
+        case AST_FUNCION_VOID:{
+            printf("[DEBUG] Procesando función void\n");
+            return DeclararFuncionVoid(nodo);
+        }
+
+        case AST_LLAMADA_VOID:{
+            printf("[DEBUG] Procesando llamada a función void\n");
+            return EjecutarLlamadaVoid(nodo);
         }
 
         default:
