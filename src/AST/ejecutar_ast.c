@@ -15,6 +15,7 @@
 #include "../semantico/Vectores/declaracion_array.h"
 #include "../semantico/Vectores/acceso_vector.h"
 #include "../semantico/Vectores/acceso_matriz.h"
+#include "../semantico/Vectores/acceso_arrays.h"
 #include "../simbolos/Evaluador.h"
 #include "../semantico/Funciones/FuncionVoid.h"
 #include "../semantico/Funciones/LlamadasVoid.h"
@@ -312,9 +313,24 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
                 } else {
                     printf("[ERROR] No se pudo obtener valor del acceso a vector\n");
                 }
+            }else if (simbolo->clase == SIMBOLO_ARRAY_MULTIDIMENSIONAL) {
+                printf("[DEBUG] Detectado ARRAY '%s', verificando acceso...\n", idNodo->valor);
+                // Verificar que el acceso a array sea válido
+                if (!verificarAccesoArray(nodo)) {
+                    printf("[ERROR] Acceso inválido a array '%s'\n", idNodo->valor);
+                    return EJEC_OK;
+                }
+                
+                // Evaluar acceso a array (solo para depuración)
+                ValorSimbolo valorArray = evaluarAccesoArray(nodo);
+                if (valorArray.inicializado) {
+                    printf("[DEBUG] Acceso a array evaluado exitosamente\n");
+                } else {
+                    printf("[ERROR] No se pudo obtener valor del acceso a array\n");
+                }
             }
             else {
-                printf("[ERROR] Variable '%s' no es un vector ni matriz (clase: %d)\n", 
+                printf("[ERROR] Variable '%s' no es un vector ni matriz ni array (clase: %d)\n", 
                     idNodo->valor, simbolo->clase);
             }
             

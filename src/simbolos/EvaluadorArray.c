@@ -4,6 +4,7 @@
 #include "../semantico/semantico.h"
 #include "../semantico/Vectores/acceso_vector.h"
 #include "../semantico/Vectores/acceso_matriz.h"
+#include "../semantico/Vectores/acceso_arrays.h"
 #include "../AST/err.h"
 #include <string.h>
 #include <stdlib.h>
@@ -48,8 +49,22 @@ ValorSimbolo evaluarAccesoArrays(NodoAST* nodo) {
             return evaluarAccesoMatriz(nodo);
         }
     }
-    else {
-        printf("[EVALUADOR] Variable '%s' no es un vector ni matriz\n", idNodo->valor);
+    else if (simbolo->clase == SIMBOLO_ARRAY_MULTIDIMENSIONAL) {
+    // Verificar que el acceso a array sea válido
+    if (!verificarAccesoArray(nodo)) {
+        printf("[ERROR] Acceso inválido a array '%s'\n", idNodo->valor);
+        return r;
+    }
+    
+    // Evaluar acceso a array
+    ValorSimbolo valorArray = evaluarAccesoArray(nodo);
+    if (valorArray.inicializado) {
+        printf("[DEBUG EVALUADOR] Acceso a array evaluado exitosamente, valor = ");
+        // Imprimir el valor según su tipo (código similar al existente)
+        return valorArray;
+    }
+    } else {
+        printf("[EVALUADOR] Variable '%s' no es un vector ni matriz ni array\n", idNodo->valor);
     }
     
     return r;

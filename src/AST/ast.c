@@ -6,6 +6,7 @@
 #include "../semantico/tipos.h"
 #include "../semantico/Vectores/acceso_vector.h"
 #include "../semantico/Vectores/acceso_matriz.h"
+#include "../semantico/Vectores/acceso_arrays.h"
 #include "../semantico/semantico.h"
 
 NodoAST* crearNodo(TipoNodoAST tipo, char* valor) {
@@ -444,8 +445,95 @@ void interpretarAccesoEscritura(NodoAST* nodo) {
         
         // Verificar que la asignación funcionó
         printf("[DEBUG] Matriz después de asignación: %s\n", simbolo->valor.v.s);
-    } 
-    else {
+    } else if (simbolo->clase == SIMBOLO_ARRAY_MULTIDIMENSIONAL) {
+        printf("[DEBUG] Escritura en array multidimensional '%s'\n", simbolo->nombre);
+        
+        // Verificar que el acceso sea válido
+        if (!verificarAccesoArray(acceso)) {
+            printf("[ERROR] Acceso inválido al array '%s' en escritura\n", simbolo->nombre);
+            return;
+        }
+        
+        // Obtener los índices para todas las dimensiones
+        if (dimensionesNodo->tipo != AST_DIMENSIONES || dimensionesNodo->num_hijos < 1) {
+            printf("[ERROR] Dimensiones inválidas para array en escritura\n");
+            return;
+        }
+        
+        // Extraer todos los índices en un arreglo
+        int indices[10] = {0}; // Máximo 10 dimensiones
+        int numIndices = 0;
+        
+        for (int i = 0; i < dimensionesNodo->num_hijos && numIndices < 10; i++) {
+            NodoAST* dimNodo = dimensionesNodo->hijos[i];
+            
+            if (dimNodo->tipo != AST_1DIMENSION || dimNodo->num_hijos < 1) {
+                printf("[ERROR] Formato inválido para dimensión %d\n", i+1);
+                return;
+            }
+            
+            // Evaluar el índice
+            ValorSimbolo idxValor = evaluarExpr(dimNodo->hijos[0]);
+            if (!idxValor.inicializado || idxValor.tipo != TIPO_INT) {
+                printf("[ERROR] Índice %d debe ser entero\n", i+1);
+                return;
+            }
+            
+            // Verificar que el índice no sea negativo
+            if (idxValor.v.i < 0) {
+                printf("[ERROR] Índice %d negativo (%d)\n", i+1, idxValor.v.i);
+                return;
+            }
+            
+            indices[numIndices++] = idxValor.v.i;
+        }
+        
+        printf("[DEBUG] Índices para escritura en array: [");
+        for (int i = 0; i < numIndices; i++) {
+            printf("%d", indices[i]);
+            if (i < numIndices - 1) printf("][");
+        }
+        printf("]\n");
+        
+        // Evaluar el valor a asignar
+        ValorSimbolo valorAsignar = evaluarExpr(valorExpr);
+        if (!valorAsignar.inicializado) {
+            printf("[ERROR] Valor no inicializado para asignación en array\n");
+            return;
+        }
+        
+        // Verificar compatibilidad de tipos
+        if (valorAsignar.tipo != simbolo->tipo && !esWidening(valorAsignar.tipo, simbolo->tipo)) {
+            printf("[ERROR] Tipo incompatible en asignación: %s vs %s\n", 
+                   nombreTipo(simbolo->tipo), nombreTipo(valorAsignar.tipo));
+            return;
+        }
+        
+        // Si es necesario, aplicar conversión de tipo
+        if (valorAsignar.tipo != simbolo->tipo && esWidening(valorAsignar.tipo, simbolo->tipo)) {
+            ValorSimbolo valorConvertido = convertirValor(valorAsignar, simbolo->tipo);
+            
+            // Liberar memoria si necesario
+            if (valorAsignar.tipo == TIPO_STRING && valorAsignar.v.s) {
+                free(valorAsignar.v.s);
+            }
+            
+            valorAsignar = valorConvertido;
+            printf("[DEBUG] Valor convertido de %s a %s\n", 
+                   nombreTipo(valorAsignar.tipo), nombreTipo(simbolo->tipo));
+        }
+        
+        // Asignar el valor al array multidimensional
+        asignarElementoArrayMultidimensional(simbolo, indices, numIndices, valorAsignar);
+        
+        // Mostrar el nuevo valor para depuración
+        printf("[DEBUG] Array '%s' después de asignación: ", simbolo->nombre);
+        if (simbolo->valor.v.s) {
+            printf("%.*s\n", 100, simbolo->valor.v.s); // Mostrar solo los primeros 100 caracteres
+        } else {
+            printf("(null)\n");
+        }
+    } else {
         printf("[ERROR] Variable '%s' no es un vector ni una matriz (clase: %d)\n", 
                simbolo->nombre, simbolo->clase);
     }

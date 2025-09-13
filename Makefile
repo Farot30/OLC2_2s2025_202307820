@@ -40,6 +40,7 @@ BACKEND_SRC = \
 	$(SRC_DIR)/semantico/Vectores/declaracion_array.c \
 	$(SRC_DIR)/semantico/Vectores/acceso_vector.c \
 	$(SRC_DIR)/semantico/Vectores/acceso_matriz.c \
+	$(SRC_DIR)/semantico/Vectores/acceso_arrays.c \
 	$(SRC_DIR)/simbolos/Evaluador.c \
 	$(SRC_DIR)/simbolos/EvaluadorArray.c \
 	$(SRC_DIR)/semantico/Embebidas/EvaluadoresArrays.c \
@@ -83,6 +84,7 @@ GUI_SRC = \
 	$(SRC_DIR)/semantico/Vectores/declaracion_array.c \
 	$(SRC_DIR)/semantico/Vectores/acceso_vector.c \
 	$(SRC_DIR)/semantico/Vectores/acceso_matriz.c \
+	$(SRC_DIR)/semantico/Vectores/acceso_arrays.c \
 	$(SRC_DIR)/simbolos/Evaluador.c \
 	$(SRC_DIR)/simbolos/EvaluadorArray.c \
 	$(SRC_DIR)/semantico/Embebidas/EvaluadoresArrays.c \

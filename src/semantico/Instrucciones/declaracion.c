@@ -7,6 +7,7 @@
 #include "../../simbolos/Evaluador.h" 
 #include "../Vectores/acceso_vector.h"
 #include "../Vectores/acceso_matriz.h"
+#include "../Vectores/acceso_arrays.h"
 #include <stdio.h>
 
 const char* nombreTipo(TipoDato tipo);
@@ -106,7 +107,9 @@ int verificarDeclaracion(NodoAST* nodo) {
                 if (simboloAcceso) {
                     printf("[DEBUG] Verificando acceso a %s '%s' para inicialización de '%s'\n", 
                         simboloAcceso->clase == SIMBOLO_MATRIZ ? "matriz" :
-                        simboloAcceso->clase == SIMBOLO_VECTOR ? "vector" : "variable",
+                        simboloAcceso->clase == SIMBOLO_VECTOR ? "vector" :
+                        simboloAcceso->clase == SIMBOLO_ARRAY_MULTIDIMENSIONAL ? "array multidimensional" :
+                        "variable",
                         valor->hijos[0]->valor, identificador->valor);
 
                     ValorSimbolo valorAcceso; // Para almacenar el resultado del acceso
@@ -138,8 +141,19 @@ int verificarDeclaracion(NodoAST* nodo) {
                         
                         // Evaluar el acceso a vector y obtener el valor
                         valorAcceso = evaluarAccesoVector(valor);
-                    }
-                    else {
+                    }else if (simboloAcceso->clase == SIMBOLO_ARRAY_MULTIDIMENSIONAL) {
+                        if (!verificarAccesoArray(valor)) {
+                            char msg[128];
+                            snprintf(msg, sizeof(msg), "Acceso inválido para inicialización de '%s'", identificador->valor);
+                            addError(msg, ambitoActual(), identificador->linea, identificador->columna);
+                            printf("[ERROR] %s\n", msg);
+                            nodo->valido = 0;
+                            return 0;
+                        }
+
+                        // Evaluar el acceso a array y obtener el valor
+                        valorAcceso = evaluarAccesoArray(valor);
+                    } else {
                         char msg[128];
                         snprintf(msg, sizeof(msg), "Variable '%s' no es un vector ni matriz", valor->hijos[0]->valor);
                         addError(msg, ambitoActual(), valor->hijos[0]->linea, valor->hijos[0]->columna);

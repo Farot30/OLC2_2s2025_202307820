@@ -12,4 +12,4 @@ ValorSimbolo evaluarAccesoVector(NodoAST* nodo);
 void asignarValorVector(Simbolo* simbolo, int indice, ValorSimbolo valor);
 int evaluarIndiceVector(NodoAST* acceso);
 
-#endif // ACCESO_VECTOR_H
+#endif

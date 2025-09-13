@@ -10,6 +10,61 @@
 #include <string.h> 
 #include <stdlib.h> 
 
+// Función auxiliar para generar una representación anidada de un array multidimensional
+char* generarArrayAnidado(int* dimensiones, int numDimensiones, const char* valorDefecto, int nivel) {
+    if (nivel >= numDimensiones) {
+        // Caso base: retornar el valor por defecto
+        return strdup(valorDefecto);
+    }
+    
+    int tamañoActual = dimensiones[nivel];
+    
+    // Calcular el tamaño del buffer necesario
+    // Para cada elemento: valor + posible coma + posibles corchetes
+    // Más corchetes externos y posibles espacios adicionales
+    size_t bufsize = tamañoActual * (strlen(valorDefecto) + 10) + 10;
+    char* buffer = malloc(bufsize);
+    if (!buffer) {
+        printf("[ERROR] No se pudo asignar memoria para buffer\n");
+        return NULL;
+    }
+    
+    strcpy(buffer, "[");
+    
+    for (int i = 0; i < tamañoActual; i++) {
+        char* subarreglo = generarArrayAnidado(dimensiones, numDimensiones, valorDefecto, nivel + 1);
+        if (!subarreglo) {
+            free(buffer);
+            return NULL;
+        }
+        
+        // Verificar si necesitamos ampliar el buffer
+        size_t lenActual = strlen(buffer);
+        size_t lenSubarreglo = strlen(subarreglo);
+        if (lenActual + lenSubarreglo + 3 > bufsize) {
+            bufsize = lenActual + lenSubarreglo + 100; // Espacio extra
+            char* newbuf = realloc(buffer, bufsize);
+            if (!newbuf) {
+                free(buffer);
+                free(subarreglo);
+                printf("[ERROR] No se pudo reasignar memoria para buffer\n");
+                return NULL;
+            }
+            buffer = newbuf;
+        }
+        
+        strcat(buffer, subarreglo);
+        free(subarreglo);
+        
+        if (i < tamañoActual - 1) {
+            strcat(buffer, ",");
+        }
+    }
+    
+    strcat(buffer, "]");
+    return buffer;
+}
+
 // Función auxiliar para procesar bloques anidados
 static char* procesarBloqueNestado(NodoAST* nodo, TipoDato tipo, int nivel) {
     if (!nodo) return NULL;
@@ -230,28 +285,15 @@ int verificarDeclaracionArray(NodoAST* nodo) {
             printf("[DEBUG] Dimensión %d = %d\n", i + 1, dimensiones[i]);
         }
         
-        // Crear representación del array vacío
-        // Formato: [dimensiones][valor_por_defecto]
-        // Ejemplo: [3,4,5][0]
-        char formatoDimensiones[128] = "[";
-        
-        for (int i = 0; i < numDimensiones; i++) {
-            char temp[16];
-            snprintf(temp, sizeof(temp), "%d", dimensiones[i]);
-            strcat(formatoDimensiones, temp);
-            
-            if (i < numDimensiones - 1) {
-                strcat(formatoDimensiones, ",");
-            }
-        }
-        
-        strcat(formatoDimensiones, "]");
-        
         // Valor por defecto según el tipo
         const char* valorDefecto = valorPorDefectoTipo(tipo);
         
-        char formatoFinal[256];
-        snprintf(formatoFinal, sizeof(formatoFinal), "%s[%s]", formatoDimensiones, valorDefecto);
+        // Generar la representación anidada del array
+        char* formatoFinal = generarArrayAnidado(dimensiones, numDimensiones, valorDefecto, 0);
+        if (!formatoFinal) {
+            printf("[ERROR] No se pudo generar la representación del array\n");
+            return 0;
+        }
         
         // Agregar a tabla de símbolos
         agregarSimboloDetallado(
@@ -266,13 +308,14 @@ int verificarDeclaracionArray(NodoAST* nodo) {
         // Inicializar con el formato
         Simbolo* simbolo = buscarSimbolo(idNodo->valor);
         if (simbolo) {
-            simbolo->valor.v.s = strdup(formatoFinal);
+            simbolo->valor.v.s = formatoFinal; // No necesitas strdup aquí porque generarArrayAnidado ya hace un malloc
             simbolo->valor.inicializado = 1;
             simbolo->valor.tipo = TIPO_STRING;
             
             printf("[DEBUG] Array multidimensional '%s' inicializado: %s\n",
                    idNodo->valor, formatoFinal);
         } else {
+            free(formatoFinal);
             printf("[ERROR] No se pudo encontrar el símbolo recién agregado\n");
             return 0;
         }
