@@ -181,67 +181,69 @@ enum yysymbol_kind_t
   YYSYMBOL_TOKEN_ADD = 66,                 /* TOKEN_ADD  */
   YYSYMBOL_TOKEN_PUNTO = 67,               /* TOKEN_PUNTO  */
   YYSYMBOL_TOKEN_VOID = 68,                /* TOKEN_VOID  */
-  YYSYMBOL_TOKEN_MAS_IGUAL = 69,           /* TOKEN_MAS_IGUAL  */
-  YYSYMBOL_TOKEN_MENOS_IGUAL = 70,         /* TOKEN_MENOS_IGUAL  */
-  YYSYMBOL_TOKEN_POR_IGUAL = 71,           /* TOKEN_POR_IGUAL  */
-  YYSYMBOL_TOKEN_DIV_IGUAL = 72,           /* TOKEN_DIV_IGUAL  */
-  YYSYMBOL_TOKEN_MOD_IGUAL = 73,           /* TOKEN_MOD_IGUAL  */
-  YYSYMBOL_TOKEN_AND_IGUAL = 74,           /* TOKEN_AND_IGUAL  */
-  YYSYMBOL_TOKEN_OR_IGUAL = 75,            /* TOKEN_OR_IGUAL  */
-  YYSYMBOL_TOKEN_XOR_IGUAL = 76,           /* TOKEN_XOR_IGUAL  */
-  YYSYMBOL_TOKEN_DESIZQ_IGUAL = 77,        /* TOKEN_DESIZQ_IGUAL  */
-  YYSYMBOL_TOKEN_DESDER_IGUAL = 78,        /* TOKEN_DESDER_IGUAL  */
-  YYSYMBOL_UMINUS = 79,                    /* UMINUS  */
-  YYSYMBOL_YYACCEPT = 80,                  /* $accept  */
-  YYSYMBOL_s = 81,                         /* s  */
-  YYSYMBOL_programa = 82,                  /* programa  */
-  YYSYMBOL_lista_sentencias = 83,          /* lista_sentencias  */
-  YYSYMBOL_sentencia = 84,                 /* sentencia  */
-  YYSYMBOL_declaracion = 85,               /* declaracion  */
-  YYSYMBOL_declaracion_vector = 86,        /* declaracion_vector  */
-  YYSYMBOL_lista_elementos = 87,           /* lista_elementos  */
-  YYSYMBOL_lista_filas = 88,               /* lista_filas  */
-  YYSYMBOL_declaracion_matriz = 89,        /* declaracion_matriz  */
-  YYSYMBOL_declaracion_array_multidimensional = 90, /* declaracion_array_multidimensional  */
-  YYSYMBOL_lista_bloques = 91,             /* lista_bloques  */
-  YYSYMBOL_lista_elementos_o_bloques = 92, /* lista_elementos_o_bloques  */
-  YYSYMBOL_DimensionesCorchetes = 93,      /* DimensionesCorchetes  */
-  YYSYMBOL_Dimensiones = 94,               /* Dimensiones  */
-  YYSYMBOL_acceso = 95,                    /* acceso  */
-  YYSYMBOL_DimensionesAcceso = 96,         /* DimensionesAcceso  */
-  YYSYMBOL_acceso_escritura = 97,          /* acceso_escritura  */
-  YYSYMBOL_Funcion_void = 98,              /* Funcion_void  */
-  YYSYMBOL_Llamadas = 99,                  /* Llamadas  */
-  YYSYMBOL_lista_parametros = 100,         /* lista_parametros  */
-  YYSYMBOL_Funcion_parametros = 101,       /* Funcion_parametros  */
-  YYSYMBOL_parametros = 102,               /* parametros  */
-  YYSYMBOL_tipo_primitivo = 103,           /* tipo_primitivo  */
-  YYSYMBOL_asignacion = 104,               /* asignacion  */
-  YYSYMBOL_expresion = 105,                /* expresion  */
-  YYSYMBOL_expresion_or = 106,             /* expresion_or  */
-  YYSYMBOL_expresion_and = 107,            /* expresion_and  */
-  YYSYMBOL_expresion_bit_or = 108,         /* expresion_bit_or  */
-  YYSYMBOL_expresion_bit_xor = 109,        /* expresion_bit_xor  */
-  YYSYMBOL_expresion_bit_and = 110,        /* expresion_bit_and  */
-  YYSYMBOL_expresion_equality = 111,       /* expresion_equality  */
-  YYSYMBOL_expresion_relacional = 112,     /* expresion_relacional  */
-  YYSYMBOL_expresion_shift = 113,          /* expresion_shift  */
-  YYSYMBOL_expresion_aditiva = 114,        /* expresion_aditiva  */
-  YYSYMBOL_expresion_multiplicativa = 115, /* expresion_multiplicativa  */
-  YYSYMBOL_expresion_unaria = 116,         /* expresion_unaria  */
-  YYSYMBOL_postfix = 117,                  /* postfix  */
-  YYSYMBOL_primary = 118,                  /* primary  */
-  YYSYMBOL_lista_expresiones_join = 119,   /* lista_expresiones_join  */
-  YYSYMBOL_instruccion_print = 120,        /* instruccion_print  */
-  YYSYMBOL_bloque = 121,                   /* bloque  */
-  YYSYMBOL_instruccion_break = 122,        /* instruccion_break  */
-  YYSYMBOL_instruccion_continue = 123,     /* instruccion_continue  */
-  YYSYMBOL_instruccion_if = 124,           /* instruccion_if  */
-  YYSYMBOL_intruccion_switch = 125,        /* intruccion_switch  */
-  YYSYMBOL_lista_casos = 126,              /* lista_casos  */
-  YYSYMBOL_caso = 127,                     /* caso  */
-  YYSYMBOL_instruccion_while = 128,        /* instruccion_while  */
-  YYSYMBOL_instruccion_for = 129           /* instruccion_for  */
+  YYSYMBOL_TOKEN_RETURN = 69,              /* TOKEN_RETURN  */
+  YYSYMBOL_TOKEN_MAS_IGUAL = 70,           /* TOKEN_MAS_IGUAL  */
+  YYSYMBOL_TOKEN_MENOS_IGUAL = 71,         /* TOKEN_MENOS_IGUAL  */
+  YYSYMBOL_TOKEN_POR_IGUAL = 72,           /* TOKEN_POR_IGUAL  */
+  YYSYMBOL_TOKEN_DIV_IGUAL = 73,           /* TOKEN_DIV_IGUAL  */
+  YYSYMBOL_TOKEN_MOD_IGUAL = 74,           /* TOKEN_MOD_IGUAL  */
+  YYSYMBOL_TOKEN_AND_IGUAL = 75,           /* TOKEN_AND_IGUAL  */
+  YYSYMBOL_TOKEN_OR_IGUAL = 76,            /* TOKEN_OR_IGUAL  */
+  YYSYMBOL_TOKEN_XOR_IGUAL = 77,           /* TOKEN_XOR_IGUAL  */
+  YYSYMBOL_TOKEN_DESIZQ_IGUAL = 78,        /* TOKEN_DESIZQ_IGUAL  */
+  YYSYMBOL_TOKEN_DESDER_IGUAL = 79,        /* TOKEN_DESDER_IGUAL  */
+  YYSYMBOL_UMINUS = 80,                    /* UMINUS  */
+  YYSYMBOL_YYACCEPT = 81,                  /* $accept  */
+  YYSYMBOL_s = 82,                         /* s  */
+  YYSYMBOL_programa = 83,                  /* programa  */
+  YYSYMBOL_lista_sentencias = 84,          /* lista_sentencias  */
+  YYSYMBOL_sentencia = 85,                 /* sentencia  */
+  YYSYMBOL_declaracion = 86,               /* declaracion  */
+  YYSYMBOL_declaracion_vector = 87,        /* declaracion_vector  */
+  YYSYMBOL_lista_elementos = 88,           /* lista_elementos  */
+  YYSYMBOL_lista_filas = 89,               /* lista_filas  */
+  YYSYMBOL_declaracion_matriz = 90,        /* declaracion_matriz  */
+  YYSYMBOL_declaracion_array_multidimensional = 91, /* declaracion_array_multidimensional  */
+  YYSYMBOL_lista_bloques = 92,             /* lista_bloques  */
+  YYSYMBOL_lista_elementos_o_bloques = 93, /* lista_elementos_o_bloques  */
+  YYSYMBOL_DimensionesCorchetes = 94,      /* DimensionesCorchetes  */
+  YYSYMBOL_Dimensiones = 95,               /* Dimensiones  */
+  YYSYMBOL_acceso = 96,                    /* acceso  */
+  YYSYMBOL_DimensionesAcceso = 97,         /* DimensionesAcceso  */
+  YYSYMBOL_acceso_escritura = 98,          /* acceso_escritura  */
+  YYSYMBOL_Funcion_void = 99,              /* Funcion_void  */
+  YYSYMBOL_Llamadas = 100,                 /* Llamadas  */
+  YYSYMBOL_lista_parametros = 101,         /* lista_parametros  */
+  YYSYMBOL_Funcion_parametros = 102,       /* Funcion_parametros  */
+  YYSYMBOL_parametros = 103,               /* parametros  */
+  YYSYMBOL_tipo_primitivo = 104,           /* tipo_primitivo  */
+  YYSYMBOL_asignacion = 105,               /* asignacion  */
+  YYSYMBOL_expresion = 106,                /* expresion  */
+  YYSYMBOL_expresion_or = 107,             /* expresion_or  */
+  YYSYMBOL_expresion_and = 108,            /* expresion_and  */
+  YYSYMBOL_expresion_bit_or = 109,         /* expresion_bit_or  */
+  YYSYMBOL_expresion_bit_xor = 110,        /* expresion_bit_xor  */
+  YYSYMBOL_expresion_bit_and = 111,        /* expresion_bit_and  */
+  YYSYMBOL_expresion_equality = 112,       /* expresion_equality  */
+  YYSYMBOL_expresion_relacional = 113,     /* expresion_relacional  */
+  YYSYMBOL_expresion_shift = 114,          /* expresion_shift  */
+  YYSYMBOL_expresion_aditiva = 115,        /* expresion_aditiva  */
+  YYSYMBOL_expresion_multiplicativa = 116, /* expresion_multiplicativa  */
+  YYSYMBOL_expresion_unaria = 117,         /* expresion_unaria  */
+  YYSYMBOL_postfix = 118,                  /* postfix  */
+  YYSYMBOL_primary = 119,                  /* primary  */
+  YYSYMBOL_lista_expresiones_join = 120,   /* lista_expresiones_join  */
+  YYSYMBOL_instruccion_print = 121,        /* instruccion_print  */
+  YYSYMBOL_bloque = 122,                   /* bloque  */
+  YYSYMBOL_instruccion_break = 123,        /* instruccion_break  */
+  YYSYMBOL_instruccion_continue = 124,     /* instruccion_continue  */
+  YYSYMBOL_instruccion_return = 125,       /* instruccion_return  */
+  YYSYMBOL_instruccion_if = 126,           /* instruccion_if  */
+  YYSYMBOL_intruccion_switch = 127,        /* intruccion_switch  */
+  YYSYMBOL_lista_casos = 128,              /* lista_casos  */
+  YYSYMBOL_caso = 129,                     /* caso  */
+  YYSYMBOL_instruccion_while = 130,        /* instruccion_while  */
+  YYSYMBOL_instruccion_for = 131           /* instruccion_for  */
 };
 typedef enum yysymbol_kind_t yysymbol_kind_t;
 
@@ -570,21 +572,21 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  102
+#define YYFINAL  92
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   694
+#define YYLAST   617
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  80
+#define YYNTOKENS  81
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  50
+#define YYNNTS  51
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  146
+#define YYNRULES  147
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  343
+#define YYNSTATES  346
 
 /* YYMAXUTOK -- Last valid token kind.  */
-#define YYMAXUTOK   334
+#define YYMAXUTOK   335
 
 
 /* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
@@ -631,28 +633,28 @@ static const yytype_int8 yytranslate[] =
       45,    46,    47,    48,    49,    50,    51,    52,    53,    54,
       55,    56,    57,    58,    59,    60,    61,    62,    63,    64,
       65,    66,    67,    68,    69,    70,    71,    72,    73,    74,
-      75,    76,    77,    78,    79
+      75,    76,    77,    78,    79,    80
 };
 
 #if YYDEBUG
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   103,   103,   115,   120,   131,   142,   143,   144,   145,
-     146,   147,   148,   149,   150,   151,   152,   153,   154,   155,
-     156,   157,   158,   160,   169,   180,   195,   215,   226,   258,
-     269,   276,   287,   294,   318,   340,   367,   387,   398,   405,
-     411,   420,   439,   445,   449,   459,   474,   484,   494,   508,
-     522,   530,   547,   558,   565,   578,   595,   608,   609,   610,
-     611,   612,   613,   618,   628,   631,   634,   637,   640,   643,
-     646,   649,   652,   655,   665,   669,   670,   678,   679,   687,
-     688,   696,   697,   705,   706,   714,   715,   720,   728,   729,
-     734,   739,   744,   752,   753,   758,   766,   767,   772,   780,
-     781,   786,   791,   799,   804,   809,   817,   821,   822,   828,
-     837,   842,   847,   852,   857,   862,   866,   870,   875,   880,
-     885,   890,   896,   903,   911,   919,   925,   935,   938,   944,
-     955,   963,   968,   984,   992,   999,  1006,  1012,  1021,  1034,
-    1043,  1054,  1061,  1070,  1078,  1087,  1095
+       0,   104,   104,   116,   121,   132,   143,   144,   145,   146,
+     147,   148,   149,   150,   151,   152,   153,   154,   155,   156,
+     157,   158,   160,   169,   179,   192,   212,   223,   255,   266,
+     273,   284,   291,   315,   337,   364,   384,   395,   402,   408,
+     417,   436,   442,   446,   456,   471,   481,   491,   505,   519,
+     527,   540,   551,   558,   575,   607,   626,   627,   628,   629,
+     630,   631,   636,   646,   649,   652,   655,   658,   661,   664,
+     667,   670,   673,   683,   687,   688,   696,   697,   705,   706,
+     714,   715,   723,   724,   732,   733,   738,   746,   747,   752,
+     757,   762,   770,   771,   776,   784,   785,   790,   798,   799,
+     804,   809,   817,   822,   827,   835,   839,   840,   846,   855,
+     860,   865,   870,   875,   880,   884,   888,   893,   898,   903,
+     908,   914,   921,   929,   937,   943,   953,   956,   959,   965,
+     976,   984,   989,  1005,  1013,  1020,  1027,  1037,  1043,  1052,
+    1065,  1074,  1085,  1092,  1101,  1109,  1118,  1126
 };
 #endif
 
@@ -685,12 +687,12 @@ static const char *const yytname[] =
   "TOKEN_WHILE", "TOKEN_CONTINUE", "TOKEN_FOR", "TOKEN_STRING_VALUEOF",
   "TOKEN_EQUAL", "TOKEN_PARSEINT", "TOKEN_PARSEFLOAT", "TOKEN_PARSEDOUBLE",
   "TOKEN_PARSEJOIN", "TOKEN_INDEXOF", "TOKEN_LENGHT", "TOKEN_ADD",
-  "TOKEN_PUNTO", "TOKEN_VOID", "TOKEN_MAS_IGUAL", "TOKEN_MENOS_IGUAL",
-  "TOKEN_POR_IGUAL", "TOKEN_DIV_IGUAL", "TOKEN_MOD_IGUAL",
-  "TOKEN_AND_IGUAL", "TOKEN_OR_IGUAL", "TOKEN_XOR_IGUAL",
-  "TOKEN_DESIZQ_IGUAL", "TOKEN_DESDER_IGUAL", "UMINUS", "$accept", "s",
-  "programa", "lista_sentencias", "sentencia", "declaracion",
-  "declaracion_vector", "lista_elementos", "lista_filas",
+  "TOKEN_PUNTO", "TOKEN_VOID", "TOKEN_RETURN", "TOKEN_MAS_IGUAL",
+  "TOKEN_MENOS_IGUAL", "TOKEN_POR_IGUAL", "TOKEN_DIV_IGUAL",
+  "TOKEN_MOD_IGUAL", "TOKEN_AND_IGUAL", "TOKEN_OR_IGUAL",
+  "TOKEN_XOR_IGUAL", "TOKEN_DESIZQ_IGUAL", "TOKEN_DESDER_IGUAL", "UMINUS",
+  "$accept", "s", "programa", "lista_sentencias", "sentencia",
+  "declaracion", "declaracion_vector", "lista_elementos", "lista_filas",
   "declaracion_matriz", "declaracion_array_multidimensional",
   "lista_bloques", "lista_elementos_o_bloques", "DimensionesCorchetes",
   "Dimensiones", "acceso", "DimensionesAcceso", "acceso_escritura",
@@ -701,8 +703,9 @@ static const char *const yytname[] =
   "expresion_shift", "expresion_aditiva", "expresion_multiplicativa",
   "expresion_unaria", "postfix", "primary", "lista_expresiones_join",
   "instruccion_print", "bloque", "instruccion_break",
-  "instruccion_continue", "instruccion_if", "intruccion_switch",
-  "lista_casos", "caso", "instruccion_while", "instruccion_for", YY_NULLPTR
+  "instruccion_continue", "instruccion_return", "instruccion_if",
+  "intruccion_switch", "lista_casos", "caso", "instruccion_while",
+  "instruccion_for", YY_NULLPTR
 };
 
 static const char *
@@ -712,12 +715,12 @@ yysymbol_name (yysymbol_kind_t yysymbol)
 }
 #endif
 
-#define YYPACT_NINF (-264)
+#define YYPACT_NINF (-263)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
 
-#define YYTABLE_NINF (-144)
+#define YYTABLE_NINF (-145)
 
 #define yytable_value_is_error(Yyn) \
   0
@@ -726,41 +729,41 @@ yysymbol_name (yysymbol_kind_t yysymbol)
    STATE-NUM.  */
 static const yytype_int16 yypact[] =
 {
-     495,    10,   146,  -264,  -264,    72,  -264,  -264,  -264,  -264,
-    -264,  -264,  -264,  -264,  -264,  -264,   -27,   630,   146,    -3,
-      -1,  -264,    15,  -264,    79,    96,   105,   107,   123,   128,
-     131,    37,    42,  -264,   309,  -264,    64,   142,   154,   156,
-     160,   165,  -264,   167,  -264,     8,   169,   175,   153,   155,
-     166,   168,   176,   -14,    58,    55,   106,   143,  -264,   121,
-    -264,   179,   188,   189,  -264,  -264,  -264,  -264,  -264,     5,
-    -264,  -264,   146,   146,   180,    31,   146,   146,   146,   146,
-     146,   146,   146,   146,   146,   146,   210,   234,   182,   183,
-    -264,   146,   146,   146,    89,   146,   146,   146,   146,   146,
-     146,   185,  -264,  -264,  -264,  -264,  -264,  -264,   146,  -264,
-    -264,   213,     6,  -264,  -264,   146,   146,   146,   146,   146,
-     146,   146,   146,   146,   146,   146,   146,   146,   146,   146,
-     146,   146,   146,  -264,  -264,  -264,  -264,  -264,   215,  -264,
-    -264,   190,  -264,   191,  -264,  -264,  -264,  -264,  -264,  -264,
-    -264,  -264,  -264,  -264,   146,   211,   193,   146,  -264,   194,
-     195,   196,    50,   201,   214,   208,   200,   202,   203,   206,
-     218,   221,   207,  -264,    16,   242,   146,   630,   229,   155,
-     166,   168,   176,   -14,    58,    58,    55,    55,    55,    55,
-     106,   106,   143,   143,  -264,  -264,  -264,  -264,   146,   146,
-     247,   146,  -264,  -264,   250,   254,   250,   146,   236,   146,
-    -264,  -264,  -264,  -264,   146,   146,   250,   262,   237,   264,
-    -264,   -18,    25,   253,  -264,    85,   238,   239,  -264,   240,
-     495,   225,   102,  -264,   252,   255,   243,    23,   244,  -264,
-     267,    24,  -264,   146,  -264,   150,   250,  -264,   277,   150,
-    -264,  -264,  -264,   437,     1,   146,   246,    33,  -264,   146,
-     146,  -264,   146,  -264,  -264,   263,   146,   150,   220,  -264,
-     268,  -264,   608,     9,  -264,   285,  -264,  -264,  -264,   266,
-     495,  -264,  -264,   269,   271,  -264,   129,    12,  -264,   295,
-     241,  -264,    14,    17,  -264,   277,   279,   303,   495,   373,
-     250,   250,   308,   150,  -264,   146,   146,   280,  -264,  -264,
-    -264,   312,   287,   553,  -264,  -264,   146,    19,   310,  -264,
-     313,   146,  -264,   314,   298,    20,  -264,   328,   146,  -264,
-     299,  -264,  -264,  -264,   146,   329,  -264,    21,   338,  -264,
-     146,   339,  -264
+     360,    22,  -263,    18,  -263,  -263,  -263,  -263,  -263,    41,
+      94,    97,  -263,   100,  -263,   108,    69,   515,   110,  -263,
+     125,  -263,    89,   132,   149,   151,   165,   167,  -263,  -263,
+       2,   168,   171,   172,   173,   174,  -263,  -263,  -263,  -263,
+    -263,   515,   515,   515,   515,   515,   515,   515,   515,   515,
+     515,   515,   515,   195,   553,   515,   515,   515,   144,   156,
+     515,  -263,     9,  -263,  -263,  -263,  -263,  -263,   454,   515,
+     176,   178,   181,   182,   185,   189,  -263,  -263,  -263,   160,
+     177,   188,   180,   190,   -29,   107,   -22,    88,   129,  -263,
+     103,  -263,  -263,  -263,  -263,  -263,  -263,  -263,   515,  -263,
+     220,    50,  -263,  -263,  -263,  -263,  -263,   221,  -263,  -263,
+    -263,  -263,  -263,  -263,  -263,  -263,  -263,  -263,  -263,   515,
+     217,   196,   197,   200,   208,    -8,   219,   227,   222,   211,
+    -263,   492,    70,   213,   215,  -263,   515,   515,   515,   515,
+     515,   515,   515,   515,   515,   515,   515,   515,   515,   515,
+     515,   515,   515,   515,   515,   515,   515,   515,   515,   515,
+    -263,  -263,  -263,    31,   253,   515,   236,   237,  -263,   255,
+     515,  -263,   258,   259,   258,   515,   241,   515,   258,  -263,
+      24,  -263,   232,  -263,   235,   515,  -263,   238,   239,   243,
+     244,   245,   249,   177,   188,   180,   190,   -29,   107,   107,
+     -22,   -22,   -22,   -22,    88,    88,   129,   129,  -263,  -263,
+    -263,   263,   247,   274,  -263,    75,   264,    40,  -263,   246,
+     360,   233,   102,  -263,   260,   261,  -263,   515,  -263,   515,
+     515,  -263,  -263,  -263,  -263,  -263,   515,   515,   269,   111,
+    -263,   236,   283,  -263,   284,   236,  -263,   184,    49,   515,
+     270,     7,  -263,   515,   515,  -263,   262,   265,   268,    78,
+     271,   266,   515,   236,   230,   286,   360,   432,    17,  -263,
+     299,  -263,  -263,  -263,   290,   360,  -263,  -263,   282,   285,
+    -263,  -263,  -263,   515,  -263,  -263,    80,    19,  -263,   316,
+     256,  -263,   317,    46,    51,  -263,   284,   297,   320,   360,
+     291,   258,   258,  -263,   323,   236,  -263,   515,   515,   295,
+    -263,  -263,  -263,  -263,   324,   302,   386,  -263,  -263,   515,
+      53,   326,  -263,   327,   515,  -263,   335,   328,    77,  -263,
+     346,   515,  -263,   319,  -263,  -263,  -263,   515,   345,  -263,
+      79,   349,  -263,   515,   350,  -263
 };
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -768,61 +771,63 @@ static const yytype_int16 yypact[] =
    means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       0,     0,     0,    62,   116,   115,    57,    60,    61,    58,
-      59,   110,   113,   114,   112,   111,     0,     0,     0,     0,
-       0,   134,     0,   135,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     2,     0,     5,     0,     0,     0,     0,
-     127,     0,    17,     0,    18,     0,     0,     0,    74,    75,
-      77,    79,    81,    83,    85,    88,    93,    96,    99,   106,
-     107,     0,     0,     0,    10,    11,    12,    13,    23,   115,
-     127,   104,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,    45,     0,     0,     0,
-     103,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     1,     4,     6,    14,    15,    16,     0,     8,
-      19,     0,    25,     7,    20,     0,     0,     0,     0,     0,
+       0,     0,    61,     0,    56,    59,    60,    57,    58,     0,
+       0,     0,   134,     0,   135,     0,     0,     0,     0,     2,
+       0,     5,     0,     0,     0,     0,     0,     0,    17,    19,
+       0,     0,     0,     0,     0,     0,    10,    11,    12,    13,
+      22,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,    44,     0,     0,     0,     0,     0,     0,
+       0,   115,   114,   109,   112,   113,   111,   110,     0,     0,
+       0,     0,     0,     0,     0,     0,   126,   127,   136,    73,
+      74,    76,    78,    80,    82,    84,    87,    92,    95,    98,
+     105,   106,     1,     4,     6,    14,    15,    16,     0,     8,
+       0,    24,     7,     9,    20,    21,    18,     0,    62,    63,
+      64,    65,    66,    67,    68,    69,    70,    71,    72,     0,
+     112,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+     103,     0,     0,     0,     0,   102,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,   108,   109,     9,    21,    22,     0,    63,
-      50,     0,   122,     0,    64,    65,    66,    67,    68,    69,
-      70,    71,    72,    73,     0,   113,     0,     0,   128,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,    48,     0,     0,     0,     0,     0,    76,
-      78,    80,    82,    84,    86,    87,    92,    90,    91,    89,
-      94,    95,    97,    98,   100,   101,   102,    47,     0,     0,
-       0,     0,   131,   105,     0,     0,     0,     0,    25,     0,
-     120,   117,   119,   118,     0,     0,     0,     0,     0,    42,
-      24,     0,     0,     0,    53,     0,     0,     0,    46,     0,
-       0,   136,     0,   144,     0,     0,   130,     0,     0,    49,
-       0,     0,    41,     0,    51,     0,     0,    56,     0,     0,
-     124,   123,   132,     0,     0,     0,     0,     0,   141,     0,
-       0,   126,     0,   125,   121,     0,     0,     0,     0,    52,
-       0,    54,     0,     0,    38,     0,   133,   137,   138,     0,
-       0,   139,   140,     0,     0,   129,     0,     0,    30,     0,
-       0,    55,     0,     0,    36,     0,     0,    35,     0,     0,
-       0,     0,     0,     0,    27,     0,     0,     0,    39,    40,
-      37,     0,     0,     0,   145,   146,     0,     0,     0,    29,
-       0,     0,    43,     0,     0,     0,    34,     0,     0,    26,
-       0,    44,   142,    32,     0,     0,    28,     0,     0,    31,
-       0,     0,    33
+     107,   108,    47,     0,     0,     0,     0,     0,    46,     0,
+       0,   131,     0,     0,     0,     0,    24,     0,     0,    49,
+       0,    52,     0,   121,     0,     0,   128,     0,     0,     0,
+       0,     0,     0,    75,    77,    79,    81,    83,    85,    86,
+      91,    89,    90,    88,    93,    94,    96,    97,    99,   100,
+     101,     0,     0,    41,    23,     0,     0,     0,    45,     0,
+       0,   137,     0,   145,     0,     0,    48,     0,    50,     0,
+       0,   104,   119,   116,   118,   117,     0,     0,     0,     0,
+      40,     0,     0,    55,     0,     0,   132,     0,     0,     0,
+       0,     0,   142,     0,     0,    51,     0,     0,   130,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,    37,
+       0,   133,   138,   139,     0,     0,   140,   141,     0,     0,
+     123,   122,   125,     0,   124,   120,     0,     0,    29,     0,
+       0,    54,     0,     0,     0,    35,     0,     0,    34,     0,
+       0,     0,     0,   129,     0,     0,    26,     0,     0,     0,
+      53,    38,    39,    36,     0,     0,     0,   146,   147,     0,
+       0,     0,    28,     0,     0,    42,     0,     0,     0,    33,
+       0,     0,    25,     0,    43,   143,    31,     0,     0,    27,
+       0,     0,    30,     0,     0,    32
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int16 yypgoto[] =
 {
-    -264,  -264,  -264,  -211,   -33,   256,  -264,  -263,  -264,  -264,
-    -264,    62,    49,   127,  -264,     3,  -264,  -264,  -264,  -264,
-    -264,  -264,  -264,   -10,   257,   -17,  -264,   232,   233,   231,
-     235,   249,    65,    -9,    61,    67,     0,  -264,  -264,  -264,
-    -264,  -202,  -264,  -264,    98,  -264,  -264,    97,  -264,  -264
+    -263,  -263,  -263,  -214,   -18,   300,  -263,  -262,  -263,  -263,
+    -263,    90,    59,   150,  -263,     1,  -263,  -263,  -263,  -263,
+    -263,  -263,  -263,   -55,   304,   -17,  -263,   223,   224,   225,
+     231,   218,    30,    20,    14,    28,   -51,  -263,  -263,  -263,
+    -263,  -170,  -263,  -263,  -263,   122,  -263,  -263,   133,  -263,
+    -263
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int16 yydefgoto[] =
 {
-       0,    32,    33,    34,    35,    36,    37,   287,   317,    38,
-      39,   273,   274,   178,   297,    70,    86,    41,    42,    43,
-     221,    44,   222,    45,    46,    47,    48,    49,    50,    51,
-      52,    53,    54,    55,    56,    57,    58,    59,    60,   237,
-      61,   231,    62,    63,    64,    65,   257,   258,    66,    67
+       0,    18,    19,    20,    21,    22,    23,   287,   320,    24,
+      25,   268,   269,   167,   298,    76,    53,    27,    28,    77,
+     180,    29,   215,    30,    31,   288,    79,    80,    81,    82,
+      83,    84,    85,    86,    87,    88,    89,    90,    91,   259,
+      32,   221,    33,    34,    35,    36,    37,   251,   252,    38,
+      39
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -830,231 +835,215 @@ static const yytype_int16 yydefgoto[] =
    number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int16 yytable[] =
 {
-      89,   103,    71,    40,   233,   230,    87,    88,   243,   292,
-      72,   175,   294,   111,   239,   304,   244,   308,    90,   253,
-     309,   217,   326,   333,   339,   112,   120,   121,   266,   176,
-      91,   267,    92,   218,    68,   295,   281,    40,   305,   177,
-     305,   268,   102,   295,   271,   327,   305,   305,    93,   262,
-      19,   245,   277,   325,   101,   138,   139,   263,   246,   144,
-     145,   146,   147,   148,   149,   150,   151,   152,   153,   299,
-     156,   337,    75,    73,   159,   160,   161,    72,   166,   167,
-     168,   169,   170,   171,   164,   255,   256,   313,   104,   248,
-     141,   173,   249,   126,   127,    73,   142,   143,   314,   315,
-     122,   123,   124,   125,     3,    74,   162,     6,     7,     8,
-       9,    10,    94,   186,   187,   188,   189,   128,   129,    76,
-      77,    78,    79,    80,    81,    82,    83,    84,    85,    95,
-     194,   195,   196,   302,   133,   134,   303,   200,    96,    75,
-      97,    76,    77,    78,    79,    80,    81,    82,    83,    84,
-      85,   130,   131,   132,   255,   256,    98,   203,     2,   220,
-     224,    99,     4,    69,   100,     3,   105,   223,     6,     7,
-       8,     9,    10,    11,    12,    13,    14,    15,   106,    17,
-     107,   226,   227,   108,   229,   184,   185,   190,   191,   109,
-     234,   110,   235,   113,    18,   192,   193,   236,   238,   114,
-     115,   116,   117,   135,    25,   118,    26,    27,    28,    29,
-      30,   119,   136,   137,   140,   154,   157,   158,   172,   174,
-     103,   197,   201,   198,   199,   207,   269,   202,   204,   205,
-     206,   208,   209,    40,   210,   270,   211,   212,   279,   275,
-     213,   216,   283,   284,   214,   285,     2,   215,   219,   288,
-       4,    69,   225,   228,   230,   288,    40,   289,   232,   176,
-     241,    11,   155,    13,    14,    15,   103,    17,   240,   175,
-     247,   280,   250,   251,   252,   254,   259,   261,   264,   260,
-     103,   272,    18,    40,   265,   291,   286,   290,   319,   320,
-     296,   298,    25,   318,    26,    27,    28,    29,    30,   288,
-     306,    40,    40,   300,   330,   301,   311,   307,   312,    -3,
-       1,   335,   316,   321,   323,   328,    40,   288,   322,   329,
-     331,     2,   332,   341,     3,     4,     5,     6,     7,     8,
-       9,    10,   334,   336,   293,   338,    11,    12,    13,    14,
-      15,    16,    17,   340,   310,   342,   242,   179,   181,   180,
-     163,   165,   278,   182,   282,     0,     0,    18,    19,     0,
-      20,     0,     0,    21,    22,    23,    24,    25,   183,    26,
-      27,    28,    29,    30,     1,     0,  -143,    31,     0,     0,
-       0,     0,     0,     0,     0,     2,     0,     0,     3,     4,
-       5,     6,     7,     8,     9,    10,     0,     0,     0,     0,
-      11,    12,    13,    14,    15,    16,    17,     0,     0,     0,
+      78,    26,    93,   127,   223,   293,   247,   100,   226,   130,
+     276,   147,   148,   133,    41,    42,   153,   154,   135,   101,
+     295,    26,   306,    41,   107,   108,   109,   110,   111,   112,
+     113,   114,   115,   116,   117,   118,   211,   121,   122,   123,
+     124,    42,   131,   296,   244,   307,    40,   245,   212,   311,
+     227,   134,   292,   220,   312,   164,   329,   328,   228,   249,
+     250,   300,    43,    44,    45,    46,    47,    48,    49,    50,
+      51,    52,   307,   165,    54,   340,   132,   296,   272,   330,
+     336,   162,   342,   166,   304,   316,    59,   305,    43,    44,
+      45,    46,    47,    48,    49,    50,    51,    52,    10,   155,
+     156,   241,   169,   307,   283,   307,   208,   209,   210,   242,
+      92,   216,   284,    94,   181,   262,   160,   161,   263,   187,
+     188,   189,   190,   191,   192,    -3,     1,    55,   264,   182,
+      56,   317,   318,    57,   231,   183,   184,   157,   158,   159,
+       2,    58,     3,     4,     5,     6,     7,     8,   214,   149,
+     150,   151,   152,   219,   249,   250,    95,     9,   224,     2,
+     225,   125,     4,     5,     6,     7,     8,   204,   205,   200,
+     201,   202,   203,    96,    10,    97,    11,   198,   199,    12,
+      13,    14,    15,   206,   207,     1,   265,   271,    98,   129,
+     270,    99,   102,    16,    17,   103,   104,   105,   106,     2,
+     119,     3,     4,     5,     6,     7,     8,   142,   289,   136,
+     255,   137,   256,   257,   138,   139,     9,   145,   140,   258,
+     260,    26,   141,   143,   144,   146,   163,   168,   170,    93,
+     171,   172,   274,    10,   173,    11,   278,   279,    12,    13,
+      14,    15,   174,   175,   176,   178,   177,   185,    26,   186,
+     321,     2,    16,    17,     4,     5,     6,     7,     8,   213,
+     217,   218,   220,   222,   165,   229,   303,    26,   230,   238,
+     239,   236,   232,   233,    93,   237,    26,   234,   235,   164,
+     246,   243,    93,   248,   253,   254,   261,   266,   267,   286,
+     322,   323,     1,    26,  -144,   275,   280,   290,    93,   281,
+      26,    26,   282,   291,   297,   285,     2,   333,     3,     4,
+       5,     6,     7,     8,   338,   299,   301,    26,     1,   302,
+     310,   308,   309,     9,   314,   315,   344,   319,   324,   326,
+     325,   331,     2,   332,     3,     4,     5,     6,     7,     8,
+      10,   334,    11,  -144,  -144,    12,    13,    14,    15,     9,
+     337,   341,   335,   339,   343,   313,   345,   294,   126,    16,
+      17,     1,   128,   240,   197,   193,    10,   194,    11,   195,
+     273,    12,    13,    14,    15,     2,   196,     3,     4,     5,
+       6,     7,     8,     0,   277,    16,    17,     1,     0,     0,
+       0,     0,     9,     0,     0,     0,     0,     0,     0,     0,
+       0,     2,     0,     3,     4,     5,     6,     7,     8,    10,
+       0,    11,     0,     0,    12,    13,    14,    15,     9,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,    16,    17,
+       0,     0,     0,     0,     0,    10,   267,    11,     0,     0,
+     327,    13,    14,    15,    60,     0,     0,     0,    61,    62,
+       0,     0,     0,     0,    16,    17,     0,     0,     0,    63,
+      64,    65,    66,    67,     0,    68,    60,     0,     0,     2,
+      61,    62,     4,     5,     6,     7,     8,     0,     0,     0,
+      69,    63,    64,    65,    66,    67,     0,    68,     0,     0,
+      70,     0,    71,    72,    73,    74,    75,     0,     0,     0,
+       0,     0,    69,     0,    60,     0,     0,     0,    61,    62,
+       0,     0,    70,     0,    71,    72,    73,    74,    75,    63,
+      64,    65,    66,    67,     0,    68,   179,    60,     0,     0,
+       0,    61,    62,     0,     0,     0,     0,     0,     0,     0,
+      69,     0,    63,    64,    65,    66,    67,     0,    68,     0,
+      70,     0,    71,    72,    73,    74,    75,     0,     0,     0,
+       0,     0,     0,    69,     0,    60,     0,     0,     0,    61,
+      62,     0,     0,    70,     0,    71,    72,    73,    74,    75,
+      63,   120,    65,    66,    67,     0,    68,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,    18,    19,     0,    20,  -143,  -143,    21,    22,    23,
-      24,    25,     0,    26,    27,    28,    29,    30,     1,     0,
-     276,    31,     0,     0,     0,     0,     0,     0,     0,     2,
-       0,     0,     3,     4,     5,     6,     7,     8,     9,    10,
-       0,     0,     0,     0,    11,    12,    13,    14,    15,    16,
-      17,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,    18,    19,     0,    20,     0,
-       0,    21,    22,    23,    24,    25,     1,    26,    27,    28,
-      29,    30,     0,     0,     0,    31,     0,     2,     0,     0,
-       3,     4,     5,     6,     7,     8,     9,    10,     0,     0,
-       0,     0,    11,    12,    13,    14,    15,    16,    17,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,    18,    19,     0,    20,     0,     0,    21,
-      22,    23,    24,    25,     1,    26,    27,    28,    29,    30,
-       0,     0,     0,    31,     0,     2,     0,     0,     3,     4,
-       5,     6,     7,     8,     9,    10,     0,     0,     0,     0,
-      11,    12,    13,    14,    15,    16,    17,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,    18,    19,     0,    20,     0,     0,   324,    22,    23,
-      24,    25,   272,    26,    27,    28,    29,    30,     0,     0,
-       2,    31,     0,     0,     4,    69,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,    11,    12,    13,    14,    15,
-       0,    17,     2,     0,     0,     3,     4,    69,     6,     7,
-       8,     9,    10,     0,     0,     0,    18,    11,    12,    13,
-      14,    15,     0,    17,     0,     0,    25,     0,    26,    27,
-      28,    29,    30,     0,     0,     0,     0,     0,    18,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,    25,     0,
-      26,    27,    28,    29,    30
+       0,    69,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,    70,     0,    71,    72,    73,    74,    75
 };
 
 static const yytype_int16 yycheck[] =
 {
-      17,    34,     2,     0,   206,     4,    33,    17,    26,   272,
-       5,     5,     3,     5,   216,     3,    34,     3,    18,   230,
-       3,     5,     3,     3,     3,    17,    40,    41,     4,    23,
-      33,     7,    33,    17,    24,    26,     3,    34,    26,    33,
-      26,    17,     0,    26,   246,    26,    26,    26,    33,    26,
-      49,    26,   254,   316,    17,    72,    73,    34,    33,    76,
-      77,    78,    79,    80,    81,    82,    83,    84,    85,   280,
-      87,   334,    67,    23,    91,    92,    93,     5,    95,    96,
-      97,    98,    99,   100,    94,    52,    53,   298,    24,     4,
-      59,   108,     7,    38,    39,    23,    65,    66,   300,   301,
-      42,    43,    44,    45,    15,    33,    17,    18,    19,    20,
-      21,    22,    33,   122,   123,   124,   125,    11,    12,    69,
-      70,    71,    72,    73,    74,    75,    76,    77,    78,    33,
-     130,   131,   132,     4,    13,    14,     7,   154,    33,    67,
-      33,    69,    70,    71,    72,    73,    74,    75,    76,    77,
-      78,     8,     9,    10,    52,    53,    33,   157,    12,   176,
-     177,    33,    16,    17,    33,    15,    24,   177,    18,    19,
-      20,    21,    22,    27,    28,    29,    30,    31,    24,    33,
-      24,   198,   199,    23,   201,   120,   121,   126,   127,    24,
-     207,    24,   209,    24,    48,   128,   129,   214,   215,    24,
-      47,    46,    36,    24,    58,    37,    60,    61,    62,    63,
-      64,    35,    24,    24,    34,     5,    34,    34,    33,     6,
-     253,     6,    11,    33,    33,    24,   243,    34,    34,    34,
-      34,    17,    24,   230,    34,   245,    34,    34,   255,   249,
-      34,    34,   259,   260,    26,   262,    12,    26,     6,   266,
-      16,    17,    23,     6,     4,   272,   253,   267,     4,    23,
-      23,    27,    28,    29,    30,    31,   299,    33,     6,     5,
-      17,    25,    34,    34,    34,    50,    24,    34,    34,    24,
-     313,     4,    48,   280,    17,    17,    23,    67,   305,   306,
-       5,    25,    58,   303,    60,    61,    62,    63,    64,   316,
-       5,   298,   299,    34,   321,    34,    27,    66,     5,     0,
-       1,   328,     4,    33,    27,     5,   313,   334,     6,     6,
-       6,    12,    24,   340,    15,    16,    17,    18,    19,    20,
-      21,    22,     4,    34,   272,     6,    27,    28,    29,    30,
-      31,    32,    33,     5,   295,     6,   219,   115,   117,   116,
-      94,    94,   254,   118,   257,    -1,    -1,    48,    49,    -1,
-      51,    -1,    -1,    54,    55,    56,    57,    58,   119,    60,
-      61,    62,    63,    64,     1,    -1,     3,    68,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    12,    -1,    -1,    15,    16,
-      17,    18,    19,    20,    21,    22,    -1,    -1,    -1,    -1,
-      27,    28,    29,    30,    31,    32,    33,    -1,    -1,    -1,
+      17,     0,    20,    58,   174,   267,   220,     5,   178,    60,
+       3,    40,    41,    68,     5,    23,    38,    39,    69,    17,
+       3,    20,     3,     5,    41,    42,    43,    44,    45,    46,
+      47,    48,    49,    50,    51,    52,     5,    54,    55,    56,
+      57,    23,    33,    26,     4,    26,    24,     7,    17,     3,
+      26,    68,   266,     4,     3,     5,     3,   319,    34,    52,
+      53,   275,    70,    71,    72,    73,    74,    75,    76,    77,
+      78,    79,    26,    23,    33,   337,    67,    26,   248,    26,
+       3,    98,     3,    33,     4,   299,    17,     7,    70,    71,
+      72,    73,    74,    75,    76,    77,    78,    79,    49,    11,
+      12,    26,   119,    26,    26,    26,   157,   158,   159,    34,
+       0,   166,    34,    24,   131,     4,    13,    14,     7,   136,
+     137,   138,   139,   140,   141,     0,     1,    33,    17,    59,
+      33,   301,   302,    33,   185,    65,    66,     8,     9,    10,
+      15,    33,    17,    18,    19,    20,    21,    22,   165,    42,
+      43,    44,    45,   170,    52,    53,    24,    32,   175,    15,
+     177,    17,    18,    19,    20,    21,    22,   153,   154,   149,
+     150,   151,   152,    24,    49,    24,    51,   147,   148,    54,
+      55,    56,    57,   155,   156,     1,   241,     3,    23,    33,
+     245,    24,    24,    68,    69,    24,    24,    24,    24,    15,
+       5,    17,    18,    19,    20,    21,    22,    47,   263,    33,
+     227,    33,   229,   230,    33,    33,    32,    37,    33,   236,
+     237,   220,    33,    46,    36,    35,     6,     6,    11,   247,
+      34,    34,   249,    49,    34,    51,   253,   254,    54,    55,
+      56,    57,    34,    24,    17,    34,    24,    34,   247,    34,
+     305,    15,    68,    69,    18,    19,    20,    21,    22,     6,
+      23,     6,     4,     4,    23,    33,   283,   266,    33,     6,
+      23,    26,    34,    34,   292,    26,   275,    34,    34,     5,
+      34,    17,   300,    50,    24,    24,    17,     4,     4,    23,
+     307,   308,     1,   292,     3,    25,    34,    67,   316,    34,
+     299,   300,    34,    17,     5,    34,    15,   324,    17,    18,
+      19,    20,    21,    22,   331,    25,    34,   316,     1,    34,
+       3,     5,    66,    32,    27,     5,   343,     4,    33,    27,
+       6,     5,    15,     6,    17,    18,    19,    20,    21,    22,
+      49,     6,    51,    52,    53,    54,    55,    56,    57,    32,
+       4,     6,    24,    34,     5,   296,     6,   267,    58,    68,
+      69,     1,    58,   213,   146,   142,    49,   143,    51,   144,
+     248,    54,    55,    56,    57,    15,   145,    17,    18,    19,
+      20,    21,    22,    -1,   251,    68,    69,     1,    -1,    -1,
+      -1,    -1,    32,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    15,    -1,    17,    18,    19,    20,    21,    22,    49,
+      -1,    51,    -1,    -1,    54,    55,    56,    57,    32,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    68,    69,
+      -1,    -1,    -1,    -1,    -1,    49,     4,    51,    -1,    -1,
+      54,    55,    56,    57,    12,    -1,    -1,    -1,    16,    17,
+      -1,    -1,    -1,    -1,    68,    69,    -1,    -1,    -1,    27,
+      28,    29,    30,    31,    -1,    33,    12,    -1,    -1,    15,
+      16,    17,    18,    19,    20,    21,    22,    -1,    -1,    -1,
+      48,    27,    28,    29,    30,    31,    -1,    33,    -1,    -1,
+      58,    -1,    60,    61,    62,    63,    64,    -1,    -1,    -1,
+      -1,    -1,    48,    -1,    12,    -1,    -1,    -1,    16,    17,
+      -1,    -1,    58,    -1,    60,    61,    62,    63,    64,    27,
+      28,    29,    30,    31,    -1,    33,    34,    12,    -1,    -1,
+      -1,    16,    17,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      48,    -1,    27,    28,    29,    30,    31,    -1,    33,    -1,
+      58,    -1,    60,    61,    62,    63,    64,    -1,    -1,    -1,
+      -1,    -1,    -1,    48,    -1,    12,    -1,    -1,    -1,    16,
+      17,    -1,    -1,    58,    -1,    60,    61,    62,    63,    64,
+      27,    28,    29,    30,    31,    -1,    33,    -1,    -1,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    48,    49,    -1,    51,    52,    53,    54,    55,    56,
-      57,    58,    -1,    60,    61,    62,    63,    64,     1,    -1,
-       3,    68,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    12,
-      -1,    -1,    15,    16,    17,    18,    19,    20,    21,    22,
-      -1,    -1,    -1,    -1,    27,    28,    29,    30,    31,    32,
-      33,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    48,    49,    -1,    51,    -1,
-      -1,    54,    55,    56,    57,    58,     1,    60,    61,    62,
-      63,    64,    -1,    -1,    -1,    68,    -1,    12,    -1,    -1,
-      15,    16,    17,    18,    19,    20,    21,    22,    -1,    -1,
-      -1,    -1,    27,    28,    29,    30,    31,    32,    33,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    48,    49,    -1,    51,    -1,    -1,    54,
-      55,    56,    57,    58,     1,    60,    61,    62,    63,    64,
-      -1,    -1,    -1,    68,    -1,    12,    -1,    -1,    15,    16,
-      17,    18,    19,    20,    21,    22,    -1,    -1,    -1,    -1,
-      27,    28,    29,    30,    31,    32,    33,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    48,    49,    -1,    51,    -1,    -1,    54,    55,    56,
-      57,    58,     4,    60,    61,    62,    63,    64,    -1,    -1,
-      12,    68,    -1,    -1,    16,    17,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    27,    28,    29,    30,    31,
-      -1,    33,    12,    -1,    -1,    15,    16,    17,    18,    19,
-      20,    21,    22,    -1,    -1,    -1,    48,    27,    28,    29,
-      30,    31,    -1,    33,    -1,    -1,    58,    -1,    60,    61,
-      62,    63,    64,    -1,    -1,    -1,    -1,    -1,    48,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    58,    -1,
-      60,    61,    62,    63,    64
+      -1,    48,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    58,    -1,    60,    61,    62,    63,    64
 };
 
 /* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
    state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     1,    12,    15,    16,    17,    18,    19,    20,    21,
-      22,    27,    28,    29,    30,    31,    32,    33,    48,    49,
-      51,    54,    55,    56,    57,    58,    60,    61,    62,    63,
-      64,    68,    81,    82,    83,    84,    85,    86,    89,    90,
-      95,    97,    98,    99,   101,   103,   104,   105,   106,   107,
+       0,     1,    15,    17,    18,    19,    20,    21,    22,    32,
+      49,    51,    54,    55,    56,    57,    68,    69,    82,    83,
+      84,    85,    86,    87,    90,    91,    96,    98,    99,   102,
+     104,   105,   121,   123,   124,   125,   126,   127,   130,   131,
+      24,     5,    23,    70,    71,    72,    73,    74,    75,    76,
+      77,    78,    79,    97,    33,    33,    33,    33,    33,    17,
+      12,    16,    17,    27,    28,    29,    30,    31,    33,    48,
+      58,    60,    61,    62,    63,    64,    96,   100,   106,   107,
      108,   109,   110,   111,   112,   113,   114,   115,   116,   117,
-     118,   120,   122,   123,   124,   125,   128,   129,    24,    17,
-      95,   116,     5,    23,    33,    67,    69,    70,    71,    72,
-      73,    74,    75,    76,    77,    78,    96,    33,   103,   105,
-     116,    33,    33,    33,    33,    33,    33,    33,    33,    33,
-      33,    17,     0,    84,    24,    24,    24,    24,    23,    24,
-      24,     5,    17,    24,    24,    47,    46,    36,    37,    35,
-      40,    41,    42,    43,    44,    45,    38,    39,    11,    12,
-       8,     9,    10,    13,    14,    24,    24,    24,   105,   105,
-      34,    59,    65,    66,   105,   105,   105,   105,   105,   105,
-     105,   105,   105,   105,     5,    28,   105,    34,    34,   105,
-     105,   105,    17,    85,   103,   104,   105,   105,   105,   105,
-     105,   105,    33,   105,     6,     5,    23,    33,    93,   107,
-     108,   109,   110,   111,   112,   112,   113,   113,   113,   113,
-     114,   114,   115,   115,   116,   116,   116,     6,    33,    33,
-     105,    11,    34,   116,    34,    34,    34,    24,    17,    24,
-      34,    34,    34,    34,    26,    26,    34,     5,    17,     6,
-     105,   100,   102,   103,   105,    23,   105,   105,     6,   105,
-       4,   121,     4,   121,   105,   105,   105,   119,   105,   121,
-       6,    23,    93,    26,    34,    26,    33,    17,     4,     7,
-      34,    34,    34,    83,    50,    52,    53,   126,   127,    24,
-      24,    34,    26,    34,    34,    17,     4,     7,    17,   105,
-     103,   121,     4,    91,    92,   103,     3,   121,   124,   105,
-      25,     3,   127,   105,   105,   105,    23,    87,   105,   103,
-      67,    17,    87,    91,     3,    26,     5,    94,    25,    83,
-      34,    34,     4,     7,     3,    26,     5,    66,     3,     3,
-      92,    27,     5,    83,   121,   121,     4,    88,   103,   105,
-     105,    33,     6,    27,    54,    87,     3,    26,     5,     6,
-     105,     6,    24,     3,     4,   105,    34,    87,     6,     3,
-       5,   105,     6
+     118,   119,     0,    85,    24,    24,    24,    24,    23,    24,
+       5,    17,    24,    24,    24,    24,    24,   106,   106,   106,
+     106,   106,   106,   106,   106,   106,   106,   106,   106,     5,
+      28,   106,   106,   106,   106,    17,    86,   104,   105,    33,
+     117,    33,    67,   104,   106,   117,    33,    33,    33,    33,
+      33,    33,    47,    46,    36,    37,    35,    40,    41,    42,
+      43,    44,    45,    38,    39,    11,    12,     8,     9,    10,
+      13,    14,   106,     6,     5,    23,    33,    94,     6,   106,
+      11,    34,    34,    34,    34,    24,    17,    24,    34,    34,
+     101,   106,    59,    65,    66,    34,    34,   106,   106,   106,
+     106,   106,   106,   108,   109,   110,   111,   112,   113,   113,
+     114,   114,   114,   114,   115,   115,   116,   116,   117,   117,
+     117,     5,    17,     6,   106,   103,   104,    23,     6,   106,
+       4,   122,     4,   122,   106,   106,   122,    26,    34,    33,
+      33,   117,    34,    34,    34,    34,    26,    26,     6,    23,
+      94,    26,    34,    17,     4,     7,    34,    84,    50,    52,
+      53,   128,   129,    24,    24,   106,   106,   106,   106,   120,
+     106,    17,     4,     7,    17,   104,     4,     4,    92,    93,
+     104,     3,   122,   126,   106,    25,     3,   129,   106,   106,
+      34,    34,    34,    26,    34,    34,    23,    88,   106,   104,
+      67,    17,    84,    88,    92,     3,    26,     5,    95,    25,
+      84,    34,    34,   106,     4,     7,     3,    26,     5,    66,
+       3,     3,     3,    93,    27,     5,    84,   122,   122,     4,
+      89,   104,   106,   106,    33,     6,    27,    54,    88,     3,
+      26,     5,     6,   106,     6,    24,     3,     4,   106,    34,
+      88,     6,     3,     5,   106,     6
 };
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    80,    81,    82,    83,    83,    84,    84,    84,    84,
-      84,    84,    84,    84,    84,    84,    84,    84,    84,    84,
-      84,    84,    84,    84,    85,    85,    86,    86,    86,    87,
-      87,    88,    88,    89,    89,    90,    90,    91,    91,    92,
-      92,    93,    93,    94,    94,    95,    96,    96,    97,    98,
-      99,    99,   100,   100,   101,   102,   102,   103,   103,   103,
-     103,   103,   103,   104,   104,   104,   104,   104,   104,   104,
-     104,   104,   104,   104,   105,   106,   106,   107,   107,   108,
-     108,   109,   109,   110,   110,   111,   111,   111,   112,   112,
-     112,   112,   112,   113,   113,   113,   114,   114,   114,   115,
-     115,   115,   115,   116,   116,   116,   116,   117,   117,   117,
-     118,   118,   118,   118,   118,   118,   118,   118,   118,   118,
-     118,   118,   118,   118,   118,   118,   118,   118,   118,   119,
-     119,   120,   120,   121,   122,   123,   124,   124,   124,   125,
-     126,   126,   127,   127,   128,   129,   129
+       0,    81,    82,    83,    84,    84,    85,    85,    85,    85,
+      85,    85,    85,    85,    85,    85,    85,    85,    85,    85,
+      85,    85,    85,    86,    86,    87,    87,    87,    88,    88,
+      89,    89,    90,    90,    91,    91,    92,    92,    93,    93,
+      94,    94,    95,    95,    96,    97,    97,    98,    99,   100,
+     100,   101,   101,   102,   103,   103,   104,   104,   104,   104,
+     104,   104,   105,   105,   105,   105,   105,   105,   105,   105,
+     105,   105,   105,   106,   107,   107,   108,   108,   109,   109,
+     110,   110,   111,   111,   112,   112,   112,   113,   113,   113,
+     113,   113,   114,   114,   114,   115,   115,   115,   116,   116,
+     116,   116,   117,   117,   117,   117,   118,   118,   118,   119,
+     119,   119,   119,   119,   119,   119,   119,   119,   119,   119,
+     119,   119,   119,   119,   119,   119,   119,   119,   119,   120,
+     120,   121,   121,   122,   123,   124,   125,   126,   126,   126,
+     127,   128,   128,   129,   129,   130,   131,   131
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr2[] =
 {
        0,     2,     1,     1,     2,     1,     2,     2,     2,     2,
-       1,     1,     1,     1,     2,     2,     2,     1,     1,     2,
-       2,     2,     2,     2,     4,     2,    10,     8,    11,     3,
-       1,     5,     3,    15,    10,     7,     7,     3,     1,     3,
-       3,     3,     2,     3,     4,     2,     4,     3,     3,     5,
-       3,     5,     3,     1,     6,     4,     2,     1,     1,     1,
-       1,     1,     1,     3,     3,     3,     3,     3,     3,     3,
-       3,     3,     3,     3,     1,     1,     3,     1,     3,     1,
-       3,     1,     3,     1,     3,     1,     3,     3,     1,     3,
-       3,     3,     3,     1,     3,     3,     1,     3,     3,     1,
-       3,     3,     3,     2,     2,     4,     1,     1,     2,     2,
-       1,     1,     1,     1,     1,     1,     1,     4,     4,     4,
-       4,     6,     3,     6,     6,     6,     6,     1,     3,     3,
-       1,     4,     6,     3,     1,     1,     5,     7,     7,     7,
-       2,     1,     6,     3,     5,     9,     9
+       1,     1,     1,     1,     2,     2,     2,     1,     2,     1,
+       2,     2,     2,     4,     2,    10,     8,    11,     3,     1,
+       5,     3,    15,    10,     7,     7,     3,     1,     3,     3,
+       3,     2,     3,     4,     2,     4,     3,     3,     5,     3,
+       4,     3,     1,     8,     4,     2,     1,     1,     1,     1,
+       1,     1,     3,     3,     3,     3,     3,     3,     3,     3,
+       3,     3,     3,     1,     1,     3,     1,     3,     1,     3,
+       1,     3,     1,     3,     1,     3,     3,     1,     3,     3,
+       3,     3,     1,     3,     3,     1,     3,     3,     1,     3,
+       3,     3,     2,     2,     4,     1,     1,     2,     2,     1,
+       1,     1,     1,     1,     1,     1,     4,     4,     4,     4,
+       6,     3,     6,     6,     6,     6,     1,     1,     3,     3,
+       1,     4,     6,     3,     1,     1,     2,     5,     7,     7,
+       7,     2,     1,     6,     3,     5,     9,     9
 };
 
 
@@ -1902,7 +1891,7 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* s: programa  */
-#line 103 "src/parser/parser.y"
+#line 104 "src/parser/parser.y"
             {
     printf("\n=== ESTRUCTURA DEL AST ===\n");
     imprimirAST((yyvsp[0].nodo), 0);
@@ -1913,17 +1902,17 @@ yyreduce:
     liberarAST((yyvsp[0].nodo));
     printf("[DEBUG] Procesamiento completado.\n");
 }
-#line 1917 "src/parser/parser.tab.c"
+#line 1906 "src/parser/parser.tab.c"
     break;
 
   case 3: /* programa: lista_sentencias  */
-#line 115 "src/parser/parser.y"
+#line 116 "src/parser/parser.y"
                            { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 1923 "src/parser/parser.tab.c"
+#line 1912 "src/parser/parser.tab.c"
     break;
 
   case 4: /* lista_sentencias: lista_sentencias sentencia  */
-#line 120 "src/parser/parser.y"
+#line 121 "src/parser/parser.y"
                                { 
         if ((yyvsp[-1].nodo)->tipo != AST_LISTA) {
             NodoAST* lista = crearNodo(AST_LISTA, "Programa");
@@ -1935,11 +1924,11 @@ yyreduce:
             (yyval.nodo) = (yyvsp[-1].nodo);
         }
     }
-#line 1939 "src/parser/parser.tab.c"
+#line 1928 "src/parser/parser.tab.c"
     break;
 
   case 5: /* lista_sentencias: sentencia  */
-#line 131 "src/parser/parser.y"
+#line 132 "src/parser/parser.y"
                 { 
         if ((yyvsp[0].nodo)) {
             (yyval.nodo) = (yyvsp[0].nodo);
@@ -1947,156 +1936,147 @@ yyreduce:
             (yyval.nodo) = crearNodo(AST_LISTA, "Programa");
         }
     }
-#line 1951 "src/parser/parser.tab.c"
+#line 1940 "src/parser/parser.tab.c"
     break;
 
   case 6: /* sentencia: declaracion TOKEN_PUNTOCOMA  */
-#line 142 "src/parser/parser.y"
+#line 143 "src/parser/parser.y"
                                     { (yyval.nodo) = (yyvsp[-1].nodo); }
-#line 1957 "src/parser/parser.tab.c"
+#line 1946 "src/parser/parser.tab.c"
     break;
 
   case 7: /* sentencia: asignacion TOKEN_PUNTOCOMA  */
-#line 143 "src/parser/parser.y"
+#line 144 "src/parser/parser.y"
                                     { (yyval.nodo) = (yyvsp[-1].nodo); }
-#line 1963 "src/parser/parser.tab.c"
+#line 1952 "src/parser/parser.tab.c"
     break;
 
   case 8: /* sentencia: acceso_escritura TOKEN_PUNTOCOMA  */
-#line 144 "src/parser/parser.y"
+#line 145 "src/parser/parser.y"
                                        { (yyval.nodo) = (yyvsp[-1].nodo); }
-#line 1969 "src/parser/parser.tab.c"
+#line 1958 "src/parser/parser.tab.c"
     break;
 
   case 9: /* sentencia: instruccion_print TOKEN_PUNTOCOMA  */
-#line 145 "src/parser/parser.y"
+#line 146 "src/parser/parser.y"
                                         { (yyval.nodo) = (yyvsp[-1].nodo); }
-#line 1975 "src/parser/parser.tab.c"
+#line 1964 "src/parser/parser.tab.c"
     break;
 
   case 10: /* sentencia: instruccion_if  */
-#line 146 "src/parser/parser.y"
+#line 147 "src/parser/parser.y"
                                     { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 1981 "src/parser/parser.tab.c"
+#line 1970 "src/parser/parser.tab.c"
     break;
 
   case 11: /* sentencia: intruccion_switch  */
-#line 147 "src/parser/parser.y"
+#line 148 "src/parser/parser.y"
                                     { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 1987 "src/parser/parser.tab.c"
+#line 1976 "src/parser/parser.tab.c"
     break;
 
   case 12: /* sentencia: instruccion_while  */
-#line 148 "src/parser/parser.y"
+#line 149 "src/parser/parser.y"
                                     { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 1993 "src/parser/parser.tab.c"
+#line 1982 "src/parser/parser.tab.c"
     break;
 
   case 13: /* sentencia: instruccion_for  */
-#line 149 "src/parser/parser.y"
+#line 150 "src/parser/parser.y"
                                     { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 1999 "src/parser/parser.tab.c"
+#line 1988 "src/parser/parser.tab.c"
     break;
 
   case 14: /* sentencia: declaracion_vector TOKEN_PUNTOCOMA  */
-#line 150 "src/parser/parser.y"
+#line 151 "src/parser/parser.y"
                                               { (yyval.nodo) = (yyvsp[-1].nodo); }
-#line 2005 "src/parser/parser.tab.c"
+#line 1994 "src/parser/parser.tab.c"
     break;
 
   case 15: /* sentencia: declaracion_matriz TOKEN_PUNTOCOMA  */
-#line 151 "src/parser/parser.y"
+#line 152 "src/parser/parser.y"
                                               { (yyval.nodo) = (yyvsp[-1].nodo); }
-#line 2011 "src/parser/parser.tab.c"
+#line 2000 "src/parser/parser.tab.c"
     break;
 
   case 16: /* sentencia: declaracion_array_multidimensional TOKEN_PUNTOCOMA  */
-#line 152 "src/parser/parser.y"
+#line 153 "src/parser/parser.y"
                                                          { (yyval.nodo) = (yyvsp[-1].nodo); }
-#line 2017 "src/parser/parser.tab.c"
+#line 2006 "src/parser/parser.tab.c"
     break;
 
   case 17: /* sentencia: Funcion_void  */
-#line 153 "src/parser/parser.y"
-                                    { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 2023 "src/parser/parser.tab.c"
-    break;
-
-  case 18: /* sentencia: Funcion_parametros  */
 #line 154 "src/parser/parser.y"
                                     { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 2029 "src/parser/parser.tab.c"
+#line 2012 "src/parser/parser.tab.c"
     break;
 
-  case 19: /* sentencia: Llamadas TOKEN_PUNTOCOMA  */
+  case 18: /* sentencia: instruccion_return TOKEN_PUNTOCOMA  */
 #line 155 "src/parser/parser.y"
-                                    { (yyval.nodo) = (yyvsp[-1].nodo); }
-#line 2035 "src/parser/parser.tab.c"
+                                         { (yyval.nodo) = (yyvsp[-1].nodo); }
+#line 2018 "src/parser/parser.tab.c"
     break;
 
-  case 20: /* sentencia: expresion TOKEN_PUNTOCOMA  */
+  case 19: /* sentencia: Funcion_parametros  */
 #line 156 "src/parser/parser.y"
-                                    { (yyval.nodo) = (yyvsp[-1].nodo); }
-#line 2041 "src/parser/parser.tab.c"
+                                    { (yyval.nodo) = (yyvsp[0].nodo); }
+#line 2024 "src/parser/parser.tab.c"
     break;
 
-  case 21: /* sentencia: instruccion_break TOKEN_PUNTOCOMA  */
+  case 20: /* sentencia: instruccion_break TOKEN_PUNTOCOMA  */
 #line 157 "src/parser/parser.y"
                                         {(yyval.nodo) = (yyvsp[-1].nodo); }
-#line 2047 "src/parser/parser.tab.c"
+#line 2030 "src/parser/parser.tab.c"
     break;
 
-  case 22: /* sentencia: instruccion_continue TOKEN_PUNTOCOMA  */
+  case 21: /* sentencia: instruccion_continue TOKEN_PUNTOCOMA  */
 #line 158 "src/parser/parser.y"
                                            {(yyval.nodo) = (yyvsp[-1].nodo); }
-#line 2053 "src/parser/parser.tab.c"
+#line 2036 "src/parser/parser.tab.c"
     break;
 
-  case 23: /* sentencia: error TOKEN_PUNTOCOMA  */
+  case 22: /* sentencia: error TOKEN_PUNTOCOMA  */
 #line 160 "src/parser/parser.y"
                                     { 
         addErrorSintactico("Instrucción inválida", "global", (yylsp[-1]).first_line, (yylsp[-1]).first_column);
         yyerrok; 
         (yyval.nodo) = NULL;
     }
-#line 2063 "src/parser/parser.tab.c"
+#line 2046 "src/parser/parser.tab.c"
     break;
 
-  case 24: /* declaracion: tipo_primitivo TOKEN_IDENTIFICADOR TOKEN_IGUAL expresion  */
+  case 23: /* declaracion: tipo_primitivo TOKEN_IDENTIFICADOR TOKEN_IGUAL expresion  */
 #line 169 "src/parser/parser.y"
                                                              {
-        (yyval.nodo) = crearNodo(AST_DECLARACION, NULL);
-        (yyval.nodo)->valor = strdup((yyvsp[-3].str));
-        (yyval.nodo)->linea = (yylsp[-2]).first_line; 
-        (yyval.nodo)->columna = (yylsp[-2]).first_column;
+        (yyval.nodo) = crearNodo(AST_DECLARACION, "declaracion");
+        (yyval.nodo)->linea = (yylsp[-2]).first_line; (yyval.nodo)->columna = (yylsp[-2]).first_column;
+        agregarHijo((yyval.nodo), crearNodo(AST_TIPO, (yyvsp[-3].str)));
+        
         NodoAST* id = crearNodo(AST_IDENTIFICADOR, (yyvsp[-2].str));
-        id->linea = (yylsp[-2]).first_line; // Cambia @3 a @2
-        id->columna = (yylsp[-2]).first_column;
+        id->linea = (yylsp[-2]).first_line; id->columna = (yylsp[-2]).first_column;
         agregarHijo((yyval.nodo), id);
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 2079 "src/parser/parser.tab.c"
+#line 2061 "src/parser/parser.tab.c"
     break;
 
-  case 25: /* declaracion: tipo_primitivo TOKEN_IDENTIFICADOR  */
-#line 180 "src/parser/parser.y"
+  case 24: /* declaracion: tipo_primitivo TOKEN_IDENTIFICADOR  */
+#line 179 "src/parser/parser.y"
                                          {
-        (yyval.nodo) = crearNodo(AST_DECLARACION, NULL);
-        (yyval.nodo)->valor = strdup((yyvsp[-1].str));
-        (yyval.nodo)->linea = (yylsp[0]).first_line; 
-        (yyval.nodo)->columna = (yylsp[0]).first_column;
+        (yyval.nodo) = crearNodo(AST_DECLARACION, "declaracion");
+        (yyval.nodo)->linea = (yylsp[0]).first_line; (yyval.nodo)->columna = (yylsp[0]).first_column;
+        agregarHijo((yyval.nodo), crearNodo(AST_TIPO, (yyvsp[-1].str)));
         NodoAST* id = crearNodo(AST_IDENTIFICADOR, (yyvsp[0].str));
-        id->linea = (yylsp[0]).first_line; // Cambia @3 a @2
-        id->columna = (yylsp[0]).first_column;
+        id->linea = (yylsp[0]).first_line; id->columna = (yylsp[0]).first_column;
         NodoAST* def = crearNodo(AST_CADENA, (char*)valorPorDefectoTipo(obtenerTipoDesdeString((yyvsp[-1].str))));
         agregarHijo((yyval.nodo), id);
         agregarHijo((yyval.nodo), def);
     }
-#line 2096 "src/parser/parser.tab.c"
+#line 2076 "src/parser/parser.tab.c"
     break;
 
-  case 26: /* declaracion_vector: tipo_primitivo TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_IDENTIFICADOR TOKEN_IGUAL TOKEN_NEW tipo_primitivo TOKEN_CORCHETEIZQ expresion TOKEN_CORCHETEDER  */
-#line 195 "src/parser/parser.y"
+  case 25: /* declaracion_vector: tipo_primitivo TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_IDENTIFICADOR TOKEN_IGUAL TOKEN_NEW tipo_primitivo TOKEN_CORCHETEIZQ expresion TOKEN_CORCHETEDER  */
+#line 192 "src/parser/parser.y"
                                                                                                                                                               {
         (yyval.nodo) = crearNodo(AST_DECLARACION_VECTOR, "Declaración Vector");
         (yyval.nodo)->linea = (yylsp[-6]).first_line; (yyval.nodo)->columna = (yylsp[-6]).first_column;
@@ -2117,11 +2097,11 @@ yyreduce:
         agregarHijo(dimension, (yyvsp[-1].nodo));
         agregarHijo((yyval.nodo), dimension);
     }
-#line 2121 "src/parser/parser.tab.c"
+#line 2101 "src/parser/parser.tab.c"
     break;
 
-  case 27: /* declaracion_vector: tipo_primitivo TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_IDENTIFICADOR TOKEN_IGUAL TOKEN_LLAVEIZQ lista_elementos TOKEN_LLAVEDER  */
-#line 215 "src/parser/parser.y"
+  case 26: /* declaracion_vector: tipo_primitivo TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_IDENTIFICADOR TOKEN_IGUAL TOKEN_LLAVEIZQ lista_elementos TOKEN_LLAVEDER  */
+#line 212 "src/parser/parser.y"
                                                                                                                                        {
         (yyval.nodo) = crearNodo(AST_DECLARACION_VECTOR, "Declaración Vector");
         (yyval.nodo)->linea = (yylsp[-4]).first_line; (yyval.nodo)->columna = (yylsp[-4]).first_column;
@@ -2133,11 +2113,11 @@ yyreduce:
         agregarHijo(lista, (yyvsp[-1].nodo));
         agregarHijo((yyval.nodo), lista);
     }
-#line 2137 "src/parser/parser.tab.c"
+#line 2117 "src/parser/parser.tab.c"
     break;
 
-  case 28: /* declaracion_vector: tipo_primitivo TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_IDENTIFICADOR TOKEN_IGUAL TOKEN_IDENTIFICADOR TOKEN_PUNTO TOKEN_ADD TOKEN_PARIZQ expresion TOKEN_PARDER  */
-#line 226 "src/parser/parser.y"
+  case 27: /* declaracion_vector: tipo_primitivo TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_IDENTIFICADOR TOKEN_IGUAL TOKEN_IDENTIFICADOR TOKEN_PUNTO TOKEN_ADD TOKEN_PARIZQ expresion TOKEN_PARDER  */
+#line 223 "src/parser/parser.y"
                                                                                                                                                                        {
         (yyval.nodo) = crearNodo(AST_DECLARACION_VECTOR, "Declaración Vector");
         (yyval.nodo)->linea = (yylsp[-7]).first_line; (yyval.nodo)->columna = (yylsp[-7]).first_column;
@@ -2167,11 +2147,11 @@ yyreduce:
         agregarHijo(lista, addNode);
         agregarHijo((yyval.nodo), lista);
     }
-#line 2171 "src/parser/parser.tab.c"
+#line 2151 "src/parser/parser.tab.c"
     break;
 
-  case 29: /* lista_elementos: lista_elementos TOKEN_COMA expresion  */
-#line 258 "src/parser/parser.y"
+  case 28: /* lista_elementos: lista_elementos TOKEN_COMA expresion  */
+#line 255 "src/parser/parser.y"
                                          {
         if ((yyvsp[-2].nodo)->tipo != AST_INTERNO) {
             NodoAST* lista = crearNodo(AST_INTERNO, "Lista Elementos");
@@ -2183,20 +2163,20 @@ yyreduce:
             (yyval.nodo) = (yyvsp[-2].nodo);
         }
     }
-#line 2187 "src/parser/parser.tab.c"
+#line 2167 "src/parser/parser.tab.c"
     break;
 
-  case 30: /* lista_elementos: expresion  */
-#line 269 "src/parser/parser.y"
+  case 29: /* lista_elementos: expresion  */
+#line 266 "src/parser/parser.y"
                 {
         (yyval.nodo) = crearNodo(AST_INTERNO, "Lista Elementos");
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 2196 "src/parser/parser.tab.c"
+#line 2176 "src/parser/parser.tab.c"
     break;
 
-  case 31: /* lista_filas: lista_filas TOKEN_COMA TOKEN_LLAVEIZQ lista_elementos TOKEN_LLAVEDER  */
-#line 276 "src/parser/parser.y"
+  case 30: /* lista_filas: lista_filas TOKEN_COMA TOKEN_LLAVEIZQ lista_elementos TOKEN_LLAVEDER  */
+#line 273 "src/parser/parser.y"
                                                                          {
         if ((yyvsp[-4].nodo)->tipo != AST_LISTA_ELEMENTOS) {
             NodoAST* lista = crearNodo(AST_LISTA_ELEMENTOS, "Lista Filas");
@@ -2208,20 +2188,20 @@ yyreduce:
             (yyval.nodo) = (yyvsp[-4].nodo);
         }
     }
-#line 2212 "src/parser/parser.tab.c"
+#line 2192 "src/parser/parser.tab.c"
     break;
 
-  case 32: /* lista_filas: TOKEN_LLAVEIZQ lista_elementos TOKEN_LLAVEDER  */
-#line 287 "src/parser/parser.y"
+  case 31: /* lista_filas: TOKEN_LLAVEIZQ lista_elementos TOKEN_LLAVEDER  */
+#line 284 "src/parser/parser.y"
                                                     {
         (yyval.nodo) = crearNodo(AST_LISTA_ELEMENTOS, "Lista Filas");
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
     }
-#line 2221 "src/parser/parser.tab.c"
+#line 2201 "src/parser/parser.tab.c"
     break;
 
-  case 33: /* declaracion_matriz: tipo_primitivo TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_IDENTIFICADOR TOKEN_IGUAL TOKEN_NEW tipo_primitivo TOKEN_CORCHETEIZQ expresion TOKEN_CORCHETEDER TOKEN_CORCHETEIZQ expresion TOKEN_CORCHETEDER  */
-#line 294 "src/parser/parser.y"
+  case 32: /* declaracion_matriz: tipo_primitivo TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_IDENTIFICADOR TOKEN_IGUAL TOKEN_NEW tipo_primitivo TOKEN_CORCHETEIZQ expresion TOKEN_CORCHETEDER TOKEN_CORCHETEIZQ expresion TOKEN_CORCHETEDER  */
+#line 291 "src/parser/parser.y"
                                                                                                                                                                                                                                                 {
         (yyval.nodo) = crearNodo(AST_DECLARACION_MATRIZ, "Declaración Matriz");
         (yyval.nodo)->linea = (yylsp[-9]).first_line; (yyval.nodo)->columna = (yylsp[-9]).first_column;
@@ -2246,11 +2226,11 @@ yyreduce:
         agregarHijo(dimension, (yyvsp[-1].nodo));
         agregarHijo((yyval.nodo), dimension);
     }
-#line 2250 "src/parser/parser.tab.c"
+#line 2230 "src/parser/parser.tab.c"
     break;
 
-  case 34: /* declaracion_matriz: tipo_primitivo TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_IDENTIFICADOR TOKEN_IGUAL TOKEN_LLAVEIZQ lista_filas TOKEN_LLAVEDER  */
-#line 318 "src/parser/parser.y"
+  case 33: /* declaracion_matriz: tipo_primitivo TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_IDENTIFICADOR TOKEN_IGUAL TOKEN_LLAVEIZQ lista_filas TOKEN_LLAVEDER  */
+#line 315 "src/parser/parser.y"
                                                                                                                                                                        {
         (yyval.nodo) = crearNodo(AST_DECLARACION_MATRIZ, "Declaración Matriz");
         (yyval.nodo)->linea = (yylsp[-4]).first_line; (yyval.nodo)->columna = (yylsp[-4]).first_column;
@@ -2270,11 +2250,11 @@ yyreduce:
         agregarHijo(lista, (yyvsp[-1].nodo));
         agregarHijo((yyval.nodo), lista);
     }
-#line 2274 "src/parser/parser.tab.c"
+#line 2254 "src/parser/parser.tab.c"
     break;
 
-  case 35: /* declaracion_array_multidimensional: tipo_primitivo TOKEN_IDENTIFICADOR DimensionesCorchetes TOKEN_IGUAL TOKEN_NEW tipo_primitivo Dimensiones  */
-#line 340 "src/parser/parser.y"
+  case 34: /* declaracion_array_multidimensional: tipo_primitivo TOKEN_IDENTIFICADOR DimensionesCorchetes TOKEN_IGUAL TOKEN_NEW tipo_primitivo Dimensiones  */
+#line 337 "src/parser/parser.y"
                                                                                                              {
         (yyval.nodo) = crearNodo(AST_DECLARACION_ARRAY_MULTIDIMENSIONAL, "Declaración Array Multidimensional");
         (yyval.nodo)->linea = (yylsp[-5]).first_line; (yyval.nodo)->columna = (yylsp[-5]).first_column;
@@ -2302,11 +2282,11 @@ yyreduce:
             addErrorSintactico("El número de corchetes no coincide con las dimensiones especificadas", "global", (yylsp[-5]).first_line, (yylsp[-5]).first_column);
         }
     }
-#line 2306 "src/parser/parser.tab.c"
+#line 2286 "src/parser/parser.tab.c"
     break;
 
-  case 36: /* declaracion_array_multidimensional: tipo_primitivo TOKEN_IDENTIFICADOR DimensionesCorchetes TOKEN_IGUAL TOKEN_LLAVEIZQ lista_bloques TOKEN_LLAVEDER  */
-#line 367 "src/parser/parser.y"
+  case 35: /* declaracion_array_multidimensional: tipo_primitivo TOKEN_IDENTIFICADOR DimensionesCorchetes TOKEN_IGUAL TOKEN_LLAVEIZQ lista_bloques TOKEN_LLAVEDER  */
+#line 364 "src/parser/parser.y"
                                                                                                                       {
         (yyval.nodo) = crearNodo(AST_DECLARACION_ARRAY_MULTIDIMENSIONAL, "Declaración Array Multidimensional");
         (yyval.nodo)->linea = (yylsp[-5]).first_line; (yyval.nodo)->columna = (yylsp[-5]).first_column;
@@ -2324,11 +2304,11 @@ yyreduce:
         // Lista de bloques anidados
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
     }
-#line 2328 "src/parser/parser.tab.c"
+#line 2308 "src/parser/parser.tab.c"
     break;
 
-  case 37: /* lista_bloques: lista_bloques TOKEN_COMA lista_elementos_o_bloques  */
-#line 387 "src/parser/parser.y"
+  case 36: /* lista_bloques: lista_bloques TOKEN_COMA lista_elementos_o_bloques  */
+#line 384 "src/parser/parser.y"
                                                        {
         if ((yyvsp[-2].nodo)->tipo != AST_INTERNO) {
             NodoAST* lista = crearNodo(AST_INTERNO, "Lista Bloques");
@@ -2340,42 +2320,42 @@ yyreduce:
             (yyval.nodo) = (yyvsp[-2].nodo);
         }
     }
-#line 2344 "src/parser/parser.tab.c"
+#line 2324 "src/parser/parser.tab.c"
     break;
 
-  case 38: /* lista_bloques: lista_elementos_o_bloques  */
-#line 398 "src/parser/parser.y"
+  case 37: /* lista_bloques: lista_elementos_o_bloques  */
+#line 395 "src/parser/parser.y"
                                 {
         (yyval.nodo) = crearNodo(AST_INTERNO, "Lista Bloques");
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 2353 "src/parser/parser.tab.c"
+#line 2333 "src/parser/parser.tab.c"
     break;
 
-  case 39: /* lista_elementos_o_bloques: TOKEN_LLAVEIZQ lista_elementos TOKEN_LLAVEDER  */
-#line 405 "src/parser/parser.y"
+  case 38: /* lista_elementos_o_bloques: TOKEN_LLAVEIZQ lista_elementos TOKEN_LLAVEDER  */
+#line 402 "src/parser/parser.y"
                                                   {
         // Caso: lista de elementos
         NodoAST* bloque = crearNodo(AST_INTERNO, "Bloque");
         agregarHijo(bloque, (yyvsp[-1].nodo));
         (yyval.nodo) = bloque;
     }
-#line 2364 "src/parser/parser.tab.c"
+#line 2344 "src/parser/parser.tab.c"
     break;
 
-  case 40: /* lista_elementos_o_bloques: TOKEN_LLAVEIZQ lista_bloques TOKEN_LLAVEDER  */
-#line 411 "src/parser/parser.y"
+  case 39: /* lista_elementos_o_bloques: TOKEN_LLAVEIZQ lista_bloques TOKEN_LLAVEDER  */
+#line 408 "src/parser/parser.y"
                                                   {
         // Caso: bloques anidados
         NodoAST* bloque = crearNodo(AST_INTERNO, "Bloque");
         agregarHijo(bloque, (yyvsp[-1].nodo));
         (yyval.nodo) = bloque;
     }
-#line 2375 "src/parser/parser.tab.c"
+#line 2355 "src/parser/parser.tab.c"
     break;
 
-  case 41: /* DimensionesCorchetes: TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER DimensionesCorchetes  */
-#line 420 "src/parser/parser.y"
+  case 40: /* DimensionesCorchetes: TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER DimensionesCorchetes  */
+#line 417 "src/parser/parser.y"
                                                              {
         NodoAST* dim = crearNodo(AST_DIMENSIONES, "[]");
         if ((yyvsp[0].nodo) == NULL) {
@@ -2395,37 +2375,37 @@ yyreduce:
             (yyval.nodo) = nueva;
         }
     }
-#line 2399 "src/parser/parser.tab.c"
+#line 2379 "src/parser/parser.tab.c"
     break;
 
-  case 42: /* DimensionesCorchetes: TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER  */
-#line 439 "src/parser/parser.y"
+  case 41: /* DimensionesCorchetes: TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER  */
+#line 436 "src/parser/parser.y"
                                           {
         (yyval.nodo) = crearNodo(AST_DIMENSIONES, "[]");
     }
-#line 2407 "src/parser/parser.tab.c"
+#line 2387 "src/parser/parser.tab.c"
     break;
 
-  case 43: /* Dimensiones: TOKEN_CORCHETEIZQ TOKEN_NUMERO TOKEN_CORCHETEDER  */
-#line 445 "src/parser/parser.y"
+  case 42: /* Dimensiones: TOKEN_CORCHETEIZQ TOKEN_NUMERO TOKEN_CORCHETEDER  */
+#line 442 "src/parser/parser.y"
                                                      {
         (yyval.nodo) = crearNodo(AST_DIMENSIONES, "[]");
         agregarHijo((yyval.nodo), crearNodo(AST_NUMERO, (yyvsp[-1].str)));
     }
-#line 2416 "src/parser/parser.tab.c"
+#line 2396 "src/parser/parser.tab.c"
     break;
 
-  case 44: /* Dimensiones: Dimensiones TOKEN_CORCHETEIZQ TOKEN_NUMERO TOKEN_CORCHETEDER  */
-#line 449 "src/parser/parser.y"
+  case 43: /* Dimensiones: Dimensiones TOKEN_CORCHETEIZQ TOKEN_NUMERO TOKEN_CORCHETEDER  */
+#line 446 "src/parser/parser.y"
                                                                    {
         agregarHijo((yyvsp[-3].nodo), crearNodo(AST_NUMERO, (yyvsp[-1].str)));
         (yyval.nodo) = (yyvsp[-3].nodo);
     }
-#line 2425 "src/parser/parser.tab.c"
+#line 2405 "src/parser/parser.tab.c"
     break;
 
-  case 45: /* acceso: TOKEN_IDENTIFICADOR DimensionesAcceso  */
-#line 459 "src/parser/parser.y"
+  case 44: /* acceso: TOKEN_IDENTIFICADOR DimensionesAcceso  */
+#line 456 "src/parser/parser.y"
                                           {
         (yyval.nodo) = crearNodo(AST_ACCESO, "Acceso");
         (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
@@ -2438,11 +2418,11 @@ yyreduce:
         // Nodo para las dimensiones de acceso
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 2442 "src/parser/parser.tab.c"
+#line 2422 "src/parser/parser.tab.c"
     break;
 
-  case 46: /* DimensionesAcceso: DimensionesAcceso TOKEN_CORCHETEIZQ expresion TOKEN_CORCHETEDER  */
-#line 474 "src/parser/parser.y"
+  case 45: /* DimensionesAcceso: DimensionesAcceso TOKEN_CORCHETEIZQ expresion TOKEN_CORCHETEDER  */
+#line 471 "src/parser/parser.y"
                                                                     {
         if ((yyvsp[-3].nodo) == NULL) {
             (yyval.nodo) = crearNodo(AST_DIMENSIONES, "Dimensiones");
@@ -2453,22 +2433,22 @@ yyreduce:
         agregarHijo(dim, (yyvsp[-1].nodo)); // Agregar la expresión como una dimensión
         agregarHijo((yyval.nodo), dim);
     }
-#line 2457 "src/parser/parser.tab.c"
+#line 2437 "src/parser/parser.tab.c"
     break;
 
-  case 47: /* DimensionesAcceso: TOKEN_CORCHETEIZQ expresion TOKEN_CORCHETEDER  */
-#line 484 "src/parser/parser.y"
+  case 46: /* DimensionesAcceso: TOKEN_CORCHETEIZQ expresion TOKEN_CORCHETEDER  */
+#line 481 "src/parser/parser.y"
                                                     {
         (yyval.nodo) = crearNodo(AST_DIMENSIONES, "Dimensiones");
         NodoAST* dim = crearNodo(AST_1DIMENSION, "Dimensión");
         agregarHijo(dim, (yyvsp[-1].nodo)); // Agregar la expresión como una dimensión
         agregarHijo((yyval.nodo), dim);
     }
-#line 2468 "src/parser/parser.tab.c"
+#line 2448 "src/parser/parser.tab.c"
     break;
 
-  case 48: /* acceso_escritura: acceso TOKEN_IGUAL expresion  */
-#line 494 "src/parser/parser.y"
+  case 47: /* acceso_escritura: acceso TOKEN_IGUAL expresion  */
+#line 491 "src/parser/parser.y"
                                  {
         (yyval.nodo) = crearNodo(AST_ACCESO_ESCRITURA, "Acceso Escritura");
         (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
@@ -2479,11 +2459,11 @@ yyreduce:
         // Nodo para la expresión (valor a asignar)
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 2483 "src/parser/parser.tab.c"
+#line 2463 "src/parser/parser.tab.c"
     break;
 
-  case 49: /* Funcion_void: TOKEN_VOID TOKEN_IDENTIFICADOR TOKEN_PARIZQ TOKEN_PARDER bloque  */
-#line 508 "src/parser/parser.y"
+  case 48: /* Funcion_void: TOKEN_VOID TOKEN_IDENTIFICADOR TOKEN_PARIZQ TOKEN_PARDER bloque  */
+#line 505 "src/parser/parser.y"
                                                                     {
         (yyval.nodo) = crearNodo(AST_FUNCION_VOID, "Función void");
         (yyval.nodo)->linea = (yylsp[-4]).first_line; (yyval.nodo)->columna = (yylsp[-4]).first_column;
@@ -2495,11 +2475,11 @@ yyreduce:
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
 
     }
-#line 2499 "src/parser/parser.tab.c"
+#line 2479 "src/parser/parser.tab.c"
     break;
 
-  case 50: /* Llamadas: TOKEN_IDENTIFICADOR TOKEN_PARIZQ TOKEN_PARDER  */
-#line 522 "src/parser/parser.y"
+  case 49: /* Llamadas: TOKEN_IDENTIFICADOR TOKEN_PARIZQ TOKEN_PARDER  */
+#line 519 "src/parser/parser.y"
                                                   {
         (yyval.nodo) = crearNodo(AST_LLAMADA_VOID, "Llamada funcion void");
         (yyval.nodo)->linea = (yylsp[-2]).first_line; (yyval.nodo)->columna = (yylsp[-2]).first_column;
@@ -2508,18 +2488,14 @@ yyreduce:
         id1->linea = (yylsp[-2]).first_line; id1->columna = (yylsp[-2]).first_column;
         agregarHijo((yyval.nodo), id1);
     }
-#line 2512 "src/parser/parser.tab.c"
+#line 2492 "src/parser/parser.tab.c"
     break;
 
-  case 51: /* Llamadas: tipo_primitivo TOKEN_IDENTIFICADOR TOKEN_PARIZQ lista_parametros TOKEN_PARDER  */
-#line 530 "src/parser/parser.y"
-                                                                                    {
-        (yyval.nodo) = crearNodo(AST_LLAMADA_VOID, "Llamada funcion void");
-        (yyval.nodo)->linea = (yylsp[-4]).first_line; (yyval.nodo)->columna = (yylsp[-4]).first_column;
-
-        NodoAST* Tipo = crearNodo(AST_TIPO, (yyvsp[-4].str));
-        Tipo->linea = (yylsp[-4]).first_line; Tipo->columna = (yylsp[-4]).first_column;
-        agregarHijo((yyval.nodo), Tipo);
+  case 50: /* Llamadas: TOKEN_IDENTIFICADOR TOKEN_PARIZQ lista_parametros TOKEN_PARDER  */
+#line 527 "src/parser/parser.y"
+                                                                     {
+        (yyval.nodo) = crearNodo(AST_LLAMADA, "Llamada funcion");
+        (yyval.nodo)->linea = (yylsp[-3]).first_line; (yyval.nodo)->columna = (yylsp[-3]).first_column;
 
         NodoAST* id1 = crearNodo(AST_IDENTIFICADOR, (yyvsp[-3].str));
         id1->linea = (yylsp[-3]).first_line; id1->columna = (yylsp[-3]).first_column;
@@ -2527,11 +2503,11 @@ yyreduce:
 
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
     }
-#line 2531 "src/parser/parser.tab.c"
+#line 2507 "src/parser/parser.tab.c"
     break;
 
-  case 52: /* lista_parametros: lista_parametros TOKEN_COMA expresion  */
-#line 547 "src/parser/parser.y"
+  case 51: /* lista_parametros: lista_parametros TOKEN_COMA expresion  */
+#line 540 "src/parser/parser.y"
                                           {
         if ((yyvsp[-2].nodo)->tipo != AST_LISTA_PARAMETROS) {
             NodoAST* lista = crearNodo(AST_LISTA_PARAMETROS, "Lista Parametros");
@@ -2543,107 +2519,133 @@ yyreduce:
             (yyval.nodo) = (yyvsp[-2].nodo);
         }
     }
-#line 2547 "src/parser/parser.tab.c"
+#line 2523 "src/parser/parser.tab.c"
     break;
 
-  case 53: /* lista_parametros: expresion  */
-#line 558 "src/parser/parser.y"
+  case 52: /* lista_parametros: expresion  */
+#line 551 "src/parser/parser.y"
                 {
         (yyval.nodo) = crearNodo(AST_LISTA_PARAMETROS, "Lista Parametros");
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 2556 "src/parser/parser.tab.c"
+#line 2532 "src/parser/parser.tab.c"
     break;
 
-  case 54: /* Funcion_parametros: tipo_primitivo TOKEN_IDENTIFICADOR TOKEN_PARIZQ parametros TOKEN_PARIZQ bloque  */
-#line 565 "src/parser/parser.y"
-                                                                                  {
-        (yyval.nodo) = crearNodo(AST_LLAMADA_VOID, "Llamada funcion void");
-        (yyval.nodo)->linea = (yylsp[-5]).first_line; (yyval.nodo)->columna = (yylsp[-5]).first_column;
+  case 53: /* Funcion_parametros: tipo_primitivo TOKEN_IDENTIFICADOR TOKEN_PARIZQ parametros TOKEN_PARDER TOKEN_LLAVEIZQ lista_sentencias TOKEN_LLAVEDER  */
+#line 558 "src/parser/parser.y"
+                                                                                                                           {
+        (yyval.nodo) = crearNodo(AST_FUNCION, "Función con parametros");
+        (yyval.nodo)->linea = (yylsp[-7]).first_line; (yyval.nodo)->columna = (yylsp[-7]).first_column;
 
-        NodoAST* id = crearNodo(AST_IDENTIFICADOR, (yyvsp[-4].str));
-        id->linea = (yylsp[-4]).first_line; id->columna = (yylsp[-4]).first_column;
+        NodoAST* tipo = crearNodo(AST_TIPO, (yyvsp[-7].str));
+        tipo->linea = (yylsp[-7]).first_line; tipo->columna = (yylsp[-7]).first_column;
+        agregarHijo((yyval.nodo), tipo);
+
+        NodoAST* id = crearNodo(AST_IDENTIFICADOR, (yyvsp[-6].str));
+        id->linea = (yylsp[-6]).first_line; id->columna = (yylsp[-6]).first_column;
         agregarHijo((yyval.nodo), id);
 
-        agregarHijo((yyval.nodo), (yyvsp[0].nodo));
+        agregarHijo((yyval.nodo), (yyvsp[-4].nodo));
+        agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
     }
-#line 2571 "src/parser/parser.tab.c"
+#line 2552 "src/parser/parser.tab.c"
     break;
 
-  case 55: /* parametros: parametros TOKEN_COMA tipo_primitivo TOKEN_IDENTIFICADOR  */
-#line 578 "src/parser/parser.y"
-                                                              {
+  case 54: /* parametros: parametros TOKEN_COMA tipo_primitivo TOKEN_IDENTIFICADOR  */
+#line 575 "src/parser/parser.y"
+                                                             {
         if((yyvsp[-3].nodo)->tipo != AST_PARAMETROS) {
             NodoAST* lista = crearNodo(AST_PARAMETROS, "parametros");
             agregarHijo(lista, (yyvsp[-3].nodo));
+            
+            NodoAST* param = crearNodo(AST_PARAMETRO, "parametro");
+            
             NodoAST* tipo = crearNodo(AST_TIPO, (yyvsp[-1].str));
             tipo->linea = (yylsp[-1]).first_line; tipo->columna = (yylsp[-1]).first_column;
-            agregarHijo(lista, tipo);
-            NodoAST* id1 = crearNodo(AST_IDENTIFICADOR, (yyvsp[0].str));
-            id1->linea = (yylsp[0]).first_line; id1->columna = (yylsp[0]).first_column;
-            agregarHijo(lista, id1);
+            agregarHijo(param, tipo);
+            
+            NodoAST* id = crearNodo(AST_IDENTIFICADOR, (yyvsp[0].str));
+            id->linea = (yylsp[0]).first_line; id->columna = (yylsp[0]).first_column;
+            agregarHijo(param, id);
+            
+            agregarHijo(lista, param);
+            (yyval.nodo) = lista;
         } else {
+            NodoAST* param = crearNodo(AST_PARAMETRO, "parametro");
+            
             NodoAST* tipo = crearNodo(AST_TIPO, (yyvsp[-1].str));
             tipo->linea = (yylsp[-1]).first_line; tipo->columna = (yylsp[-1]).first_column;
-            agregarHijo((yyvsp[-3].nodo), tipo);
+            agregarHijo(param, tipo);
+            
+            NodoAST* id = crearNodo(AST_IDENTIFICADOR, (yyvsp[0].str));
+            id->linea = (yylsp[0]).first_line; id->columna = (yylsp[0]).first_column;
+            agregarHijo(param, id);
+            
+            agregarHijo((yyvsp[-3].nodo), param);
             (yyval.nodo) = (yyvsp[-3].nodo);
         }
     }
-#line 2593 "src/parser/parser.tab.c"
+#line 2589 "src/parser/parser.tab.c"
     break;
 
-  case 56: /* parametros: tipo_primitivo TOKEN_IDENTIFICADOR  */
-#line 595 "src/parser/parser.y"
+  case 55: /* parametros: tipo_primitivo TOKEN_IDENTIFICADOR  */
+#line 607 "src/parser/parser.y"
                                          {
         (yyval.nodo) = crearNodo(AST_PARAMETROS, "parametros");
-        NodoAST* tipo1 = crearNodo(AST_TIPO, (yyvsp[-1].str));
-        tipo1->linea = (yylsp[-1]).first_line; tipo1->columna = (yylsp[-1]).first_column;
-        agregarHijo((yyval.nodo), tipo1);
-        NodoAST* id2 = crearNodo(AST_IDENTIFICADOR, (yyvsp[0].str));
-        id2->linea = (yylsp[0]).first_line; id2->columna = (yylsp[0]).first_column;
-        agregarHijo((yyval.nodo), id2);
+        
+        NodoAST* param = crearNodo(AST_PARAMETRO, "parametro");
+        
+        NodoAST* tipo = crearNodo(AST_TIPO, (yyvsp[-1].str));
+        tipo->linea = (yylsp[-1]).first_line; tipo->columna = (yylsp[-1]).first_column;
+        agregarHijo(param, tipo);
+        
+        NodoAST* id = crearNodo(AST_IDENTIFICADOR, (yyvsp[0].str));
+        id->linea = (yylsp[0]).first_line; id->columna = (yylsp[0]).first_column;
+        agregarHijo(param, id);
+        
+        agregarHijo((yyval.nodo), param);
     }
-#line 2607 "src/parser/parser.tab.c"
+#line 2609 "src/parser/parser.tab.c"
     break;
 
-  case 57: /* tipo_primitivo: TOKEN_DINT  */
-#line 608 "src/parser/parser.y"
+  case 56: /* tipo_primitivo: TOKEN_DINT  */
+#line 626 "src/parser/parser.y"
                     { (yyval.str) = (yyvsp[0].str); }
-#line 2613 "src/parser/parser.tab.c"
+#line 2615 "src/parser/parser.tab.c"
     break;
 
-  case 58: /* tipo_primitivo: TOKEN_DCHAR  */
-#line 609 "src/parser/parser.y"
+  case 57: /* tipo_primitivo: TOKEN_DCHAR  */
+#line 627 "src/parser/parser.y"
                     { (yyval.str) = (yyvsp[0].str); }
-#line 2619 "src/parser/parser.tab.c"
+#line 2621 "src/parser/parser.tab.c"
     break;
 
-  case 59: /* tipo_primitivo: TOKEN_DOUBLE  */
-#line 610 "src/parser/parser.y"
+  case 58: /* tipo_primitivo: TOKEN_DOUBLE  */
+#line 628 "src/parser/parser.y"
                     { (yyval.str) = (yyvsp[0].str); }
-#line 2625 "src/parser/parser.tab.c"
+#line 2627 "src/parser/parser.tab.c"
     break;
 
-  case 60: /* tipo_primitivo: TOKEN_DFLOAT  */
-#line 611 "src/parser/parser.y"
+  case 59: /* tipo_primitivo: TOKEN_DFLOAT  */
+#line 629 "src/parser/parser.y"
                     { (yyval.str) = (yyvsp[0].str); }
-#line 2631 "src/parser/parser.tab.c"
+#line 2633 "src/parser/parser.tab.c"
     break;
 
-  case 61: /* tipo_primitivo: TOKEN_DSTRING  */
-#line 612 "src/parser/parser.y"
+  case 60: /* tipo_primitivo: TOKEN_DSTRING  */
+#line 630 "src/parser/parser.y"
                     { (yyval.str) = (yyvsp[0].str); }
-#line 2637 "src/parser/parser.tab.c"
+#line 2639 "src/parser/parser.tab.c"
     break;
 
-  case 62: /* tipo_primitivo: TOKEN_DBOOLEAN  */
-#line 613 "src/parser/parser.y"
+  case 61: /* tipo_primitivo: TOKEN_DBOOLEAN  */
+#line 631 "src/parser/parser.y"
                      { (yyval.str) = (yyvsp[0].str); }
-#line 2643 "src/parser/parser.tab.c"
+#line 2645 "src/parser/parser.tab.c"
     break;
 
-  case 63: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_IGUAL expresion  */
-#line 618 "src/parser/parser.y"
+  case 62: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_IGUAL expresion  */
+#line 636 "src/parser/parser.y"
                                               {
         (yyval.nodo) = crearNodo(AST_ASIGNACION, "");
         (yyval.nodo)->linea = (yylsp[-2]).first_line; 
@@ -2654,357 +2656,357 @@ yyreduce:
         agregarHijo((yyval.nodo), id);
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 2658 "src/parser/parser.tab.c"
+#line 2660 "src/parser/parser.tab.c"
     break;
 
-  case 64: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_MAS_IGUAL expresion  */
-#line 628 "src/parser/parser.y"
+  case 63: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_MAS_IGUAL expresion  */
+#line 646 "src/parser/parser.y"
                                                     {
         (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "+", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
     }
-#line 2666 "src/parser/parser.tab.c"
+#line 2668 "src/parser/parser.tab.c"
     break;
 
-  case 65: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_MENOS_IGUAL expresion  */
-#line 631 "src/parser/parser.y"
+  case 64: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_MENOS_IGUAL expresion  */
+#line 649 "src/parser/parser.y"
                                                       {
         (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "-", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
     }
-#line 2674 "src/parser/parser.tab.c"
+#line 2676 "src/parser/parser.tab.c"
     break;
 
-  case 66: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_POR_IGUAL expresion  */
-#line 634 "src/parser/parser.y"
+  case 65: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_POR_IGUAL expresion  */
+#line 652 "src/parser/parser.y"
                                                     {
         (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "*", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
     }
-#line 2682 "src/parser/parser.tab.c"
+#line 2684 "src/parser/parser.tab.c"
     break;
 
-  case 67: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_DIV_IGUAL expresion  */
-#line 637 "src/parser/parser.y"
+  case 66: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_DIV_IGUAL expresion  */
+#line 655 "src/parser/parser.y"
                                                     {
         (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "/", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
     }
-#line 2690 "src/parser/parser.tab.c"
+#line 2692 "src/parser/parser.tab.c"
     break;
 
-  case 68: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_MOD_IGUAL expresion  */
-#line 640 "src/parser/parser.y"
+  case 67: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_MOD_IGUAL expresion  */
+#line 658 "src/parser/parser.y"
                                                     {
         (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "%", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
     }
-#line 2698 "src/parser/parser.tab.c"
+#line 2700 "src/parser/parser.tab.c"
     break;
 
-  case 69: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_AND_IGUAL expresion  */
-#line 643 "src/parser/parser.y"
+  case 68: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_AND_IGUAL expresion  */
+#line 661 "src/parser/parser.y"
                                                     {
         (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "&", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
     }
-#line 2706 "src/parser/parser.tab.c"
+#line 2708 "src/parser/parser.tab.c"
     break;
 
-  case 70: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_OR_IGUAL expresion  */
-#line 646 "src/parser/parser.y"
+  case 69: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_OR_IGUAL expresion  */
+#line 664 "src/parser/parser.y"
                                                    {
         (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "|", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
     }
-#line 2714 "src/parser/parser.tab.c"
+#line 2716 "src/parser/parser.tab.c"
     break;
 
-  case 71: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_XOR_IGUAL expresion  */
-#line 649 "src/parser/parser.y"
+  case 70: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_XOR_IGUAL expresion  */
+#line 667 "src/parser/parser.y"
                                                     {
         (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "^", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
     }
-#line 2722 "src/parser/parser.tab.c"
+#line 2724 "src/parser/parser.tab.c"
     break;
 
-  case 72: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_DESIZQ_IGUAL expresion  */
-#line 652 "src/parser/parser.y"
+  case 71: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_DESIZQ_IGUAL expresion  */
+#line 670 "src/parser/parser.y"
                                                        {
         (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "<<", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
     }
-#line 2730 "src/parser/parser.tab.c"
+#line 2732 "src/parser/parser.tab.c"
     break;
 
-  case 73: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_DESDER_IGUAL expresion  */
-#line 655 "src/parser/parser.y"
+  case 72: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_DESDER_IGUAL expresion  */
+#line 673 "src/parser/parser.y"
                                                        {
         (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), ">>", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
     }
-#line 2738 "src/parser/parser.tab.c"
+#line 2740 "src/parser/parser.tab.c"
     break;
 
-  case 74: /* expresion: expresion_or  */
-#line 665 "src/parser/parser.y"
+  case 73: /* expresion: expresion_or  */
+#line 683 "src/parser/parser.y"
                    { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 2744 "src/parser/parser.tab.c"
+#line 2746 "src/parser/parser.tab.c"
     break;
 
-  case 75: /* expresion_or: expresion_and  */
-#line 669 "src/parser/parser.y"
+  case 74: /* expresion_or: expresion_and  */
+#line 687 "src/parser/parser.y"
                     { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 2750 "src/parser/parser.tab.c"
+#line 2752 "src/parser/parser.tab.c"
     break;
 
-  case 76: /* expresion_or: expresion_or TOKEN_OR expresion_and  */
-#line 670 "src/parser/parser.y"
+  case 75: /* expresion_or: expresion_or TOKEN_OR expresion_and  */
+#line 688 "src/parser/parser.y"
                                           {
           (yyval.nodo) = crearNodo(AST_OPERACION, "||");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 2760 "src/parser/parser.tab.c"
+#line 2762 "src/parser/parser.tab.c"
     break;
 
-  case 77: /* expresion_and: expresion_bit_or  */
-#line 678 "src/parser/parser.y"
+  case 76: /* expresion_and: expresion_bit_or  */
+#line 696 "src/parser/parser.y"
                        { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 2766 "src/parser/parser.tab.c"
+#line 2768 "src/parser/parser.tab.c"
     break;
 
-  case 78: /* expresion_and: expresion_and TOKEN_AND expresion_bit_or  */
-#line 679 "src/parser/parser.y"
+  case 77: /* expresion_and: expresion_and TOKEN_AND expresion_bit_or  */
+#line 697 "src/parser/parser.y"
                                                {
           (yyval.nodo) = crearNodo(AST_OPERACION, "&&");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 2776 "src/parser/parser.tab.c"
+#line 2778 "src/parser/parser.tab.c"
     break;
 
-  case 79: /* expresion_bit_or: expresion_bit_xor  */
-#line 687 "src/parser/parser.y"
+  case 78: /* expresion_bit_or: expresion_bit_xor  */
+#line 705 "src/parser/parser.y"
                         { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 2782 "src/parser/parser.tab.c"
+#line 2784 "src/parser/parser.tab.c"
     break;
 
-  case 80: /* expresion_bit_or: expresion_bit_or TOKEN_BIT_OR expresion_bit_xor  */
-#line 688 "src/parser/parser.y"
+  case 79: /* expresion_bit_or: expresion_bit_or TOKEN_BIT_OR expresion_bit_xor  */
+#line 706 "src/parser/parser.y"
                                                       {
           (yyval.nodo) = crearNodo(AST_OPERACION, "|");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 2792 "src/parser/parser.tab.c"
+#line 2794 "src/parser/parser.tab.c"
     break;
 
-  case 81: /* expresion_bit_xor: expresion_bit_and  */
-#line 696 "src/parser/parser.y"
+  case 80: /* expresion_bit_xor: expresion_bit_and  */
+#line 714 "src/parser/parser.y"
                         { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 2798 "src/parser/parser.tab.c"
+#line 2800 "src/parser/parser.tab.c"
     break;
 
-  case 82: /* expresion_bit_xor: expresion_bit_xor TOKEN_XOR expresion_bit_and  */
-#line 697 "src/parser/parser.y"
+  case 81: /* expresion_bit_xor: expresion_bit_xor TOKEN_XOR expresion_bit_and  */
+#line 715 "src/parser/parser.y"
                                                     {
           (yyval.nodo) = crearNodo(AST_OPERACION, "^");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 2808 "src/parser/parser.tab.c"
+#line 2810 "src/parser/parser.tab.c"
     break;
 
-  case 83: /* expresion_bit_and: expresion_equality  */
-#line 705 "src/parser/parser.y"
+  case 82: /* expresion_bit_and: expresion_equality  */
+#line 723 "src/parser/parser.y"
                          { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 2814 "src/parser/parser.tab.c"
+#line 2816 "src/parser/parser.tab.c"
     break;
 
-  case 84: /* expresion_bit_and: expresion_bit_and TOKEN_BIT_AND expresion_equality  */
-#line 706 "src/parser/parser.y"
+  case 83: /* expresion_bit_and: expresion_bit_and TOKEN_BIT_AND expresion_equality  */
+#line 724 "src/parser/parser.y"
                                                          {
           (yyval.nodo) = crearNodo(AST_OPERACION, "&");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 2824 "src/parser/parser.tab.c"
+#line 2826 "src/parser/parser.tab.c"
     break;
 
-  case 85: /* expresion_equality: expresion_relacional  */
-#line 714 "src/parser/parser.y"
+  case 84: /* expresion_equality: expresion_relacional  */
+#line 732 "src/parser/parser.y"
                            { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 2830 "src/parser/parser.tab.c"
+#line 2832 "src/parser/parser.tab.c"
     break;
 
-  case 86: /* expresion_equality: expresion_equality TOKEN_IGUAL_IGUAL expresion_relacional  */
-#line 715 "src/parser/parser.y"
+  case 85: /* expresion_equality: expresion_equality TOKEN_IGUAL_IGUAL expresion_relacional  */
+#line 733 "src/parser/parser.y"
                                                                 {
           (yyval.nodo) = crearNodo(AST_OPERACION, "==");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 2840 "src/parser/parser.tab.c"
+#line 2842 "src/parser/parser.tab.c"
     break;
 
-  case 87: /* expresion_equality: expresion_equality TOKEN_NO_IGUAL expresion_relacional  */
-#line 720 "src/parser/parser.y"
+  case 86: /* expresion_equality: expresion_equality TOKEN_NO_IGUAL expresion_relacional  */
+#line 738 "src/parser/parser.y"
                                                              {
           (yyval.nodo) = crearNodo(AST_OPERACION, "!=");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 2850 "src/parser/parser.tab.c"
+#line 2852 "src/parser/parser.tab.c"
     break;
 
-  case 88: /* expresion_relacional: expresion_shift  */
-#line 728 "src/parser/parser.y"
+  case 87: /* expresion_relacional: expresion_shift  */
+#line 746 "src/parser/parser.y"
                       { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 2856 "src/parser/parser.tab.c"
+#line 2858 "src/parser/parser.tab.c"
     break;
 
-  case 89: /* expresion_relacional: expresion_relacional TOKEN_MENOR expresion_shift  */
-#line 729 "src/parser/parser.y"
+  case 88: /* expresion_relacional: expresion_relacional TOKEN_MENOR expresion_shift  */
+#line 747 "src/parser/parser.y"
                                                        {
           (yyval.nodo) = crearNodo(AST_OPERACION, "<");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 2866 "src/parser/parser.tab.c"
+#line 2868 "src/parser/parser.tab.c"
     break;
 
-  case 90: /* expresion_relacional: expresion_relacional TOKEN_MENOR_IGUAL expresion_shift  */
-#line 734 "src/parser/parser.y"
+  case 89: /* expresion_relacional: expresion_relacional TOKEN_MENOR_IGUAL expresion_shift  */
+#line 752 "src/parser/parser.y"
                                                              {
           (yyval.nodo) = crearNodo(AST_OPERACION, "<=");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 2876 "src/parser/parser.tab.c"
+#line 2878 "src/parser/parser.tab.c"
     break;
 
-  case 91: /* expresion_relacional: expresion_relacional TOKEN_MAYOR expresion_shift  */
-#line 739 "src/parser/parser.y"
+  case 90: /* expresion_relacional: expresion_relacional TOKEN_MAYOR expresion_shift  */
+#line 757 "src/parser/parser.y"
                                                        {
           (yyval.nodo) = crearNodo(AST_OPERACION, ">");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 2886 "src/parser/parser.tab.c"
+#line 2888 "src/parser/parser.tab.c"
     break;
 
-  case 92: /* expresion_relacional: expresion_relacional TOKEN_MAYOR_IGUAL expresion_shift  */
-#line 744 "src/parser/parser.y"
+  case 91: /* expresion_relacional: expresion_relacional TOKEN_MAYOR_IGUAL expresion_shift  */
+#line 762 "src/parser/parser.y"
                                                              {
           (yyval.nodo) = crearNodo(AST_OPERACION, ">=");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 2896 "src/parser/parser.tab.c"
+#line 2898 "src/parser/parser.tab.c"
     break;
 
-  case 93: /* expresion_shift: expresion_aditiva  */
-#line 752 "src/parser/parser.y"
+  case 92: /* expresion_shift: expresion_aditiva  */
+#line 770 "src/parser/parser.y"
                         { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 2902 "src/parser/parser.tab.c"
+#line 2904 "src/parser/parser.tab.c"
     break;
 
-  case 94: /* expresion_shift: expresion_shift TOKEN_DESIZQ expresion_aditiva  */
-#line 753 "src/parser/parser.y"
+  case 93: /* expresion_shift: expresion_shift TOKEN_DESIZQ expresion_aditiva  */
+#line 771 "src/parser/parser.y"
                                                      {
           (yyval.nodo) = crearNodo(AST_OPERACION, "<<");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 2912 "src/parser/parser.tab.c"
+#line 2914 "src/parser/parser.tab.c"
     break;
 
-  case 95: /* expresion_shift: expresion_shift TOKEN_DESDER expresion_aditiva  */
-#line 758 "src/parser/parser.y"
+  case 94: /* expresion_shift: expresion_shift TOKEN_DESDER expresion_aditiva  */
+#line 776 "src/parser/parser.y"
                                                      {
           (yyval.nodo) = crearNodo(AST_OPERACION, ">>");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 2922 "src/parser/parser.tab.c"
+#line 2924 "src/parser/parser.tab.c"
     break;
 
-  case 96: /* expresion_aditiva: expresion_multiplicativa  */
-#line 766 "src/parser/parser.y"
+  case 95: /* expresion_aditiva: expresion_multiplicativa  */
+#line 784 "src/parser/parser.y"
                                { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 2928 "src/parser/parser.tab.c"
+#line 2930 "src/parser/parser.tab.c"
     break;
 
-  case 97: /* expresion_aditiva: expresion_aditiva TOKEN_MAS expresion_multiplicativa  */
-#line 767 "src/parser/parser.y"
+  case 96: /* expresion_aditiva: expresion_aditiva TOKEN_MAS expresion_multiplicativa  */
+#line 785 "src/parser/parser.y"
                                                            {
           (yyval.nodo) = crearNodo(AST_OPERACION, "+");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 2938 "src/parser/parser.tab.c"
+#line 2940 "src/parser/parser.tab.c"
     break;
 
-  case 98: /* expresion_aditiva: expresion_aditiva TOKEN_MENOS expresion_multiplicativa  */
-#line 772 "src/parser/parser.y"
+  case 97: /* expresion_aditiva: expresion_aditiva TOKEN_MENOS expresion_multiplicativa  */
+#line 790 "src/parser/parser.y"
                                                              {
           (yyval.nodo) = crearNodo(AST_OPERACION, "-");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 2948 "src/parser/parser.tab.c"
+#line 2950 "src/parser/parser.tab.c"
     break;
 
-  case 99: /* expresion_multiplicativa: expresion_unaria  */
-#line 780 "src/parser/parser.y"
+  case 98: /* expresion_multiplicativa: expresion_unaria  */
+#line 798 "src/parser/parser.y"
                        { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 2954 "src/parser/parser.tab.c"
+#line 2956 "src/parser/parser.tab.c"
     break;
 
-  case 100: /* expresion_multiplicativa: expresion_multiplicativa TOKEN_MULTI expresion_unaria  */
-#line 781 "src/parser/parser.y"
+  case 99: /* expresion_multiplicativa: expresion_multiplicativa TOKEN_MULTI expresion_unaria  */
+#line 799 "src/parser/parser.y"
                                                             {
           (yyval.nodo) = crearNodo(AST_OPERACION, "*");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 2964 "src/parser/parser.tab.c"
+#line 2966 "src/parser/parser.tab.c"
     break;
 
-  case 101: /* expresion_multiplicativa: expresion_multiplicativa TOKEN_DIV expresion_unaria  */
-#line 786 "src/parser/parser.y"
+  case 100: /* expresion_multiplicativa: expresion_multiplicativa TOKEN_DIV expresion_unaria  */
+#line 804 "src/parser/parser.y"
                                                           {
           (yyval.nodo) = crearNodo(AST_OPERACION, "/");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 2974 "src/parser/parser.tab.c"
+#line 2976 "src/parser/parser.tab.c"
     break;
 
-  case 102: /* expresion_multiplicativa: expresion_multiplicativa TOKEN_MODULO expresion_unaria  */
-#line 791 "src/parser/parser.y"
+  case 101: /* expresion_multiplicativa: expresion_multiplicativa TOKEN_MODULO expresion_unaria  */
+#line 809 "src/parser/parser.y"
                                                              {
           (yyval.nodo) = crearNodo(AST_OPERACION, "%");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 2984 "src/parser/parser.tab.c"
+#line 2986 "src/parser/parser.tab.c"
     break;
 
-  case 103: /* expresion_unaria: TOKEN_NOT expresion_unaria  */
-#line 799 "src/parser/parser.y"
+  case 102: /* expresion_unaria: TOKEN_NOT expresion_unaria  */
+#line 817 "src/parser/parser.y"
                                  {
           (yyval.nodo) = crearNodo(AST_OPERACION, "!");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 2994 "src/parser/parser.tab.c"
+#line 2996 "src/parser/parser.tab.c"
     break;
 
-  case 104: /* expresion_unaria: TOKEN_MENOS expresion_unaria  */
-#line 804 "src/parser/parser.y"
+  case 103: /* expresion_unaria: TOKEN_MENOS expresion_unaria  */
+#line 822 "src/parser/parser.y"
                                                 {
           (yyval.nodo) = crearNodo(AST_OPERACION, "uminus");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 3004 "src/parser/parser.tab.c"
+#line 3006 "src/parser/parser.tab.c"
     break;
 
-  case 105: /* expresion_unaria: TOKEN_PARIZQ tipo_primitivo TOKEN_PARDER expresion_unaria  */
-#line 809 "src/parser/parser.y"
+  case 104: /* expresion_unaria: TOKEN_PARIZQ tipo_primitivo TOKEN_PARDER expresion_unaria  */
+#line 827 "src/parser/parser.y"
                                                                 {
           /* crear un nodo específico para cast; guardamos el tipo en ->valor */
           (yyval.nodo) = crearNodo(AST_CAST, "cast");
@@ -3013,163 +3015,163 @@ yyreduce:
           agregarHijo((yyval.nodo), (yyvsp[0].nodo));
           free((yyvsp[-2].str)); 
       }
-#line 3017 "src/parser/parser.tab.c"
+#line 3019 "src/parser/parser.tab.c"
     break;
 
-  case 106: /* expresion_unaria: postfix  */
-#line 817 "src/parser/parser.y"
+  case 105: /* expresion_unaria: postfix  */
+#line 835 "src/parser/parser.y"
               { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 3023 "src/parser/parser.tab.c"
+#line 3025 "src/parser/parser.tab.c"
     break;
 
-  case 107: /* postfix: primary  */
-#line 821 "src/parser/parser.y"
+  case 106: /* postfix: primary  */
+#line 839 "src/parser/parser.y"
               { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 3029 "src/parser/parser.tab.c"
+#line 3031 "src/parser/parser.tab.c"
     break;
 
-  case 108: /* postfix: postfix TOKEN_INCREMENTO  */
-#line 822 "src/parser/parser.y"
+  case 107: /* postfix: postfix TOKEN_INCREMENTO  */
+#line 840 "src/parser/parser.y"
                                {
           /* transforma (postfix ++) — el hijo es la expresión previa */
           (yyval.nodo) = crearNodo(AST_OPERACION, "++");
           (yyval.nodo)->linea = (yylsp[0]).first_line; (yyval.nodo)->columna = (yylsp[0]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
       }
-#line 3040 "src/parser/parser.tab.c"
+#line 3042 "src/parser/parser.tab.c"
     break;
 
-  case 109: /* postfix: postfix TOKEN_DECREMENTO  */
-#line 828 "src/parser/parser.y"
+  case 108: /* postfix: postfix TOKEN_DECREMENTO  */
+#line 846 "src/parser/parser.y"
                                {
           (yyval.nodo) = crearNodo(AST_OPERACION, "--");
           (yyval.nodo)->linea = (yylsp[0]).first_line; (yyval.nodo)->columna = (yylsp[0]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
       }
-#line 3050 "src/parser/parser.tab.c"
+#line 3052 "src/parser/parser.tab.c"
     break;
 
-  case 110: /* primary: TOKEN_NUMERO  */
-#line 837 "src/parser/parser.y"
+  case 109: /* primary: TOKEN_NUMERO  */
+#line 855 "src/parser/parser.y"
                    {
           (yyval.nodo) = crearNodo(AST_NUMERO, NULL);
           (yyval.nodo)->valor = strdup((yyvsp[0].str));
           (yyval.nodo)->linea = (yylsp[0]).first_line; (yyval.nodo)->columna = (yylsp[0]).first_column;
       }
-#line 3060 "src/parser/parser.tab.c"
+#line 3062 "src/parser/parser.tab.c"
     break;
 
-  case 111: /* primary: TOKEN_DOUBLE_LITERAL  */
-#line 842 "src/parser/parser.y"
+  case 110: /* primary: TOKEN_DOUBLE_LITERAL  */
+#line 860 "src/parser/parser.y"
                            {
           (yyval.nodo) = crearNodo(AST_NUMERO, NULL);
           (yyval.nodo)->valor = strdup((yyvsp[0].str));
           (yyval.nodo)->linea = (yylsp[0]).first_line; (yyval.nodo)->columna = (yylsp[0]).first_column;
       }
-#line 3070 "src/parser/parser.tab.c"
+#line 3072 "src/parser/parser.tab.c"
     break;
 
-  case 112: /* primary: TOKEN_FLOAT_LITERAL  */
-#line 847 "src/parser/parser.y"
+  case 111: /* primary: TOKEN_FLOAT_LITERAL  */
+#line 865 "src/parser/parser.y"
                           {
           (yyval.nodo) = crearNodo(AST_NUMERO, NULL);
           (yyval.nodo)->valor = strdup((yyvsp[0].str));
           (yyval.nodo)->linea = (yylsp[0]).first_line; (yyval.nodo)->columna = (yylsp[0]).first_column;
       }
-#line 3080 "src/parser/parser.tab.c"
+#line 3082 "src/parser/parser.tab.c"
     break;
 
-  case 113: /* primary: TOKEN_CADENA  */
-#line 852 "src/parser/parser.y"
+  case 112: /* primary: TOKEN_CADENA  */
+#line 870 "src/parser/parser.y"
                    {
           (yyval.nodo) = crearNodo(AST_CADENA, NULL);
           (yyval.nodo)->valor = strdup((yyvsp[0].str));
           (yyval.nodo)->linea = (yylsp[0]).first_line; (yyval.nodo)->columna = (yylsp[0]).first_column;
       }
-#line 3090 "src/parser/parser.tab.c"
+#line 3092 "src/parser/parser.tab.c"
     break;
 
-  case 114: /* primary: TOKEN_CARACTER  */
-#line 857 "src/parser/parser.y"
+  case 113: /* primary: TOKEN_CARACTER  */
+#line 875 "src/parser/parser.y"
                      {
           (yyval.nodo) = crearNodo(AST_CARACTER, NULL);
           (yyval.nodo)->valor = strdup((yyvsp[0].str));
           (yyval.nodo)->linea = (yylsp[0]).first_line; (yyval.nodo)->columna = (yylsp[0]).first_column;
       }
-#line 3100 "src/parser/parser.tab.c"
+#line 3102 "src/parser/parser.tab.c"
     break;
 
-  case 115: /* primary: TOKEN_IDENTIFICADOR  */
-#line 862 "src/parser/parser.y"
+  case 114: /* primary: TOKEN_IDENTIFICADOR  */
+#line 880 "src/parser/parser.y"
                           {
           (yyval.nodo) = crearNodo(AST_IDENTIFICADOR, (yyvsp[0].str));
           (yyval.nodo)->linea = (yylsp[0]).first_line; (yyval.nodo)->columna = (yylsp[0]).first_column;
       }
-#line 3109 "src/parser/parser.tab.c"
+#line 3111 "src/parser/parser.tab.c"
     break;
 
-  case 116: /* primary: TOKEN_BOOLEANO  */
-#line 866 "src/parser/parser.y"
+  case 115: /* primary: TOKEN_BOOLEANO  */
+#line 884 "src/parser/parser.y"
                      {
         (yyval.nodo) = crearNodo(AST_BOOLEAN, (yyvsp[0].str));
         (yyval.nodo)->linea = (yylsp[0]).first_line; (yyval.nodo)->columna = (yylsp[0]).first_column;
     }
-#line 3118 "src/parser/parser.tab.c"
+#line 3120 "src/parser/parser.tab.c"
     break;
 
-  case 117: /* primary: TOKEN_PARSEINT TOKEN_PARIZQ expresion TOKEN_PARDER  */
-#line 870 "src/parser/parser.y"
+  case 116: /* primary: TOKEN_PARSEINT TOKEN_PARIZQ expresion TOKEN_PARDER  */
+#line 888 "src/parser/parser.y"
                                                          {
         (yyval.nodo) = crearNodo(AST_PARSEINT, "Integer.parseInt");
         (yyval.nodo)->linea = (yylsp[-3]).first_line; (yyval.nodo)->columna = (yylsp[-3]).first_column;
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
     }
-#line 3128 "src/parser/parser.tab.c"
+#line 3130 "src/parser/parser.tab.c"
     break;
 
-  case 118: /* primary: TOKEN_PARSEDOUBLE TOKEN_PARIZQ expresion TOKEN_PARDER  */
-#line 875 "src/parser/parser.y"
+  case 117: /* primary: TOKEN_PARSEDOUBLE TOKEN_PARIZQ expresion TOKEN_PARDER  */
+#line 893 "src/parser/parser.y"
                                                             {
         (yyval.nodo) = crearNodo(AST_PARSEDOUBLE, "Double.parseDouble");
         (yyval.nodo)->linea = (yylsp[-3]).first_line; (yyval.nodo)->columna = (yylsp[-3]).first_column;
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
     }
-#line 3138 "src/parser/parser.tab.c"
+#line 3140 "src/parser/parser.tab.c"
     break;
 
-  case 119: /* primary: TOKEN_PARSEFLOAT TOKEN_PARIZQ expresion TOKEN_PARDER  */
-#line 880 "src/parser/parser.y"
+  case 118: /* primary: TOKEN_PARSEFLOAT TOKEN_PARIZQ expresion TOKEN_PARDER  */
+#line 898 "src/parser/parser.y"
                                                            {
         (yyval.nodo) = crearNodo(AST_PARSEFLOAT, "Float.parseFloat");
         (yyval.nodo)->linea = (yylsp[-3]).first_line; (yyval.nodo)->columna = (yylsp[-3]).first_column;
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
     }
-#line 3148 "src/parser/parser.tab.c"
+#line 3150 "src/parser/parser.tab.c"
     break;
 
-  case 120: /* primary: TOKEN_STRING_VALUEOF TOKEN_PARIZQ expresion TOKEN_PARDER  */
-#line 885 "src/parser/parser.y"
+  case 119: /* primary: TOKEN_STRING_VALUEOF TOKEN_PARIZQ expresion TOKEN_PARDER  */
+#line 903 "src/parser/parser.y"
                                                                {
         (yyval.nodo) = crearNodo(AST_VALUEOF, "String.valueOf");
         (yyval.nodo)->linea = (yylsp[-3]).first_line; (yyval.nodo)->columna = (yylsp[-3]).first_column;
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
     }
-#line 3158 "src/parser/parser.tab.c"
+#line 3160 "src/parser/parser.tab.c"
     break;
 
-  case 121: /* primary: TOKEN_INDEXOF TOKEN_PARIZQ expresion TOKEN_COMA expresion TOKEN_PARDER  */
-#line 890 "src/parser/parser.y"
+  case 120: /* primary: TOKEN_INDEXOF TOKEN_PARIZQ expresion TOKEN_COMA expresion TOKEN_PARDER  */
+#line 908 "src/parser/parser.y"
                                                                              {
         (yyval.nodo) = crearNodo(AST_INDEXOF, "Arrays.indexOf");
         (yyval.nodo)->linea = (yylsp[-5]).first_line; (yyval.nodo)->columna = (yylsp[-5]).first_column;
         agregarHijo((yyval.nodo), (yyvsp[-3].nodo));  // El array/vector
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));  // La clave a buscar
     }
-#line 3169 "src/parser/parser.tab.c"
+#line 3171 "src/parser/parser.tab.c"
     break;
 
-  case 122: /* primary: TOKEN_IDENTIFICADOR TOKEN_PUNTO TOKEN_LENGHT  */
-#line 896 "src/parser/parser.y"
+  case 121: /* primary: TOKEN_IDENTIFICADOR TOKEN_PUNTO TOKEN_LENGHT  */
+#line 914 "src/parser/parser.y"
                                                    {
         (yyval.nodo) = crearNodo(AST_LENGHT, "Array.length");
         (yyval.nodo)->linea = (yylsp[-2]).first_line; (yyval.nodo)->columna = (yylsp[-2]).first_column;
@@ -3177,11 +3179,11 @@ yyreduce:
         id->linea = (yylsp[-2]).first_line; id->columna = (yylsp[-2]).first_column;
         agregarHijo((yyval.nodo), id);
     }
-#line 3181 "src/parser/parser.tab.c"
+#line 3183 "src/parser/parser.tab.c"
     break;
 
-  case 123: /* primary: TOKEN_IDENTIFICADOR TOKEN_PUNTO TOKEN_ADD TOKEN_PARIZQ expresion TOKEN_PARDER  */
-#line 903 "src/parser/parser.y"
+  case 122: /* primary: TOKEN_IDENTIFICADOR TOKEN_PUNTO TOKEN_ADD TOKEN_PARIZQ expresion TOKEN_PARDER  */
+#line 921 "src/parser/parser.y"
                                                                                     {
         (yyval.nodo) = crearNodo(AST_ADD, "Array.add");
         (yyval.nodo)->linea = (yylsp[-5]).first_line; (yyval.nodo)->columna = (yylsp[-5]).first_column;
@@ -3190,11 +3192,11 @@ yyreduce:
         agregarHijo((yyval.nodo), id);
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));  // El elemento a añadir
     }
-#line 3194 "src/parser/parser.tab.c"
+#line 3196 "src/parser/parser.tab.c"
     break;
 
-  case 124: /* primary: TOKEN_IDENTIFICADOR TOKEN_PUNTO TOKEN_EQUAL TOKEN_PARIZQ expresion TOKEN_PARDER  */
-#line 911 "src/parser/parser.y"
+  case 123: /* primary: TOKEN_IDENTIFICADOR TOKEN_PUNTO TOKEN_EQUAL TOKEN_PARIZQ expresion TOKEN_PARDER  */
+#line 929 "src/parser/parser.y"
                                                                                       {
         (yyval.nodo) = crearNodo(AST_EQUAL, ".equals");
         (yyval.nodo)->linea = (yylsp[-5]).first_line; (yyval.nodo)->columna = (yylsp[-5]).first_column;
@@ -3203,22 +3205,22 @@ yyreduce:
         agregarHijo((yyval.nodo), id);
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
     }
-#line 3207 "src/parser/parser.tab.c"
+#line 3209 "src/parser/parser.tab.c"
     break;
 
-  case 125: /* primary: TOKEN_PARSEJOIN TOKEN_PARIZQ expresion TOKEN_COMA lista_expresiones_join TOKEN_PARDER  */
-#line 919 "src/parser/parser.y"
+  case 124: /* primary: TOKEN_PARSEJOIN TOKEN_PARIZQ expresion TOKEN_COMA lista_expresiones_join TOKEN_PARDER  */
+#line 937 "src/parser/parser.y"
                                                                                             {
         (yyval.nodo) = crearNodo(AST_PARSEJOIN, "Strings.join");
         (yyval.nodo)->linea = (yylsp[-5]).first_line; (yyval.nodo)->columna = (yylsp[-5]).first_column;
         agregarHijo((yyval.nodo), (yyvsp[-3].nodo));  // El delimitador
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));  // Lista de expresiones a unir
     }
-#line 3218 "src/parser/parser.tab.c"
+#line 3220 "src/parser/parser.tab.c"
     break;
 
-  case 126: /* primary: TOKEN_PARSEJOIN TOKEN_PARIZQ expresion TOKEN_COMA expresion TOKEN_PARDER  */
-#line 925 "src/parser/parser.y"
+  case 125: /* primary: TOKEN_PARSEJOIN TOKEN_PARIZQ expresion TOKEN_COMA expresion TOKEN_PARDER  */
+#line 943 "src/parser/parser.y"
                                                                                {
         (yyval.nodo) = crearNodo(AST_PARSEJOIN, "Strings.join");
         (yyval.nodo)->linea = (yylsp[-5]).first_line; (yyval.nodo)->columna = (yylsp[-5]).first_column;
@@ -3229,27 +3231,35 @@ yyreduce:
         agregarHijo(lista, (yyvsp[-1].nodo));
         agregarHijo((yyval.nodo), lista);
     }
-#line 3233 "src/parser/parser.tab.c"
+#line 3235 "src/parser/parser.tab.c"
     break;
 
-  case 127: /* primary: acceso  */
-#line 935 "src/parser/parser.y"
+  case 126: /* primary: acceso  */
+#line 953 "src/parser/parser.y"
              {
           (yyval.nodo) = (yyvsp[0].nodo);
       }
-#line 3241 "src/parser/parser.tab.c"
+#line 3243 "src/parser/parser.tab.c"
+    break;
+
+  case 127: /* primary: Llamadas  */
+#line 956 "src/parser/parser.y"
+              {
+        (yyval.nodo) = (yyvsp[0].nodo);
+    }
+#line 3251 "src/parser/parser.tab.c"
     break;
 
   case 128: /* primary: TOKEN_PARIZQ expresion TOKEN_PARDER  */
-#line 938 "src/parser/parser.y"
+#line 959 "src/parser/parser.y"
                                           {
           (yyval.nodo) = (yyvsp[-1].nodo);
       }
-#line 3249 "src/parser/parser.tab.c"
+#line 3259 "src/parser/parser.tab.c"
     break;
 
   case 129: /* lista_expresiones_join: lista_expresiones_join TOKEN_COMA expresion  */
-#line 944 "src/parser/parser.y"
+#line 965 "src/parser/parser.y"
                                                 {
         if ((yyvsp[-2].nodo)->tipo != AST_LISTA) {
             NodoAST* lista = crearNodo(AST_LISTA, "Lista Strings");
@@ -3261,30 +3271,30 @@ yyreduce:
             (yyval.nodo) = (yyvsp[-2].nodo);
         }
     }
-#line 3265 "src/parser/parser.tab.c"
+#line 3275 "src/parser/parser.tab.c"
     break;
 
   case 130: /* lista_expresiones_join: expresion  */
-#line 955 "src/parser/parser.y"
+#line 976 "src/parser/parser.y"
                 {
         (yyval.nodo) = crearNodo(AST_LISTA, "Lista Strings");
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 3274 "src/parser/parser.tab.c"
+#line 3284 "src/parser/parser.tab.c"
     break;
 
   case 131: /* instruccion_print: TOKEN_PRINT TOKEN_PARIZQ expresion TOKEN_PARDER  */
-#line 963 "src/parser/parser.y"
+#line 984 "src/parser/parser.y"
                                                     {
         (yyval.nodo) = crearNodo(AST_PRINT, "System.out.println");
         (yyval.nodo)->linea = (yylsp[-3]).first_line; (yyval.nodo)->columna = (yylsp[-3]).first_column;
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
     }
-#line 3284 "src/parser/parser.tab.c"
+#line 3294 "src/parser/parser.tab.c"
     break;
 
   case 132: /* instruccion_print: TOKEN_PRINT TOKEN_PARIZQ TOKEN_CADENA TOKEN_MAS expresion TOKEN_PARDER  */
-#line 968 "src/parser/parser.y"
+#line 989 "src/parser/parser.y"
                                                                              {
         // Manejo específico para concatenación en print
         NodoAST* concat = crearNodo(AST_OPERACION, "+");
@@ -3298,50 +3308,60 @@ yyreduce:
         (yyval.nodo)->linea = (yylsp[-5]).first_line; (yyval.nodo)->columna = (yylsp[-5]).first_column;
         agregarHijo((yyval.nodo), concat);
     }
-#line 3302 "src/parser/parser.tab.c"
+#line 3312 "src/parser/parser.tab.c"
     break;
 
   case 133: /* bloque: TOKEN_LLAVEIZQ lista_sentencias TOKEN_LLAVEDER  */
-#line 984 "src/parser/parser.y"
+#line 1005 "src/parser/parser.y"
                                                    {
         (yyval.nodo) = crearNodo(AST_BLOQUE, NULL);
         (yyval.nodo)->linea = (yylsp[-2]).first_line; (yyval.nodo)->columna = (yylsp[-2]).first_column;
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
     }
-#line 3312 "src/parser/parser.tab.c"
+#line 3322 "src/parser/parser.tab.c"
     break;
 
   case 134: /* instruccion_break: TOKEN_BREAK  */
-#line 992 "src/parser/parser.y"
+#line 1013 "src/parser/parser.y"
                 {
         (yyval.nodo) = crearNodo(AST_BREAK, "break");
         (yyval.nodo)->linea = (yylsp[0]).first_line; (yyval.nodo)->columna = (yylsp[0]).first_column;
     }
-#line 3321 "src/parser/parser.tab.c"
+#line 3331 "src/parser/parser.tab.c"
     break;
 
   case 135: /* instruccion_continue: TOKEN_CONTINUE  */
-#line 999 "src/parser/parser.y"
+#line 1020 "src/parser/parser.y"
                    {
         (yyval.nodo) = crearNodo(AST_CONTINUE, "continue");
         (yyval.nodo)->linea = (yylsp[0]).first_line; (yyval.nodo)->columna = (yylsp[0]).first_column;
     }
-#line 3330 "src/parser/parser.tab.c"
+#line 3340 "src/parser/parser.tab.c"
     break;
 
-  case 136: /* instruccion_if: TOKEN_IF TOKEN_PARIZQ expresion TOKEN_PARDER bloque  */
-#line 1006 "src/parser/parser.y"
+  case 136: /* instruccion_return: TOKEN_RETURN expresion  */
+#line 1027 "src/parser/parser.y"
+                           {
+        (yyval.nodo) = crearNodo(AST_RETURN, "return");
+        (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
+        agregarHijo((yyval.nodo), (yyvsp[0].nodo));
+    }
+#line 3350 "src/parser/parser.tab.c"
+    break;
+
+  case 137: /* instruccion_if: TOKEN_IF TOKEN_PARIZQ expresion TOKEN_PARDER bloque  */
+#line 1037 "src/parser/parser.y"
                                                                        {
         (yyval.nodo) = crearNodo(AST_IF, "if");
         (yyval.nodo)->linea = (yylsp[-4]).first_line; (yyval.nodo)->columna = (yylsp[-4]).first_column;
         agregarHijo((yyval.nodo), (yyvsp[-2].nodo));   // condición
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));   // bloque if
     }
-#line 3341 "src/parser/parser.tab.c"
+#line 3361 "src/parser/parser.tab.c"
     break;
 
-  case 137: /* instruccion_if: TOKEN_IF TOKEN_PARIZQ expresion TOKEN_PARDER bloque TOKEN_ELSE bloque  */
-#line 1012 "src/parser/parser.y"
+  case 138: /* instruccion_if: TOKEN_IF TOKEN_PARIZQ expresion TOKEN_PARDER bloque TOKEN_ELSE bloque  */
+#line 1043 "src/parser/parser.y"
                                                                             {
         (yyval.nodo) = crearNodo(AST_IF, "if");
         (yyval.nodo)->linea = (yylsp[-6]).first_line; (yyval.nodo)->columna = (yylsp[-6]).first_column;
@@ -3351,11 +3371,11 @@ yyreduce:
         agregarHijo(else_node, (yyvsp[0].nodo));
         agregarHijo((yyval.nodo), else_node);
     }
-#line 3355 "src/parser/parser.tab.c"
+#line 3375 "src/parser/parser.tab.c"
     break;
 
-  case 138: /* instruccion_if: TOKEN_IF TOKEN_PARIZQ expresion TOKEN_PARDER bloque TOKEN_ELSE instruccion_if  */
-#line 1021 "src/parser/parser.y"
+  case 139: /* instruccion_if: TOKEN_IF TOKEN_PARIZQ expresion TOKEN_PARDER bloque TOKEN_ELSE instruccion_if  */
+#line 1052 "src/parser/parser.y"
                                                                                     {
         (yyval.nodo) = crearNodo(AST_IF, "if");
         (yyval.nodo)->linea = (yylsp[-6]).first_line; (yyval.nodo)->columna = (yylsp[-6]).first_column;
@@ -3365,22 +3385,22 @@ yyreduce:
         agregarHijo(elseif_node, (yyvsp[0].nodo));
         agregarHijo((yyval.nodo), elseif_node);
     }
-#line 3369 "src/parser/parser.tab.c"
+#line 3389 "src/parser/parser.tab.c"
     break;
 
-  case 139: /* intruccion_switch: TOKEN_SWITCH TOKEN_PARIZQ expresion TOKEN_PARDER TOKEN_LLAVEIZQ lista_casos TOKEN_LLAVEDER  */
-#line 1034 "src/parser/parser.y"
+  case 140: /* intruccion_switch: TOKEN_SWITCH TOKEN_PARIZQ expresion TOKEN_PARDER TOKEN_LLAVEIZQ lista_casos TOKEN_LLAVEDER  */
+#line 1065 "src/parser/parser.y"
                                                                                                {
         (yyval.nodo) = crearNodo(AST_SWITCH, "switch");
         (yyval.nodo)->linea = (yylsp[-6]).first_line; (yyval.nodo)->columna = (yylsp[-6]).first_column;
         agregarHijo((yyval.nodo), (yyvsp[-4].nodo));
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
     }
-#line 3380 "src/parser/parser.tab.c"
+#line 3400 "src/parser/parser.tab.c"
     break;
 
-  case 140: /* lista_casos: lista_casos caso  */
-#line 1043 "src/parser/parser.y"
+  case 141: /* lista_casos: lista_casos caso  */
+#line 1074 "src/parser/parser.y"
                      {
         if ((yyvsp[-1].nodo)->tipo != AST_LISTA) {
             NodoAST* lista = crearNodo(AST_LISTA, "Casos");
@@ -3392,20 +3412,20 @@ yyreduce:
             (yyval.nodo) = (yyvsp[-1].nodo);
         }
     }
-#line 3396 "src/parser/parser.tab.c"
+#line 3416 "src/parser/parser.tab.c"
     break;
 
-  case 141: /* lista_casos: caso  */
-#line 1054 "src/parser/parser.y"
+  case 142: /* lista_casos: caso  */
+#line 1085 "src/parser/parser.y"
            {
         (yyval.nodo) = crearNodo(AST_LISTA, "Casos");
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 3405 "src/parser/parser.tab.c"
+#line 3425 "src/parser/parser.tab.c"
     break;
 
-  case 142: /* caso: TOKEN_CASE expresion TOKEN_DOS_PUNTOS lista_sentencias TOKEN_BREAK TOKEN_PUNTOCOMA  */
-#line 1061 "src/parser/parser.y"
+  case 143: /* caso: TOKEN_CASE expresion TOKEN_DOS_PUNTOS lista_sentencias TOKEN_BREAK TOKEN_PUNTOCOMA  */
+#line 1092 "src/parser/parser.y"
                                                                                       {
         (yyval.nodo) = crearNodo(AST_CASE, "CASE");
         (yyval.nodo)->linea = (yylsp[-5]).first_line; (yyval.nodo)->columna = (yylsp[-5]).first_column;
@@ -3415,32 +3435,32 @@ yyreduce:
         nodoBreak->linea = (yylsp[-1]).first_line; nodoBreak->columna = (yylsp[-1]).first_column;
         agregarHijo((yyval.nodo), nodoBreak);
     }
-#line 3419 "src/parser/parser.tab.c"
+#line 3439 "src/parser/parser.tab.c"
     break;
 
-  case 143: /* caso: TOKEN_DEFAULT TOKEN_DOS_PUNTOS lista_sentencias  */
-#line 1070 "src/parser/parser.y"
+  case 144: /* caso: TOKEN_DEFAULT TOKEN_DOS_PUNTOS lista_sentencias  */
+#line 1101 "src/parser/parser.y"
                                                       {
         (yyval.nodo) = crearNodo(AST_DEFAULT, "DEFAULT");
         (yyval.nodo)->linea = (yylsp[-2]).first_line; (yyval.nodo)->columna = (yylsp[-2]).first_column;
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 3429 "src/parser/parser.tab.c"
+#line 3449 "src/parser/parser.tab.c"
     break;
 
-  case 144: /* instruccion_while: TOKEN_WHILE TOKEN_PARIZQ expresion TOKEN_PARDER bloque  */
-#line 1078 "src/parser/parser.y"
+  case 145: /* instruccion_while: TOKEN_WHILE TOKEN_PARIZQ expresion TOKEN_PARDER bloque  */
+#line 1109 "src/parser/parser.y"
                                                            {
         (yyval.nodo) = crearNodo(AST_WHILE, "while");
         (yyval.nodo)->linea = (yylsp[-4]).first_line; (yyval.nodo)->columna = (yylsp[-4]).first_column;
         agregarHijo((yyval.nodo), (yyvsp[-2].nodo));
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 3440 "src/parser/parser.tab.c"
+#line 3460 "src/parser/parser.tab.c"
     break;
 
-  case 145: /* instruccion_for: TOKEN_FOR TOKEN_PARIZQ declaracion TOKEN_PUNTOCOMA expresion TOKEN_PUNTOCOMA expresion TOKEN_PARDER bloque  */
-#line 1087 "src/parser/parser.y"
+  case 146: /* instruccion_for: TOKEN_FOR TOKEN_PARIZQ declaracion TOKEN_PUNTOCOMA expresion TOKEN_PUNTOCOMA expresion TOKEN_PARDER bloque  */
+#line 1118 "src/parser/parser.y"
                                                                                                               {
         (yyval.nodo) = crearNodo(AST_FOR, "FOR");
         (yyval.nodo)->linea = (yylsp[-8]).first_line; (yyval.nodo)->columna = (yylsp[-8]).first_column;
@@ -3449,11 +3469,11 @@ yyreduce:
         agregarHijo((yyval.nodo), (yyvsp[-2].nodo));
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 3453 "src/parser/parser.tab.c"
+#line 3473 "src/parser/parser.tab.c"
     break;
 
-  case 146: /* instruccion_for: TOKEN_FOR TOKEN_PARIZQ asignacion TOKEN_PUNTOCOMA expresion TOKEN_PUNTOCOMA expresion TOKEN_PARDER bloque  */
-#line 1095 "src/parser/parser.y"
+  case 147: /* instruccion_for: TOKEN_FOR TOKEN_PARIZQ asignacion TOKEN_PUNTOCOMA expresion TOKEN_PUNTOCOMA expresion TOKEN_PARDER bloque  */
+#line 1126 "src/parser/parser.y"
                                                                                                                {
         (yyval.nodo) = crearNodo(AST_FOR, "FOR");
         (yyval.nodo)->linea = (yylsp[-8]).first_line; (yyval.nodo)->columna = (yylsp[-8]).first_column;
@@ -3462,11 +3482,11 @@ yyreduce:
         agregarHijo((yyval.nodo), (yyvsp[-2].nodo));
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 3466 "src/parser/parser.tab.c"
+#line 3486 "src/parser/parser.tab.c"
     break;
 
 
-#line 3470 "src/parser/parser.tab.c"
+#line 3490 "src/parser/parser.tab.c"
 
       default: break;
     }
@@ -3695,7 +3715,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 1105 "src/parser/parser.y"
+#line 1136 "src/parser/parser.y"
 
 
 /* ========== FUNCIONES AUXILIARES ========== */

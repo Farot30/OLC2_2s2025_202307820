@@ -67,5 +67,5 @@ ResultadoEjecucion EjecutarLlamadaVoid(NodoAST* nodo) {
     printf("[DEBUG] Saliendo del ámbito de la función void '%s'\n", idNodo->valor);
     salirAmbito();
 
-    return EJEC_OK; // Siempre retornamos EJEC_OK para funciones void
+    return EJEC_OK;
 }

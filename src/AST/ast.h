@@ -56,6 +56,7 @@ typedef enum {
     AST_PARAMETROS,
     AST_RETURN,
     AST_LISTA_PARAMETROS,
+    AST_PARAMETRO,
 
     // Por si se me olvida, aquí es agregar más tipos
 } TipoNodoAST;

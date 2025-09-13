@@ -18,6 +18,9 @@
 #include "../simbolos/Evaluador.h"
 #include "../semantico/Funciones/FuncionVoid.h"
 #include "../semantico/Funciones/LlamadasVoid.h"
+#include "../semantico/Funciones/Llamadas.h"
+#include "../semantico/Funciones/Funcion.h"
+#include "../semantico/Instrucciones/return.h"
 #include "ejecutar_ast.h"
 #include "err.h"
 #include <stdio.h>
@@ -25,8 +28,10 @@
 
 int contexto_break = 0;
 int contexto_continue = 0;
+int contexto_funcion = 0;
+ValorSimbolo valorRetorno;
+int hayRetorno = 0;
 
-// Función para ejecutar cada nodo del AST en orden secuencial
 ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
     // Verificación más robusta de nodos
     if (!nodo) {
@@ -46,21 +51,18 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
     switch (nodo->tipo) {
         case AST_LISTA:
         case AST_BLOQUE:
-            //printf("[DEBUG BLOQUE] Procesando bloque con %d hijos\n", nodo->num_hijos);
+            printf("[DEBUG BLOQUE] Procesando bloque con %d hijos\n", nodo->num_hijos);
             for (int i = 0; i < nodo->num_hijos; i++) {
                 if (nodo->hijos[i] == NULL) {
                     printf("[WARNING BLOQUE] Hijo %d es NULL, saltando\n", i);
                     continue;
                 }
-                //printf("[DEBUG BLOQUE] Ejecutando hijo %d (tipo: %d)\n", i, nodo->hijos[i]->tipo);
+                printf("[DEBUG BLOQUE] Ejecutando hijo %d (tipo: %d)\n", i, nodo->hijos[i]->tipo);
                 ResultadoEjecucion res = ejecutarNodoAST(nodo->hijos[i]);
-                if (res == EJEC_BREAK) {
-                    //printf("[DEBUG BLOQUE] Propagando BREAK desde hijo %d\n", i);
-                    return EJEC_BREAK;
-                }
-                if (res == EJEC_CONTINUE) {
-                    //printf("[DEBUG BLOQUE] Propagando CONTINUE desde hijo %d\n", i);
-                    return EJEC_CONTINUE;
+                // Propagar todos los resultados especiales, incluido RETURN
+                if (res != EJEC_OK) {
+                    printf("[DEBUG BLOQUE] Propagando resultado %d desde hijo %d\n", res, i);
+                    return res;
                 }
             }
             return EJEC_OK;
@@ -335,6 +337,23 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
             printf("[DEBUG] Procesando llamada a función void\n");
             return EjecutarLlamadaVoid(nodo);
         }
+        case AST_FUNCION:{
+            printf("[DEBUG] Procesando función\n");
+            contexto_funcion++;
+            ResultadoEjecucion res = DeclararFuncion(nodo);
+            contexto_funcion--;
+            return res;
+        }
+        case AST_LLAMADA:{
+            printf("[DEBUG] Procesando llamada a función\n");
+            contexto_funcion++;
+            ResultadoEjecucion res = EjecutarLlamadas(nodo);
+            contexto_funcion--;
+            return res;
+        }
+        case AST_RETURN:
+            printf("[DEBUG] Procesando return\n");
+            return ejecutarSentenciaReturn(nodo);
 
         default:
             printf("[DEBUG] Nodo tipo %d no manejado específicamente, procesando hijos\n", nodo->tipo);

@@ -2,6 +2,7 @@
 #define EJECUTOR_AST_H
 
 #include "ast.h"
+#include "../simbolos/Evaluador.h"  
 
 typedef enum {
     EJEC_OK,
@@ -12,6 +13,12 @@ typedef enum {
 
 extern int contexto_break;
 extern int contexto_continue;
+extern int contexto_funcion;
+
+// Variables para manejar el valor de retorno
+extern ValorSimbolo valorRetorno;
+extern int hayRetorno;
+
 // Función principal para interpretar el programa completo
 void interpretarPrograma(NodoAST* raiz);
 

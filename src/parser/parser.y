@@ -56,6 +56,7 @@
 %token <str> TOKEN_PARSEDOUBLE
 %token <str> TOKEN_PARSEJOIN TOKEN_INDEXOF TOKEN_LENGHT TOKEN_ADD TOKEN_PUNTO
 %token <str> TOKEN_VOID
+%token <str> TOKEN_RETURN
 
 /* Tokens para asignaciones compuestas */
 %token <str> TOKEN_MAS_IGUAL TOKEN_MENOS_IGUAL TOKEN_POR_IGUAL
@@ -76,7 +77,7 @@
 %type <nodo> intruccion_switch lista_casos caso
 %type <nodo> instruccion_while instruccion_break instruccion_continue
 %type <nodo> instruccion_for lista_expresiones_join
-%type <nodo> Funcion_void Llamadas lista_parametros Funcion_parametros parametros
+%type <nodo> Funcion_void Llamadas lista_parametros Funcion_parametros parametros instruccion_return
 %type <str> tipo_primitivo
 
 /* ========== PRECEDENCIA CORREGIDA ========== */
@@ -151,9 +152,8 @@ sentencia:
     | declaracion_matriz TOKEN_PUNTOCOMA      { $$ = $1; }
     | declaracion_array_multidimensional TOKEN_PUNTOCOMA { $$ = $1; }
     | Funcion_void                  { $$ = $1; }
+    | instruccion_return TOKEN_PUNTOCOMA { $$ = $1; }
     | Funcion_parametros            { $$ = $1; }
-    | Llamadas TOKEN_PUNTOCOMA      { $$ = $1; }
-    | expresion TOKEN_PUNTOCOMA     { $$ = $1; }
     | instruccion_break TOKEN_PUNTOCOMA {$$ = $1; }
     | instruccion_continue TOKEN_PUNTOCOMA {$$ = $1; }
 
@@ -167,24 +167,21 @@ sentencia:
 /* ========== DECLARACIONES ========== */
 declaracion:
     tipo_primitivo TOKEN_IDENTIFICADOR TOKEN_IGUAL expresion {
-        $$ = crearNodo(AST_DECLARACION, NULL);
-        $$->valor = strdup($1);
-        $$->linea = @2.first_line; 
-        $$->columna = @2.first_column;
+        $$ = crearNodo(AST_DECLARACION, "declaracion");
+        $$->linea = @2.first_line; $$->columna = @2.first_column;
+        agregarHijo($$, crearNodo(AST_TIPO, $1));
+        
         NodoAST* id = crearNodo(AST_IDENTIFICADOR, $2);
-        id->linea = @2.first_line; // Cambia @3 a @2
-        id->columna = @2.first_column;
+        id->linea = @2.first_line; id->columna = @2.first_column;
         agregarHijo($$, id);
         agregarHijo($$, $4);
     }
     | tipo_primitivo TOKEN_IDENTIFICADOR {
-        $$ = crearNodo(AST_DECLARACION, NULL);
-        $$->valor = strdup($1);
-        $$->linea = @2.first_line; 
-        $$->columna = @2.first_column;
+        $$ = crearNodo(AST_DECLARACION, "declaracion");
+        $$->linea = @2.first_line; $$->columna = @2.first_column;
+        agregarHijo($$, crearNodo(AST_TIPO, $1));
         NodoAST* id = crearNodo(AST_IDENTIFICADOR, $2);
-        id->linea = @2.first_line; // Cambia @3 a @2
-        id->columna = @2.first_column;
+        id->linea = @2.first_line; id->columna = @2.first_column;
         NodoAST* def = crearNodo(AST_CADENA, (char*)valorPorDefectoTipo(obtenerTipoDesdeString($1)));
         agregarHijo($$, id);
         agregarHijo($$, def);
@@ -527,19 +524,15 @@ Llamadas:
         id1->linea = @1.first_line; id1->columna = @1.first_column;
         agregarHijo($$, id1);
     }
-    | tipo_primitivo TOKEN_IDENTIFICADOR TOKEN_PARIZQ lista_parametros TOKEN_PARDER {
-        $$ = crearNodo(AST_LLAMADA_VOID, "Llamada funcion void");
+    | TOKEN_IDENTIFICADOR TOKEN_PARIZQ lista_parametros TOKEN_PARDER {
+        $$ = crearNodo(AST_LLAMADA, "Llamada funcion");
         $$->linea = @1.first_line; $$->columna = @1.first_column;
 
-        NodoAST* Tipo = crearNodo(AST_TIPO, $1);
-        Tipo->linea = @1.first_line; Tipo->columna = @1.first_column;
-        agregarHijo($$, Tipo);
-
-        NodoAST* id1 = crearNodo(AST_IDENTIFICADOR, $2);
-        id1->linea = @2.first_line; id1->columna = @2.first_column;
+        NodoAST* id1 = crearNodo(AST_IDENTIFICADOR, $1);
+        id1->linea = @1.first_line; id1->columna = @1.first_column;
         agregarHijo($$, id1);
 
-        agregarHijo($$, $4);
+        agregarHijo($$, $3);
     }
 ;
 
@@ -562,44 +555,69 @@ lista_parametros:
 ;
 
 Funcion_parametros:
-    tipo_primitivo TOKEN_IDENTIFICADOR TOKEN_PARIZQ parametros TOKEN_PARIZQ bloque{
-        $$ = crearNodo(AST_LLAMADA_VOID, "Llamada funcion void");
+    tipo_primitivo TOKEN_IDENTIFICADOR TOKEN_PARIZQ parametros TOKEN_PARDER TOKEN_LLAVEIZQ lista_sentencias TOKEN_LLAVEDER {
+        $$ = crearNodo(AST_FUNCION, "Función con parametros");
         $$->linea = @1.first_line; $$->columna = @1.first_column;
+
+        NodoAST* tipo = crearNodo(AST_TIPO, $1);
+        tipo->linea = @1.first_line; tipo->columna = @1.first_column;
+        agregarHijo($$, tipo);
 
         NodoAST* id = crearNodo(AST_IDENTIFICADOR, $2);
         id->linea = @2.first_line; id->columna = @2.first_column;
         agregarHijo($$, id);
 
-        agregarHijo($$, $6);
+        agregarHijo($$, $4);
+        agregarHijo($$, $7);
     }
 ;
-
 parametros:
-    parametros TOKEN_COMA tipo_primitivo TOKEN_IDENTIFICADOR  {
+    parametros TOKEN_COMA tipo_primitivo TOKEN_IDENTIFICADOR {
         if($1->tipo != AST_PARAMETROS) {
             NodoAST* lista = crearNodo(AST_PARAMETROS, "parametros");
             agregarHijo(lista, $1);
+            
+            NodoAST* param = crearNodo(AST_PARAMETRO, "parametro");
+            
             NodoAST* tipo = crearNodo(AST_TIPO, $3);
             tipo->linea = @3.first_line; tipo->columna = @3.first_column;
-            agregarHijo(lista, tipo);
-            NodoAST* id1 = crearNodo(AST_IDENTIFICADOR, $4);
-            id1->linea = @4.first_line; id1->columna = @4.first_column;
-            agregarHijo(lista, id1);
+            agregarHijo(param, tipo);
+            
+            NodoAST* id = crearNodo(AST_IDENTIFICADOR, $4);
+            id->linea = @4.first_line; id->columna = @4.first_column;
+            agregarHijo(param, id);
+            
+            agregarHijo(lista, param);
+            $$ = lista;
         } else {
+            NodoAST* param = crearNodo(AST_PARAMETRO, "parametro");
+            
             NodoAST* tipo = crearNodo(AST_TIPO, $3);
             tipo->linea = @3.first_line; tipo->columna = @3.first_column;
-            agregarHijo($1, tipo);
+            agregarHijo(param, tipo);
+            
+            NodoAST* id = crearNodo(AST_IDENTIFICADOR, $4);
+            id->linea = @4.first_line; id->columna = @4.first_column;
+            agregarHijo(param, id);
+            
+            agregarHijo($1, param);
             $$ = $1;
         }
     }
     | tipo_primitivo TOKEN_IDENTIFICADOR {
         $$ = crearNodo(AST_PARAMETROS, "parametros");
-        NodoAST* tipo1 = crearNodo(AST_TIPO, $1);
-        tipo1->linea = @1.first_line; tipo1->columna = @1.first_column;
-        agregarHijo($$, tipo1);
-        NodoAST* id2 = crearNodo(AST_IDENTIFICADOR, $2);
-        id2->linea = @2.first_line; id2->columna = @2.first_column;
-        agregarHijo($$, id2);
+        
+        NodoAST* param = crearNodo(AST_PARAMETRO, "parametro");
+        
+        NodoAST* tipo = crearNodo(AST_TIPO, $1);
+        tipo->linea = @1.first_line; tipo->columna = @1.first_column;
+        agregarHijo(param, tipo);
+        
+        NodoAST* id = crearNodo(AST_IDENTIFICADOR, $2);
+        id->linea = @2.first_line; id->columna = @2.first_column;
+        agregarHijo(param, id);
+        
+        agregarHijo($$, param);
     }
 ;
 
@@ -935,6 +953,9 @@ primary:
     | acceso {
           $$ = $1;
       }
+    | Llamadas{
+        $$ = $1;
+    }  
     | TOKEN_PARIZQ expresion TOKEN_PARDER {
           $$ = $2;
       }
@@ -1000,6 +1021,16 @@ instruccion_continue:
         $$ = crearNodo(AST_CONTINUE, "continue");
         $$->linea = @1.first_line; $$->columna = @1.first_column;
     }
+;
+
+instruccion_return:
+    TOKEN_RETURN expresion {
+        $$ = crearNodo(AST_RETURN, "return");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+        agregarHijo($$, $2);
+    }
+;
+
 
 /* ========== CONTROL DE FLUJOS ========== */
 instruccion_if:

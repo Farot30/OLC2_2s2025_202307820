@@ -17,9 +17,10 @@ int verificarDeclaracion(NodoAST* nodo) {
         return 0;
     }
 
-    NodoAST* identificador = nodo->hijos[0];
-    NodoAST* valor = nodo->hijos[1];
-    TipoDato tipoDeclarado = obtenerTipoDesdeString(nodo->valor);
+    NodoAST* tipoNodo = nodo->hijos[0];
+    NodoAST* identificador = nodo->hijos[1];
+    NodoAST* valor = (nodo->num_hijos > 2) ? nodo->hijos[2] : NULL;
+    TipoDato tipoDeclarado = obtenerTipoDesdeString(tipoNodo->valor);
 
     printf("[DEBUG] Declarando '%s': tipo declarado=%s\n",
            identificador->valor, nombreTipo(tipoDeclarado));

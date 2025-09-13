@@ -39,6 +39,8 @@ typedef struct Simbolo {
     struct Simbolo* siguiente;
     int inicializado;   
     NodoAST* nodo_bloque; 
+    NodoAST* nodo_return;
+    NodoAST* nodo_params;
 } Simbolo;
 
 extern char* pilaAmbitos[MAX_SCOPES];
@@ -57,6 +59,8 @@ void mostrarTablaSimbolos();
 void setValorSimbolo(Simbolo* sim, TipoDato tipo, ValorSimbolo valor);
 ValorSimbolo getValorSimbolo(Simbolo* sim);
 void asignarValor(Simbolo* simbolo, ValorSimbolo valor);
+
+Simbolo* buscarSimboloPorId(int id);
 
 void asignarElementoArrayMultidimensional(Simbolo* simbolo, int* indices, int numIndices, ValorSimbolo valor);
 

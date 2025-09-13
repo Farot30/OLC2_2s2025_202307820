@@ -1,5 +1,5 @@
-#ifndef FUNCIONES_LLAMADAS_H
-#define FUNCIONES_LLAMADAS_H
+#ifndef FUNCIONES_LLAMADASVOID_H
+#define FUNCIONES_LLAMADASVOID_H
 
 #include "../../AST/ast.h"
 #include "../tabla_simbolo.h"
@@ -7,4 +7,4 @@
 
 ResultadoEjecucion EjecutarLlamadaVoid(NodoAST* nodo);
 
-#endif // FUNCIONES_LLAMADAS_H
+#endif

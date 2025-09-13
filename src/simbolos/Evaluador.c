@@ -7,6 +7,7 @@
 #include "../semantico/semantico.h"
 #include "../semantico/Vectores/acceso_vector.h"
 #include "../semantico/Vectores/acceso_matriz.h"
+#include "../semantico/Funciones/Llamadas.h"
 #include "../AST/err.h"
 #include <string.h>
 #include <stdlib.h>
@@ -210,6 +211,17 @@ ValorSimbolo evaluarExpr(NodoAST* e) {
             return evaluarLength(e);
         case AST_ADD:
             return evaluarAdd(e);
+        case AST_LLAMADA: {
+            printf("[DEBUG EVALUADOR] Evaluando llamada a función como expresión\n");
+            ValorSimbolo resultado = EvaluarLlamadaFuncion(e);
+            if (resultado.inicializado) {
+                printf("[DEBUG EVALUADOR] Función retornó valor de tipo %s\n", nombreTipo(resultado.tipo));
+                return resultado;
+            } else {
+                printf("[ERROR EVALUADOR] Función no retornó un valor inicializado\n");
+                return r;  // Valor no inicializado
+            }
+        }
         case AST_ACCESO: {
             printf("[DEBUG EVALUADOR] Evaluando acceso a vector/matriz en expresión\n");
             
@@ -317,3 +329,140 @@ ValorSimbolo evaluarExpr(NodoAST* e) {
     return r;
 }
 
+ValorSimbolo convertirValor(ValorSimbolo origen, TipoDato tipoDestino) {
+    ValorSimbolo resultado;
+    memset(&resultado, 0, sizeof(ValorSimbolo));
+    resultado.tipo = tipoDestino;
+    resultado.inicializado = 1;
+    
+    // Si el tipo origen y destino son iguales, no hay conversión
+    if (origen.tipo == tipoDestino) {
+        if (origen.tipo == TIPO_STRING && origen.v.s) {
+            resultado.v.s = strdup(origen.v.s);
+        } else {
+            resultado = origen;
+        }
+        return resultado;
+    }
+    
+    // Realizar conversiones según los tipos origen y destino
+    switch (tipoDestino) {
+        case TIPO_INT:
+            switch (origen.tipo) {
+                case TIPO_CHAR:
+                    resultado.v.i = (int)origen.v.c;
+                    break;
+                case TIPO_FLOAT:
+                    resultado.v.i = (int)origen.v.f;
+                    break;
+                case TIPO_DOUBLE:
+                    resultado.v.i = (int)origen.v.d;
+                    break;
+                case TIPO_BOOLEAN:
+                    resultado.v.i = origen.v.b ? 1 : 0;
+                    break;
+                default:
+                    resultado.inicializado = 0;
+                    break;
+            }
+            break;
+            
+        case TIPO_FLOAT:
+            switch (origen.tipo) {
+                case TIPO_CHAR:
+                    resultado.v.f = (float)origen.v.c;
+                    break;
+                case TIPO_INT:
+                    resultado.v.f = (float)origen.v.i;
+                    break;
+                case TIPO_DOUBLE:
+                    resultado.v.f = (float)origen.v.d;
+                    break;
+                default:
+                    resultado.inicializado = 0;
+                    break;
+            }
+            break;
+            
+        case TIPO_DOUBLE:
+            switch (origen.tipo) {
+                case TIPO_CHAR:
+                    resultado.v.d = (double)origen.v.c;
+                    break;
+                case TIPO_INT:
+                    resultado.v.d = (double)origen.v.i;
+                    break;
+                case TIPO_FLOAT:
+                    resultado.v.d = (double)origen.v.f;
+                    break;
+                default:
+                    resultado.inicializado = 0;
+                    break;
+            }
+            break;
+            
+        case TIPO_CHAR:
+            switch (origen.tipo) {
+                case TIPO_INT:
+                    resultado.v.c = (char)origen.v.i;
+                    break;
+                default:
+                    resultado.inicializado = 0;
+                    break;
+            }
+            break;
+            
+        case TIPO_BOOLEAN:
+            switch (origen.tipo) {
+                case TIPO_INT:
+                    resultado.v.b = origen.v.i != 0;
+                    break;
+                default:
+                    resultado.inicializado = 0;
+                    break;
+            }
+            break;
+            
+        case TIPO_STRING:
+            // Conversión a string según el tipo de origen
+            switch (origen.tipo) {
+                case TIPO_INT: {
+                    char buffer[32];
+                    snprintf(buffer, sizeof(buffer), "%d", origen.v.i);
+                    resultado.v.s = strdup(buffer);
+                    break;
+                }
+                case TIPO_FLOAT: {
+                    char buffer[32];
+                    snprintf(buffer, sizeof(buffer), "%f", origen.v.f);
+                    resultado.v.s = strdup(buffer);
+                    break;
+                }
+                case TIPO_DOUBLE: {
+                    char buffer[32];
+                    snprintf(buffer, sizeof(buffer), "%lf", origen.v.d);
+                    resultado.v.s = strdup(buffer);
+                    break;
+                }
+                case TIPO_CHAR: {
+                    char buffer[2] = {origen.v.c, '\0'};
+                    resultado.v.s = strdup(buffer);
+                    break;
+                }
+                case TIPO_BOOLEAN: {
+                    resultado.v.s = strdup(origen.v.b ? "true" : "false");
+                    break;
+                }
+                default:
+                    resultado.inicializado = 0;
+                    break;
+            }
+            break;
+            
+        default:
+            resultado.inicializado = 0;
+            break;
+    }
+    return resultado;
+}
+   

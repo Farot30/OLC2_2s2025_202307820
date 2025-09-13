@@ -47,6 +47,9 @@ BACKEND_SRC = \
 	$(SRC_DIR)/semantico/Embebidas/EvaluadorNumerico.c \
 	$(SRC_DIR)/semantico/Funciones/LlamadasVoid.c \
 	$(SRC_DIR)/semantico/Funciones/FuncionVoid.c \
+	$(SRC_DIR)/semantico/Funciones/Llamadas.c \
+	$(SRC_DIR)/semantico/Funciones/Funcion.c \
+	$(SRC_DIR)/semantico/Instrucciones/return.c \
 	$(SRC_DIR)/simbolos/salida.c \
 	$(SRC_DIR)/simbolos/Operador.c
 
@@ -87,6 +90,9 @@ GUI_SRC = \
 	$(SRC_DIR)/semantico/Embebidas/EvaluadorNumerico.c \
 	$(SRC_DIR)/semantico/Funciones/LlamadasVoid.c \
 	$(SRC_DIR)/semantico/Funciones/FuncionVoid.c \
+	$(SRC_DIR)/semantico/Funciones/Llamadas.c \
+	$(SRC_DIR)/semantico/Funciones/Funcion.c \
+	$(SRC_DIR)/semantico/Instrucciones/return.c \
 	$(SRC_DIR)/simbolos/Operador.c \
 	$(SRC_DIR)/simbolos/salida.c
 

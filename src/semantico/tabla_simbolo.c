@@ -19,6 +19,15 @@ void entrarAmbito(const char* nombre) {
     }
 }
 
+Simbolo* buscarSimboloPorId(int id) {
+    Simbolo* actual = tabla;
+    while (actual) {
+        if (actual->id == id) return actual;
+        actual = actual->siguiente;
+    }
+    return NULL;
+}
+
 void salirAmbito(void) {
     if (topeAmbitos > 0) {
         printf("[DEBUG] Saliendo del ámbito: %s\n", pilaAmbitos[topeAmbitos - 1]);
@@ -86,6 +95,8 @@ static Simbolo* crearSimbolo(const char* nombre, TipoSimbolo clase, TipoDato tip
     nuevo->linea = linea;
     nuevo->columna = columna;
     nuevo->siguiente = NULL;
+    nuevo->nodo_bloque = NULL;
+    nuevo->nodo_return = NULL;
     nuevo->valor.tipo = tipo;
     nuevo->valor.inicializado = 0;
 
@@ -97,6 +108,7 @@ static Simbolo* crearSimbolo(const char* nombre, TipoSimbolo clase, TipoDato tip
         case TIPO_BOOLEAN:nuevo->valor.v.b = 0; break;
         case TIPO_STRING: nuevo->valor.v.s = NULL; break;
         case TIPO_VOID:  nuevo->valor.v.s = NULL; break;
+        case TIPO_FUNCION: nuevo->valor.v.s = NULL; break;
         default: break;
     
     }
@@ -137,6 +149,7 @@ static const char* nombreTipoDato(TipoDato t){
         case TIPO_STRING: return "string";
         case TIPO_BOOLEAN: return "boolean";
         case TIPO_VOID: return "void";
+        case TIPO_FUNCION: return "funcion";
         default: return "desconocido";
     }
 }
@@ -612,3 +625,4 @@ void asignarElementoArrayMultidimensional(Simbolo* simbolo, int* indices, int nu
         free(elementos[i]);
     }
 }
+
