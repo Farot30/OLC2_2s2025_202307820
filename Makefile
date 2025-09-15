@@ -101,10 +101,10 @@ GUI_SRC = \
 all: parser gui
 
 parser: $(BACKEND_SRC)
-	$(CC) $(CFLAGS) -o $@ $^ $(LEXLIB)
+	$(CC) $(CFLAGS) -o $@ $^ $(LEXLIB) -lm
 
 gui: $(GUI_SRC)
-	$(CC) $(CFLAGS) $(PKG_CFLAGS) $(SYSTEM_LDFLAGS) -o $@ $^ $(PKG_LIBS) $(LEXLIB)
+	$(CC) $(CFLAGS) $(PKG_CFLAGS) $(SYSTEM_LDFLAGS) -o $@ $^ $(PKG_LIBS) $(LEXLIB) -lm
 
 $(PARSER_DIR)/parser.tab.c $(PARSER_DIR)/parser.tab.h: $(PARSER_DIR)/parser.y
 	$(BISON) -d -o $(PARSER_DIR)/parser.tab.c $(PARSER_DIR)/parser.y

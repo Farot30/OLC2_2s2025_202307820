@@ -63,7 +63,7 @@ if                          { yylval.str = strdup("if"); return TOKEN_IF; }
 else                        { yylval.str = strdup("else"); return TOKEN_ELSE; }
 false                       { yylval.str = strdup("false"); return TOKEN_BOOLEANO; }
 String\.valueOf             { return TOKEN_STRING_VALUEOF; }
-equals                      { return TOKEN_EQUAL; }
+\.equals                    { yylval.str = strdup("equals"); return TOKEN_EQUAL; }
 Integer\.parseInt           { yylval.str = strdup("Integer.parseInt"); return TOKEN_PARSEINT; }
 Double\.parseDouble         { yylval.str = strdup("Double.parseDouble"); return TOKEN_PARSEDOUBLE; }
 Float\.parseFloat           { yylval.str = strdup("Float.parseFloat"); return TOKEN_PARSEFLOAT; }
@@ -81,6 +81,12 @@ for                         { yylval.str = strdup("for"); return TOKEN_FOR; }
 new                         { yylval.str = strdup("new"); return TOKEN_NEW; }
 void                        { yylval.str = strdup("void"); return TOKEN_VOID; }
 return                      { yylval.str = strdup("return"); return TOKEN_RETURN; }
+public                      { yylval.str = strdup("public"); return TOKEN_PUBLIC; }
+class                       { yylval.str = strdup("class"); return TOKEN_CLASS; }
+static                      { yylval.str = strdup("static"); return TOKEN_STATIC; }
+Main                        { yylval.str = strdup("Main"); return TOKEN_MAIN; }
+main                        { yylval.str = strdup("main"); return TOKEN_main; }
+args                        { yylval.str = strdup("args"); return TOKEN_ARGS;}
 
 [0-9]+                      { yylval.str = strdup(yytext); return TOKEN_NUMERO; }
 [0-9]+\.[0-9]+[fF]          { yylval.str = strdup(yytext); return TOKEN_FLOAT_LITERAL; }

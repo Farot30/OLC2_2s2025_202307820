@@ -105,6 +105,9 @@ static const char* nombreNodoTipo(TipoNodoAST t){
         case AST_LISTA_PARAMETROS: return "LISTA_PARAMETROS";
         case AST_PARAMETROS: return "PARAMETROS";
         case AST_PARAMETRO: return "PARAMETRO";
+        case AST_MAIN: return "MAIN";
+        case AST_METODO_MAIN: return "METODO_MAIN";
+        case AST_CLASE: return "CLASE";
 
         default: return "UNK";
     }

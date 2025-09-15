@@ -71,21 +71,6 @@ void imprimirEvaluado(NodoAST* expr) {
         return;
     }
     
-    printf("[DEBUG] Tipo de expresión: %d\n", expr->tipo);
-    if (expr->valor) {
-        printf("[DEBUG] Valor de expresión: '%s'\n", expr->valor);
-    }
-    
-    if (expr->tipo == AST_IDENTIFICADOR) {
-        Simbolo* sim = buscarSimbolo(expr->valor);
-        if (sim) {
-            printf("[DEBUG] Símbolo '%s' encontrado - inicializado: %d\n", 
-                   expr->valor, sim->valor.inicializado);
-        } else {
-            printf("[DEBUG] Símbolo '%s' NO encontrado\n", expr->valor);
-        }
-    }
-    
     ValorSimbolo v = evaluarExpr(expr);
     printf("[DEBUG] Resultado evaluación - inicializado: %d, tipo: %d\n", 
            v.inicializado, v.tipo);
@@ -100,35 +85,27 @@ void imprimirEvaluado(NodoAST* expr) {
     switch (v.tipo) {
         case TIPO_INT:
             snprintf(buffer, sizeof(buffer), "%d", v.v.i);
-            printf("[DEBUG] Imprimiendo int: %d\n", v.v.i);
             break;
         case TIPO_FLOAT:
             snprintf(buffer, sizeof(buffer), "%f", v.v.f);
-            printf("[DEBUG] Imprimiendo float: %f\n", v.v.f);
             break;
         case TIPO_DOUBLE:
             snprintf(buffer, sizeof(buffer), "%lf", v.v.d);
-            printf("[DEBUG] Imprimiendo double: %lf\n", v.v.d);
             break;
         case TIPO_CHAR:
             snprintf(buffer, sizeof(buffer), "%c", v.v.c);
-            printf("[DEBUG] Imprimiendo char: %c\n", v.v.c);
             break;
         case TIPO_BOOLEAN:
             snprintf(buffer, sizeof(buffer), "%s", v.v.b ? "true" : "false");
-            printf("[DEBUG] Imprimiendo boolean: %s\n", v.v.b ? "true" : "false");
             break;
         case TIPO_STRING:
-            procesarSecuenciasEscape(v.v.s ? v.v.s : "null", buffer, sizeof(buffer));
-            printf("[DEBUG] Imprimiendo string: %s\n", buffer);
+            snprintf(buffer, sizeof(buffer), "%s", v.v.s ? v.v.s : "null");
             break;
         default:
-            snprintf(buffer, sizeof(buffer), "?");
-            printf("[DEBUG] Tipo desconocido: %d\n", v.tipo);
+            snprintf(buffer, sizeof(buffer), "(tipo desconocido)");
             break;
     }
     
-    // Simplemente imprimir el valor sin modificar el AST
     printf("%s\n", buffer);
     capture_print_output(buffer);
     capture_print_output("\n");

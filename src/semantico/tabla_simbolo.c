@@ -106,7 +106,7 @@ static Simbolo* crearSimbolo(const char* nombre, TipoSimbolo clase, TipoDato tip
         case TIPO_DOUBLE: nuevo->valor.v.d = 0.0; break;
         case TIPO_CHAR:   nuevo->valor.v.c = '\0'; break;
         case TIPO_BOOLEAN:nuevo->valor.v.b = 0; break;
-        case TIPO_STRING: nuevo->valor.v.s = NULL; break;
+        case TIPO_STRING: nuevo->valor.v.s = strdup(""); break;
         case TIPO_VOID:  nuevo->valor.v.s = NULL; break;
         case TIPO_FUNCION: nuevo->valor.v.s = NULL; break;
         default: break;
@@ -290,10 +290,63 @@ void setValorSimbolo(Simbolo* sim, TipoDato tipoValor, ValorSimbolo val) {
            nombreTipoDato(sim->tipo), nombreTipoDato(tipoValor));
 }
 
-ValorSimbolo getValorSimbolo(Simbolo* sim){
-    ValorSimbolo dummy = { .tipo = TIPO_DESCONOCIDO, .inicializado = 0 };
-    if(!sim) return dummy;
-    return sim->valor;
+ValorSimbolo getValorSimbolo(Simbolo* sim) {
+    ValorSimbolo r;
+    memset(&r, 0, sizeof(r));
+    
+    if (!sim) {
+        r.tipo = TIPO_DESCONOCIDO;
+        r.inicializado = 0;
+        return r;
+    }
+    
+    // Copiar tipo e inicialización
+    r.tipo = sim->valor.tipo;
+    r.inicializado = sim->valor.inicializado;
+    
+    if (!r.inicializado) {
+        printf("[DEBUG] Variable '%s' no está inicializada\n", sim->nombre);
+        return r;
+    }
+    
+    // Copiar valor según el tipo
+    switch (r.tipo) {
+        case TIPO_INT:
+            r.v.i = sim->valor.v.i;
+            printf("[DEBUG] getValorSimbolo: int = %d\n", r.v.i);
+            break;
+        case TIPO_FLOAT:
+            r.v.f = sim->valor.v.f;
+            printf("[DEBUG] getValorSimbolo: float = %f\n", r.v.f);
+            break;
+        case TIPO_DOUBLE:
+            r.v.d = sim->valor.v.d;
+            printf("[DEBUG] getValorSimbolo: double = %lf\n", r.v.d);
+            break;
+        case TIPO_CHAR:
+            r.v.c = sim->valor.v.c;
+            printf("[DEBUG] getValorSimbolo: char = '%c'\n", r.v.c);
+            break;
+        case TIPO_BOOLEAN:
+            r.v.b = sim->valor.v.b;
+            printf("[DEBUG] getValorSimbolo: boolean = %s\n", r.v.b ? "true" : "false");
+            break;
+        case TIPO_STRING:
+            if (sim->valor.v.s) {
+                r.v.s = strdup(sim->valor.v.s); // Crear una copia
+                printf("[DEBUG] getValorSimbolo: string = '%s'\n", r.v.s);
+            } else {
+                r.v.s = NULL;
+                printf("[DEBUG] getValorSimbolo: string = NULL\n");
+            }
+            break;
+        default:
+            printf("[DEBUG] getValorSimbolo: tipo desconocido %d\n", r.tipo);
+            r.inicializado = 0;
+            break;
+    }
+    
+    return r;
 }
 
 void mostrarTablaSimbolos() {

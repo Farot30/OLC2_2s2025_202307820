@@ -183,51 +183,79 @@ ValorSimbolo evaluarValueOf(NodoAST* e) {
     return r;
 }
 
+// En evaluarString.c - Reforzar la función evaluarEqual
 ValorSimbolo evaluarEqual(NodoAST* e) {
     ValorSimbolo r;
     memset(&r, 0, sizeof(r));
-    r.tipo = TIPO_BOOLEAN; // Cambiado a TIPO_BOOLEAN porque .equals devuelve un booleano
+    r.tipo = TIPO_BOOLEAN;
     r.inicializado = 0;
 
-    // Verificar que el nodo sea válido y tenga dos hijos
-    if (!e || strcmp(e->valor, ".equals") != 0 || e->num_hijos != 2) {
-        printf("[ERROR] Nodo inválido para .equals\n");
+    // Validaciones más rigurosas
+    if (!e || e->tipo != AST_EQUAL || strcmp(e->valor, ".equals") != 0 || e->num_hijos != 2) {
+        printf("[ERROR] Nodo inválido para .equals (tipo=%d, valor=%s, hijos=%d)\n", 
+               e ? e->tipo : -0, e ? (e->valor ? e->valor : "NULL") : "NULL", e ? e->num_hijos : 0);
         return r;
     }
 
-    // Evaluar los dos argumentos
+    // Evaluar los operandos
     ValorSimbolo base = evaluarExpr(e->hijos[0]);
     ValorSimbolo arg = evaluarExpr(e->hijos[1]);
 
-    // Verificar que ambos argumentos estén inicializados
+    // Verificar inicialización
     if (!base.inicializado || !arg.inicializado) {
-        char msg[200];
-        snprintf(msg, sizeof(msg), "Argumentos de .equals no inicializados");
-        addError(msg, ambitoActual(), e->linea, e->columna);
-        printf("[ERROR] %s\n", msg);
+        printf("[ERROR] Operandos de .equals no inicializados (base=%d, arg=%d)\n", 
+               base.inicializado, arg.inicializado);
         return r;
     }
 
-    // Verificar que ambos argumentos sean cadenas
-    if (base.tipo != TIPO_STRING || arg.tipo != TIPO_STRING) {
-        char msg[200];
-        snprintf(msg, sizeof(msg), ".equals solo válido para strings, se recibieron tipos '%s' y '%s'",
-                nombreTipo(base.tipo), nombreTipo(arg.tipo));
-        addError(msg, ambitoActual(), e->linea, e->columna);
-        printf("[ERROR] %s\n", msg);
-        return r;
+    // Hacer más flexibles las comparaciones
+    // Si ambos son strings, comparamos normalmente
+    if (base.tipo == TIPO_STRING && arg.tipo == TIPO_STRING) {
+        r.inicializado = 1;
+        r.v.b = (base.v.s && arg.v.s) ? strcmp(base.v.s, arg.v.s) == 0 : (base.v.s == arg.v.s);
+        printf("[DEBUG] .equals: '%s' == '%s' = %s\n", 
+               base.v.s ? base.v.s : "null", arg.v.s ? arg.v.s : "null", r.v.b ? "true" : "false");
     }
-
-    // Comparar las cadenas
-    r.inicializado = 1;
-    r.v.b = (base.v.s && arg.v.s) ? strcmp(base.v.s, arg.v.s) == 0 : (base.v.s == arg.v.s);
-
-    // Imprimir el resultado para depuración
-    printf("[DEBUG] .equals('%s', '%s') = %s\n",
-           base.v.s ? base.v.s : "null",
-           arg.v.s ? arg.v.s : "null",
-           r.v.b ? "true" : "false");
-
+    // Si alguno no es string, intentamos la conversión
+    else {
+        // Convertir a strings para comparar (similar a Java)
+        char baseStr[256] = {0};
+        char argStr[256] = {0};
+        
+        // Convertir base a string
+        if (base.tipo == TIPO_STRING && base.v.s) {
+            strncpy(baseStr, base.v.s, sizeof(baseStr)-1);
+        } else {
+            // Usar el mismo código de la función valueOf para convertir
+            switch (base.tipo) {
+                case TIPO_INT:      snprintf(baseStr, sizeof(baseStr), "%d", base.v.i); break;
+                case TIPO_FLOAT:    snprintf(baseStr, sizeof(baseStr), "%f", base.v.f); break;
+                case TIPO_DOUBLE:   snprintf(baseStr, sizeof(baseStr), "%f", base.v.d); break;
+                case TIPO_CHAR:     snprintf(baseStr, sizeof(baseStr), "%c", base.v.c); break;
+                case TIPO_BOOLEAN:  snprintf(baseStr, sizeof(baseStr), "%s", base.v.b ? "true" : "false"); break;
+                default:            baseStr[0] = '\0'; break;
+            }
+        }
+        
+        // Convertir arg a string
+        if (arg.tipo == TIPO_STRING && arg.v.s) {
+            strncpy(argStr, arg.v.s, sizeof(argStr)-1);
+        } else {
+            switch (arg.tipo) {
+                case TIPO_INT:      snprintf(argStr, sizeof(argStr), "%d", arg.v.i); break;
+                case TIPO_FLOAT:    snprintf(argStr, sizeof(argStr), "%f", arg.v.f); break;
+                case TIPO_DOUBLE:   snprintf(argStr, sizeof(argStr), "%f", arg.v.d); break;
+                case TIPO_CHAR:     snprintf(argStr, sizeof(argStr), "%c", arg.v.c); break;
+                case TIPO_BOOLEAN:  snprintf(argStr, sizeof(argStr), "%s", arg.v.b ? "true" : "false"); break;
+                default:            argStr[0] = '\0'; break;
+            }
+        }
+        
+        r.inicializado = 1;
+        r.v.b = (strcmp(baseStr, argStr) == 0);
+        printf("[DEBUG] .equals (convertido): '%s' == '%s' = %s\n", 
+               baseStr, argStr, r.v.b ? "true" : "false");
+    }
 
     return r;
 }
