@@ -27,6 +27,7 @@
 #include "ejecutar_ast.h"
 #include "err.h"
 #include <stdio.h>
+#include "stdbool.h"
 #include <stdlib.h>
 
 int contexto_break = 0;
@@ -34,6 +35,9 @@ int contexto_continue = 0;
 int contexto_funcion = 0;
 ValorSimbolo valorRetorno;
 int hayRetorno = 0;
+int contadorBloques = 0;
+int bloquePrincipalMain = 0;
+int dentroDelMain = 0; // Para trackear si estamos dentro del main
 
 ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
     // Verificación más robusta de nodos
@@ -54,26 +58,76 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
     switch (nodo->tipo) {
         case AST_METODO_MAIN:
             entrarAmbito("main");
+            dentroDelMain = 1; // Marcamos que estamos dentro del main
+            bloquePrincipalMain = 0; // Resetear contador para el bloque principal
             ejecutarNodoAST(nodo->hijos[0]);
+            dentroDelMain = 0; // Salimos del main
             salirAmbito();
             return EJEC_OK;
+            
         case AST_LISTA:
-        case AST_BLOQUE:
-            printf("[DEBUG BLOQUE] Procesando bloque con %d hijos\n", nodo->num_hijos);
+        case AST_BLOQUE: {
+            bool crearAmbito = true;
+            const char* ambitoActualNombre = ambitoActual();
+
+            // Lógica corregida para ámbitos:
+            
+            // 1. Si estamos en el ámbito "global" y es un bloque de funciones, NO crear ámbito
+            if (strcmp(ambitoActualNombre, "global") == 0 && 
+                nodo->valor && (strcmp(nodo->valor, "Funciones") == 0 || strcmp(nodo->valor, "Programa") == 0)) {
+                crearAmbito = false;
+                printf("[DEBUG BLOQUE] Bloque '%s' en ámbito global, no creando nuevo ámbito\n", nodo->valor);
+            }
+            // 1.5 Si estamos en el ámbito "main" y es un bloque "Programa", NO crear ámbito
+            else if (strcmp(ambitoActualNombre, "main") == 0 && 
+                     nodo->valor && strcmp(nodo->valor, "Programa") == 0) {
+                crearAmbito = false;
+                printf("[DEBUG BLOQUE] Bloque 'Programa' en ámbito main, no creando nuevo ámbito\n");
+            }
+            // 2. Si estamos en el ámbito "main" y es el primer bloque, NO crear ámbito
+            else if (strcmp(ambitoActualNombre, "main") == 0 && bloquePrincipalMain == 0) {
+                crearAmbito = false;
+                bloquePrincipalMain = 1; // Marcar que ya procesamos el bloque principal
+                printf("[DEBUG BLOQUE] Usando ámbito 'main' para bloque principal\n");
+            }
+            // 3. Si estamos en contextos especiales, NO crear ámbito
+            else if (strcmp(ambitoActualNombre, "funcion") == 0 ||
+                     strcmp(ambitoActualNombre, "funcion_void") == 0 ||
+                     strcmp(ambitoActualNombre, "for") == 0 ||
+                     strcmp(ambitoActualNombre, "while") == 0 ||
+                     strcmp(ambitoActualNombre, "switch") == 0 ||
+                     strcmp(ambitoActualNombre, "if") == 0 ||
+                     strcmp(ambitoActualNombre, "else") == 0) {
+                crearAmbito = false;
+                printf("[DEBUG BLOQUE] No creando ámbito, usando contexto actual: %s\n", ambitoActualNombre);
+            }
+            else {
+                crearAmbito = true;
+            }
+
+            char nombreAmbito[32];
+            if (crearAmbito) {
+                snprintf(nombreAmbito, sizeof(nombreAmbito), "bloque_%d", ++contadorBloques);
+                printf("[DEBUG BLOQUE] Entrando al ámbito: %s\n", nombreAmbito);
+                entrarAmbito(nombreAmbito);
+            }
+
+            // Ejecutar hijos
             for (int i = 0; i < nodo->num_hijos; i++) {
-                if (nodo->hijos[i] == NULL) {
-                    printf("[WARNING BLOQUE] Hijo %d es NULL, saltando\n", i);
-                    continue;
-                }
-                printf("[DEBUG BLOQUE] Ejecutando hijo %d (tipo: %d)\n", i, nodo->hijos[i]->tipo);
+                if (nodo->hijos[i] == NULL) continue;
                 ResultadoEjecucion res = ejecutarNodoAST(nodo->hijos[i]);
-                // Propagar todos los resultados especiales, incluido RETURN
                 if (res != EJEC_OK) {
-                    printf("[DEBUG BLOQUE] Propagando resultado %d desde hijo %d\n", res, i);
+                    if (crearAmbito) salirAmbito();
                     return res;
                 }
             }
+
+            if (crearAmbito) {
+                salirAmbito();
+                printf("[DEBUG BLOQUE] Saliendo del ámbito: %s\n", nombreAmbito);
+            }
             return EJEC_OK;
+        }
             
         case AST_DECLARACION:
             printf("[DEBUG] Procesando declaración\n");
@@ -386,6 +440,16 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
             printf("[DEBUG] Procesando return\n");
             return ejecutarSentenciaReturn(nodo);
 
+        case AST_PROGRAMA: // Agregar caso específico para nodo Programa
+            printf("[DEBUG] Procesando nodo Programa\n");
+            // No crear ámbito para el nodo Programa, solo ejecutar hijos
+            for (int i = 0; i < nodo->num_hijos; i++) {
+                if (nodo->hijos[i] != NULL) {
+                    ejecutarNodoAST(nodo->hijos[i]);
+                }
+            }
+            return EJEC_OK;
+
         default:
             printf("[DEBUG] Nodo tipo %d no manejado específicamente, procesando hijos\n", nodo->tipo);
             for (int i = 0; i < nodo->num_hijos; i++) {
@@ -405,11 +469,24 @@ void interpretarPrograma(NodoAST* raiz) {
         return;
     }
     
+    // Inicializar contador de bloques
+    contadorBloques = 0;
+    dentroDelMain = 0;
+    bloquePrincipalMain = 0;
+    
+    // IMPORTANTE: Inicializar con ámbito global
+    // Esto asegura que las variables declaradas fuera del main tengan ámbito "global"
+    entrarAmbito("global");
+    
     printf("\n[DEBUG] === INICIANDO INTERPRETACIÓN SECUENCIAL ===\n");
+    printf("[DEBUG] Ámbito inicial: %s\n", ambitoActual());
     mostrarTablaSimbolos();  // Mostrar estado inicial
     
     // Ejecutar el programa secuencialmente
     ejecutarNodoAST(raiz);
+    
+    // Salir del ámbito global al final
+    salirAmbito();
     
     printf("\n[DEBUG] === INTERPRETACIÓN COMPLETADA ===\n");
     mostrarTablaSimbolos();  // Mostrar estado final

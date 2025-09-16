@@ -138,16 +138,27 @@ lista_funciones:
               $$ = $1;
           }
       }
+    | lista_funciones Funcion_parametros {
+          if ($1->tipo != AST_LISTA) {
+              NodoAST* lista = crearNodo(AST_LISTA, "Funciones");
+              agregarHijo(lista, $1);
+              agregarHijo(lista, $2);
+              $$ = lista;
+          } else {
+              agregarHijo($1, $2);
+              $$ = $1;
+          }
+      }
     | Funcion_void {
           NodoAST* lista = crearNodo(AST_LISTA, "Funciones");
           agregarHijo(lista, $1);
           $$ = lista;
       }
     | Funcion_parametros {
-        NodoAST* lista = crearNodo(AST_LISTA, "Funciones_parametros");
-        agregarHijo(lista, $1);
-        $$ = lista;
-    }
+          NodoAST* lista = crearNodo(AST_LISTA, "Funciones");
+          agregarHijo(lista, $1);
+          $$ = lista;
+      }
     | /* vacío */ {
           $$ = crearNodo(AST_LISTA, "Funciones");
       }
@@ -231,6 +242,7 @@ sentencia:
     | instruccion_break TOKEN_PUNTOCOMA {$$ = $1; }
     | expresion_sentencia TOKEN_PUNTOCOMA     { $$ = $1; }
     | instruccion_continue TOKEN_PUNTOCOMA {$$ = $1; }
+    | bloque                        { $$ = $1; }
 
     | error TOKEN_PUNTOCOMA         { 
         addErrorSintactico("Instrucción inválida", "global", @1.first_line, @1.first_column);

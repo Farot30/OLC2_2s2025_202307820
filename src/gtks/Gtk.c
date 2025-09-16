@@ -156,10 +156,10 @@ void fill_symbol_treeview(GtkListStore* store, const char* symbol_text) {
                 g_strstrip(id);
             }
             
-            // Nombre (posición 5-19, ancho 15) 
+            // Nombre (posición 5-24, ancho 20) 
             if (strlen(line) > 5) {
                 int start_pos = 5;
-                int end_pos = (strlen(line) >= 20) ? 20 : strlen(line);
+                int end_pos = (strlen(line) >= 25) ? 25 : strlen(line);
                 int copy_len = end_pos - start_pos;
                 if (copy_len > 0) {
                     strncpy(nombre, line + start_pos, copy_len);
@@ -168,10 +168,10 @@ void fill_symbol_treeview(GtkListStore* store, const char* symbol_text) {
                 }
             }
             
-            // Clase (posición 20-44, ancho 25)
-            if (strlen(line) > 20) {
-                int start_pos = 20;
-                int end_pos = (strlen(line) >= 45) ? 45 : strlen(line);
+            // Clase (posición 25-49, ancho 25)
+            if (strlen(line) > 26) {
+                int start_pos = 26;
+                int end_pos = (strlen(line) >= 50) ? 50 : strlen(line);
                 int copy_len = end_pos - start_pos;
                 if (copy_len > 0) {
                     strncpy(clase, line + start_pos, copy_len);
@@ -180,10 +180,10 @@ void fill_symbol_treeview(GtkListStore* store, const char* symbol_text) {
                 }
             }
 
-            // Tipo (posición 46-55, ancho 10)
-            if (strlen(line) > 46) {
-                int start_pos = 46;
-                int end_pos = (strlen(line) >= 56) ? 56 : strlen(line);
+            // Tipo (posición 50-59, ancho 10)
+            if (strlen(line) > 51) {
+                int start_pos = 51;
+                int end_pos = (strlen(line) >= 60) ? 60 : strlen(line);
                 int copy_len = end_pos - start_pos;
                 if (copy_len > 0) {
                     strncpy(tipo, line + start_pos, copy_len);
@@ -192,10 +192,10 @@ void fill_symbol_treeview(GtkListStore* store, const char* symbol_text) {
                 }
             }
 
-            // Valor (posición 57-123, ancho 67)
-            if (strlen(line) > 57) {
-                int start_pos = 57;
-                int end_pos = (strlen(line) >= 124) ? 124 : strlen(line);
+            // Valor (posición 61-129, ancho 67)
+            if (strlen(line) > 61) {
+                int start_pos = 61;
+                int end_pos = (strlen(line) >= 129) ? 129 : strlen(line);
                 int copy_len = end_pos - start_pos;
                 if (copy_len > 0) {
                     strncpy(valor, line + start_pos, copy_len);
@@ -204,10 +204,10 @@ void fill_symbol_treeview(GtkListStore* store, const char* symbol_text) {
                 }
             }
 
-            // Ámbito (posición 125-134, ancho 10)
-            if (strlen(line) > 125) {
-                int start_pos = 125;
-                int end_pos = (strlen(line) >= 135) ? 135 : strlen(line);
+            // Ámbito (posición 130-149, ancho 20)
+            if (strlen(line) > 130) {
+                int start_pos = 130;
+                int end_pos = (strlen(line) >= 150) ? 150 : strlen(line);
                 int copy_len = end_pos - start_pos;
                 if (copy_len > 0) {
                     strncpy(ambito, line + start_pos, copy_len);
@@ -216,10 +216,10 @@ void fill_symbol_treeview(GtkListStore* store, const char* symbol_text) {
                 }
             }
 
-            // Línea (posición 136-141, ancho 6)
-            if (strlen(line) > 136) {
-                int start_pos = 136;
-                int end_pos = (strlen(line) >= 142) ? 142 : strlen(line);
+            // Línea (posición 151-156, ancho 6)
+            if (strlen(line) > 151) {
+                int start_pos = 151;
+                int end_pos = (strlen(line) >= 157) ? 157 : strlen(line);
                 int copy_len = end_pos - start_pos;
                 if (copy_len > 0) {
                     strncpy(linea, line + start_pos, copy_len);
@@ -228,10 +228,10 @@ void fill_symbol_treeview(GtkListStore* store, const char* symbol_text) {
                 }
             }
 
-            // Columna (posición 143 en adelante, ancho 6)
-            if (strlen(line) > 143) {
-                int start_pos = 143;
-                int end_pos = (strlen(line) >= 149) ? 149 : strlen(line);
+            // Columna (posición 158 en adelante, ancho 6)
+            if (strlen(line) > 158) {
+                int start_pos = 158;
+                int end_pos = (strlen(line) >= 164) ? 164 : strlen(line);
                 int copy_len = end_pos - start_pos;
                 if (copy_len > 0) {
                     strncpy(columna, line + start_pos, copy_len);

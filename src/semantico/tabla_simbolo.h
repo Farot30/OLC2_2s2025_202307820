@@ -72,8 +72,10 @@ void agregarSimboloSiNoExiste(const char* nombre, TipoSimbolo clase, TipoDato ti
 
 Simbolo* buscarSimboloEnAmbito(const char* nombre, const char* ambito);
 
+void limpiarSimbolosDeAmbito(const char* ambito);
 void salirAmbitoConLimpieza(void);
 
 void salirAmbitoForLoop(const char* nombreVariableIteracion);
+
 
 #endif

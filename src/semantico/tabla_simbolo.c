@@ -7,7 +7,7 @@
 #include "../simbolos/Evaluador.h"
 
 static Simbolo* tabla = NULL;
-static int contadorSimbolos = 0;
+int contadorSimbolos = 0;
 
 // tabla_simbolo.c
 char* pilaAmbitos[MAX_SCOPES];
@@ -552,7 +552,7 @@ ValorSimbolo getValorSimbolo(Simbolo* sim) {
 
 void mostrarTablaSimbolos() {
     printf("\n=== Tabla de Símbolos ===\n");
-    printf("%-4s %-15s %-25s %-10s %-67s %-10s %-6s %-6s\n",
+    printf("%-4s %-20s %-25s %-10s %-67s %-20s %-6s %-6s\n",
            "ID", "Nombre", "Clase", "TipoDato", "Valor", "Ambito", "Linea", "Col");
     printf("-----------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
     Simbolo* actual = tabla;
@@ -609,7 +609,7 @@ void mostrarTablaSimbolos() {
             }
         }
         
-        printf("%-4d %-15s %-25s %-10s %-67s %-10s %-6d %-6d\n",
+        printf("%-4d %-20s %-25s %-10s %-67s %-20s %-6d %-6d\n",
                actual->id,
                actual->nombre,
                nombreClase(actual->clase),

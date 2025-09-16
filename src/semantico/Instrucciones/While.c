@@ -4,7 +4,7 @@
 #include "../tabla_simbolo.h"
 #include "../../simbolos/Evaluador.h"
 #include "../../AST/err.h"
-
+extern int contadorWhile;
 SentenciaWhile* crearSentenciaWhile(NodoAST* condicion, NodoAST* bloque) {
     SentenciaWhile* sentencia = (SentenciaWhile*)malloc(sizeof(SentenciaWhile));
     sentencia->condicion = condicion;
@@ -54,11 +54,11 @@ ResultadoEjecucion ejecutarSetenciaWhile(NodoAST* nodo) {
     NodoAST* bloque = nodo->hijos[1];
     
     printf("[DEBUG WHILE] Iniciando bucle while\n");
-    
+    entrarAmbito("while");
     contexto_break++;
     contexto_continue++;
     while(1) {
-        entrarAmbito("while");
+        
         /*iteracion++;
         printf("iteracion no:%d\n", iteracion);*/
         /*
@@ -111,13 +111,15 @@ ResultadoEjecucion ejecutarSetenciaWhile(NodoAST* nodo) {
                 continue;;
             }
         
-        salirAmbito();
+        
         
         } else {
             printf("[DEBUG WHILE] Condición falsa, saliendo del bucle\n");
             break;
         }
+        
     }
+    salirAmbito();
     contexto_break--;
     contexto_continue--;
     return EJEC_OK;
