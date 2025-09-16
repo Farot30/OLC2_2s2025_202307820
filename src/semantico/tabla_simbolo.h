@@ -65,5 +65,15 @@ Simbolo* buscarSimboloPorId(int id);
 void asignarElementoArrayMultidimensional(Simbolo* simbolo, int* indices, int numIndices, ValorSimbolo valor);
 
 void modificarClaseSimbolo(const char* nombre, TipoSimbolo nuevaClase);
+void eliminarSimbolo(const char* nombre);
+
+void agregarSimboloSiNoExiste(const char* nombre, TipoSimbolo clase, TipoDato tipo,
+                             const char* ambito, int linea, int columna);
+
+Simbolo* buscarSimboloEnAmbito(const char* nombre, const char* ambito);
+
+void salirAmbitoConLimpieza(void);
+
+void salirAmbitoForLoop(const char* nombreVariableIteracion);
 
 #endif

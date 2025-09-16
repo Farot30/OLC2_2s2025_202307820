@@ -4,12 +4,13 @@
 #include "../simbolos/salida.h"
 #include "../AST/err.h"
 #include "../AST/errorTIpos.h"
+#include "../AST/ejecutar_ast.h"
 #include <unistd.h>      
 #include <sys/types.h>  
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+extern NodoAST* astGlobal;
 // Declaraciones externas del lexer/parser
 int yyparse(void);
 void yyrestart(FILE*);
@@ -132,6 +133,17 @@ ParseResult parse_source(const char* code){
     struct yy_buffer_state* buf = yy_scan_string(code);
     yyparse();
     yy_delete_buffer(buf);
+
+    if (astGlobal) {
+        printf("\n=== ESTRUCTURA DEL AST ===\n");
+        imprimirAST(astGlobal, 0);
+        interpretarPrograma(astGlobal);
+        printf("ejecutando exportarAST\n");
+        exportarAST(astGlobal, "ast.dot", "ast.png");
+        printf("\n=== LIBERANDO MEMORIA ===\n");
+        liberarAST(astGlobal);
+        printf("[DEBUG] Procesamiento completado.\n");
+    }
 
     // Siempre leer el AST generado, tenga errores o no
     FILE* f = fopen("ast.dot", "r");

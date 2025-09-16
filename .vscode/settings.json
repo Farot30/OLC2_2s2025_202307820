@@ -11,6 +11,7 @@
         "ctype.h": "c",
         "limits.h": "c",
         "evaluarstring.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "return.h": "c"
     }
 }

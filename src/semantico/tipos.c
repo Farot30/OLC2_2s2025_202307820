@@ -30,9 +30,12 @@ static int esNumerico(TipoDato t){
     return t==TIPO_CHAR || t==TIPO_INT || t==TIPO_FLOAT || t==TIPO_DOUBLE;
 }
 
-int esWidening(TipoDato origen, TipoDato destino){
-    if(!esNumerico(origen) || !esNumerico(destino)) return 0;
-    return rankTipo(origen) <= rankTipo(destino);
+int esWidening(TipoDato origen, TipoDato destino) {
+    printf("[DEBUG esWidening] Verificando widening de %d a %d\n", origen, destino);
+    if (!esNumerico(origen) || !esNumerico(destino)) return 0;
+    int resultado = rankTipo(origen) <= rankTipo(destino);
+    printf("[DEBUG esWidening] Resultado: %d\n", resultado);
+    return resultado;
 }
 
 int esNarrowing(TipoDato origen, TipoDato destino){
@@ -66,13 +69,26 @@ TipoDato deducirTipoExpr(NodoAST* expr) {
         }
         case AST_OPERACION: {
             if (expr->num_hijos != 2) return TIPO_DESCONOCIDO;
+
+            // Operadores bit a bit siempre devuelven int
+            if (strcmp(expr->valor, "<<") == 0 || strcmp(expr->valor, ">>") == 0 ||
+                strcmp(expr->valor, "&") == 0 || strcmp(expr->valor, "|") == 0 || 
+                strcmp(expr->valor, "^") == 0) {
+                return TIPO_INT;
+            }
+
             TipoDato tipoIzq = deducirTipoExpr(expr->hijos[0]);
             TipoDato tipoDer = deducirTipoExpr(expr->hijos[1]);
+            
+            // Regla de promoción de tipos para operaciones aritméticas
             if (tipoIzq == TIPO_DOUBLE || tipoDer == TIPO_DOUBLE) return TIPO_DOUBLE;
             if (tipoIzq == TIPO_FLOAT || tipoDer == TIPO_FLOAT) return TIPO_FLOAT;
-            if (tipoIzq == TIPO_INT || tipoDer == TIPO_INT || tipoIzq == TIPO_CHAR || tipoDer == TIPO_CHAR) return TIPO_INT;
-            return TIPO_DESCONOCIDO;  
+            if (tipoIzq == TIPO_INT || tipoDer == TIPO_INT) return TIPO_INT;
+            if (tipoIzq == TIPO_CHAR || tipoDer == TIPO_CHAR) return TIPO_INT; // chars se promueven a int
+            
+            return TIPO_DESCONOCIDO;
         }
+
         case AST_CAST: {
             // valor guarda el string del tipo destino
             TipoDato destino = obtenerTipoDesdeString(expr->valor);

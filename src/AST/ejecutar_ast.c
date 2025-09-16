@@ -10,6 +10,7 @@
 #include "../semantico/Instrucciones/break.h"
 #include "../semantico/Instrucciones/continue.h"
 #include "../semantico/Instrucciones/for.h"
+#include "../semantico/Instrucciones/for_vector.h"
 #include "../semantico/Vectores/declaracion_vector.h"
 #include "../semantico/Vectores/declaracion_matriz.h"
 #include "../semantico/Vectores/declaracion_array.h"
@@ -17,6 +18,7 @@
 #include "../semantico/Vectores/acceso_matriz.h"
 #include "../semantico/Vectores/acceso_arrays.h"
 #include "../simbolos/Evaluador.h"
+#include "../simbolos/salida.h"
 #include "../semantico/Funciones/FuncionVoid.h"
 #include "../semantico/Funciones/LlamadasVoid.h"
 #include "../semantico/Funciones/Llamadas.h"
@@ -50,6 +52,11 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
            nodo->tipo, nodo->valor ? nodo->valor : "NULL");
     
     switch (nodo->tipo) {
+        case AST_METODO_MAIN:
+            entrarAmbito("main");
+            ejecutarNodoAST(nodo->hijos[0]);
+            salirAmbito();
+            return EJEC_OK;
         case AST_LISTA:
         case AST_BLOQUE:
             printf("[DEBUG BLOQUE] Procesando bloque con %d hijos\n", nodo->num_hijos);
@@ -161,7 +168,8 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
             if (nodo->num_hijos > 0 && nodo->hijos[0]) {
                 imprimirEvaluado(nodo->hijos[0]);
             } else {
-                printf("[WARNING] Nodo PRINT sin expresión para imprimir\n");
+                printf("\n");  // Print empty line if no expression
+                capture_print_output("\n");
             }
             return EJEC_OK;
 
@@ -225,6 +233,13 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
             contexto_continue--;
             return resFOR;
 
+        case AST_FOR_VECTOR:
+            contexto_break++;
+            contexto_continue++;
+            ResultadoEjecucion resFORV = ejecutarSentenciaForVector(nodo);
+            contexto_break--;
+            contexto_continue--;
+            return resFORV;
         case AST_BREAK:
             printf("[DEBUG AST_BREAK] Ejecutando break\n");
             return ejecutarSentenciaBreak(nodo);

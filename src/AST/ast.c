@@ -8,6 +8,7 @@
 #include "../semantico/Vectores/acceso_matriz.h"
 #include "../semantico/Vectores/acceso_arrays.h"
 #include "../semantico/semantico.h"
+NodoAST* astGlobal = NULL;
 
 NodoAST* crearNodo(TipoNodoAST tipo, char* valor) {
     NodoAST* nodo = (NodoAST*)malloc(sizeof(NodoAST));
@@ -48,10 +49,11 @@ void imprimirAST(NodoAST* nodo, int nivel) {
     for (int i = 0; i < nodo->num_hijos; ++i)
         imprimirAST(nodo->hijos[i], nivel + 1);
 }
-
+    
 
 static const char* nombreNodoTipo(TipoNodoAST t){
     switch(t){
+        case AST_PROGRAMA: return "PROGRAMA";
         case AST_NUMERO: return "NUMERO";
         case AST_IDENTIFICADOR: return "IDENT";
         case AST_DECLARACION: return "DECL";
@@ -77,6 +79,7 @@ static const char* nombreNodoTipo(TipoNodoAST t){
         case AST_WHILE: return "WHILE";
         case AST_CONTINUE: return "CONTINUE";
         case AST_FOR: return "FOR";
+        case AST_FOR_VECTOR: return "FOR_VECTOR";
         case AST_INCREMENTO: return "INCREMENTO";
         case AST_DECREMENTO: return "DECREMENTO";
         case AST_DECLARACION_VECTOR: return "DECLARACION_VECTOR";
@@ -105,10 +108,7 @@ static const char* nombreNodoTipo(TipoNodoAST t){
         case AST_LISTA_PARAMETROS: return "LISTA_PARAMETROS";
         case AST_PARAMETROS: return "PARAMETROS";
         case AST_PARAMETRO: return "PARAMETRO";
-        case AST_MAIN: return "MAIN";
         case AST_METODO_MAIN: return "METODO_MAIN";
-        case AST_CLASE: return "CLASE";
-
         default: return "UNK";
     }
 }

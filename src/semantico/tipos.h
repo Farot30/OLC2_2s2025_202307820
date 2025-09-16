@@ -13,6 +13,9 @@ typedef enum {
     TIPO_DESCONOCIDO,
     TIPO_VOID,
     TIPO_FUNCION,
+    TIPO_VECTOR,
+    TIPO_MATRIZ,
+    TIPO_ARRAY_MULTIDIMENSIONAL
 } TipoDato;
 
 TipoDato obtenerTipoDesdeString(const char* tipostr);

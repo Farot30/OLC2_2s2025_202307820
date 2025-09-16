@@ -224,6 +224,27 @@ ValorSimbolo evaluarOperaciones(NodoAST* e, ValorSimbolo a, ValorSimbolo b) {
             printf("[EVALUADOR] Operador '!' solo válido para boolean\n");
             return r;
         }
+    }else if (strcmp(e->valor, "uminus") == 0) {
+        if (esNum(a.tipo)) {
+            r.tipo = a.tipo;
+            r.inicializado = 1;
+            switch (a.tipo) {
+                case TIPO_INT:    r.v.i = -a.v.i; break;
+                case TIPO_FLOAT:  r.v.f = -a.v.f; break;
+                case TIPO_DOUBLE: r.v.d = -a.v.d; break;
+                case TIPO_CHAR:   r.v.c = -a.v.c; break;
+                default: 
+                    printf("[EVALUADOR] Operador unario '-' no válido para tipo %d\n", a.tipo);
+                    r.inicializado = 0;
+                    break;
+            }
+            printf("[DEBUG OPERADOR] Negación unaria: resultado = ");
+            imprimirValor(r);
+            return r;
+        } else {
+            printf("[EVALUADOR] Operador unario '-' solo válido para tipos numéricos\n");
+            return r;
+        }
     }
 
     // Otras operaciones aritméticas (-, *, /, %)
@@ -239,18 +260,105 @@ ValorSimbolo evaluarOperaciones(NodoAST* e, ValorSimbolo a, ValorSimbolo b) {
             else if (strcmp(e->valor, "/") == 0) resultado = (vb != 0) ? va / vb : 0;
             else if (strcmp(e->valor, "%") == 0) resultado = fmod(va, vb);
 
-            r.tipo = (a.tipo == TIPO_DOUBLE || b.tipo == TIPO_DOUBLE) ? TIPO_DOUBLE :
-                     (a.tipo == TIPO_FLOAT || b.tipo == TIPO_FLOAT) ? TIPO_FLOAT : TIPO_INT;
+            // REGLA CORREGIDA: Determinar el tipo resultante basado en la promoción de tipos
+            if (a.tipo == TIPO_DOUBLE || b.tipo == TIPO_DOUBLE) {
+                r.tipo = TIPO_DOUBLE;
+                r.v.d = resultado;
+            } else if (a.tipo == TIPO_FLOAT || b.tipo == TIPO_FLOAT) {
+                r.tipo = TIPO_FLOAT;
+                r.v.f = (float)resultado;
+            } else {
+                r.tipo = TIPO_INT;
+                r.v.i = (int)resultado;
+            }
+
             r.inicializado = 1;
 
-            if (r.tipo == TIPO_DOUBLE) r.v.d = resultado;
-            else if (r.tipo == TIPO_FLOAT) r.v.f = (float)resultado;
-            else r.v.i = (int)resultado;
-
-            printf("[DEBUG OPERADOR] Operación '%s' resultado: %f\n", e->valor, resultado);
+            printf("[DEBUG OPERADOR] Operación '%s' resultado: %f, tipo=%d\n", 
+                e->valor, resultado, r.tipo);
             return r;
         } else {
             printf("[EVALUADOR] Operación '%s' solo válida para tipos numéricos\n", e->valor);
+            return r;
+        }
+    }
+    if (strcmp(e->valor, ">>") == 0) {
+        if (a.tipo == TIPO_INT && b.tipo == TIPO_INT) {
+            r.tipo = TIPO_INT;
+            r.inicializado = 1;
+            r.v.i = a.v.i >> b.v.i;
+            printf("[DEBUG OPERADOR] Desplazamiento derecho: %d >> %d = %d\n", 
+                a.v.i, b.v.i, r.v.i);
+            return r;
+        } else {
+            printf("[EVALUADOR] Operador '>>' solo válido para enteros\n");
+            return r;
+        }
+    }
+    if (strcmp(e->valor, "<<") == 0) {
+        if ((a.tipo == TIPO_INT || a.tipo == TIPO_CHAR) && 
+            (b.tipo == TIPO_INT || b.tipo == TIPO_CHAR)) {
+            int valorA = (a.tipo == TIPO_CHAR) ? (int)a.v.c : a.v.i;
+            int valorB = (b.tipo == TIPO_CHAR) ? (int)b.v.c : b.v.i;
+            r.tipo = TIPO_INT;
+            r.inicializado = 1;
+            r.v.i = valorA << valorB;
+            printf("[DEBUG OPERADOR] Desplazamiento izquierdo: %d << %d = %d\n", 
+                valorA, valorB, r.v.i);
+            return r;
+        } else {
+            printf("[EVALUADOR] Operador '<<' solo válido para enteros y char\n");
+            return r;
+        }
+    }
+
+    // Operador XOR (^)
+    if (strcmp(e->valor, "^") == 0) {
+        if ((a.tipo == TIPO_INT || a.tipo == TIPO_CHAR) && 
+            (b.tipo == TIPO_INT || b.tipo == TIPO_CHAR)) {
+            int valorA = (a.tipo == TIPO_CHAR) ? (int)a.v.c : a.v.i;
+            int valorB = (b.tipo == TIPO_CHAR) ? (int)b.v.c : b.v.i;
+            r.tipo = TIPO_INT;
+            r.inicializado = 1;
+            r.v.i = valorA ^ valorB;
+            printf("[DEBUG OPERADOR] XOR: %d ^ %d = %d\n", valorA, valorB, r.v.i);
+            return r;
+        } else {
+            printf("[EVALUADOR] Operador '^' solo válido para enteros y char\n");
+            return r;
+        }
+    }
+
+    // Operador OR (|)
+    if (strcmp(e->valor, "|") == 0) {
+        if ((a.tipo == TIPO_INT || a.tipo == TIPO_CHAR) && 
+            (b.tipo == TIPO_INT || b.tipo == TIPO_CHAR)) {
+            int valorA = (a.tipo == TIPO_CHAR) ? (int)a.v.c : a.v.i;
+            int valorB = (b.tipo == TIPO_CHAR) ? (int)b.v.c : b.v.i;
+            r.tipo = TIPO_INT;
+            r.inicializado = 1;
+            r.v.i = valorA | valorB;
+            printf("[DEBUG OPERADOR] OR: %d | %d = %d\n", valorA, valorB, r.v.i);
+            return r;
+        } else {
+            printf("[EVALUADOR] Operador '|' solo válido para enteros y char\n");
+            return r;
+        }
+    }
+
+    // Operador AND (&)
+    if (strcmp(e->valor, "&") == 0) {
+        if ((a.tipo == TIPO_INT || a.tipo == TIPO_CHAR) && 
+            (b.tipo == TIPO_INT || b.tipo == TIPO_CHAR)) {
+            int valorA = (a.tipo == TIPO_CHAR) ? (int)a.v.c : a.v.i;
+            int valorB = (b.tipo == TIPO_CHAR) ? (int)b.v.c : b.v.i;
+            r.tipo = TIPO_INT;
+            r.inicializado = 1;
+            r.v.i = valorA & valorB;
+            printf("[DEBUG OPERADOR] AND: %d & %d = %d\n", valorA, valorB, r.v.i);
+            return r;
+        } else {
+            printf("[EVALUADOR] Operador '&' solo válido para enteros y char\n");
             return r;
         }
     }
@@ -299,8 +407,10 @@ ValorSimbolo evaluarExpr(NodoAST* e) {
         }
         case AST_CARACTER: {
             r.tipo = TIPO_CHAR;
-            r.v.c = e->valor && *e->valor ? e->valor[0] : '\0';
+            // Interpretar como unsigned char para soportar valores > 127
+            r.v.c = e->valor && *e->valor ? (unsigned char)e->valor[0] : '\0';
             r.inicializado = 1;
+            printf("[DEBUG] Carácter leído: %c (%d)\n", r.v.c, r.v.c);
             return r;
         }
         case AST_BOOLEAN: {
@@ -309,16 +419,43 @@ ValorSimbolo evaluarExpr(NodoAST* e) {
             r.inicializado = 1;
             return r;
         }
+        // En Evaluador.c, modificar el caso AST_IDENTIFICADOR:
         case AST_IDENTIFICADOR: {
+            // Intentar buscar como variable primero
+            printf("[DEBUG evaluarExpr] Buscando identificador '%s'\n", e->valor);
             Simbolo* s = buscarSimbolo(e->valor);
             if (s) {
+                printf("[DEBUG evaluarExpr] Símbolo '%s' encontrado, inicializado=%d, tipo=%d\n", s->nombre, s->valor.inicializado, s->valor.tipo);
                 if (!s->valor.inicializado) {
                     printf("[EVALUADOR] Variable '%s' no inicializada\n", e->valor);
-                    return r;  // Retorna un ValorSimbolo no inicializado
+                    return r;
+                }
+                // Si quieres ver el valor string:
+                if (s->valor.tipo == TIPO_STRING && s->valor.v.s) {
+                    printf("[DEBUG evaluarExpr] Valor string: '%s'\n", s->valor.v.s);
                 }
                 printf("[EVALUADOR] Variable '%s' encontrada con valor: %d\n", e->valor, s->valor.v.i);
-                return getValorSimbolo(s);  // Devuelve el valor actualizado
+                return getValorSimbolo(s);
             }
+            
+            // Manejar formato \uXXXX (mínimo 4 caracteres: \u + dígitos)
+            if (strlen(e->valor) >= 4 && e->valor[0] == '\\' && e->valor[1] == 'u') {
+                char* endptr;
+                // Saltar los primeros 2 caracteres (\u) y convertir los siguientes
+                long unicode_val = strtol(e->valor + 2, &endptr, 16);
+                
+                // Verificar que se leyeron todos los dígitos
+                if (endptr > e->valor + 2) {
+                    // Es un literal Unicode válido
+                    r.tipo = TIPO_CHAR;
+                    r.v.c = (unsigned char)unicode_val; // Usar unsigned para caracteres extendidos
+                    r.inicializado = 1;
+                    printf("[EVALUADOR] Literal Unicode '%s' convertido a char: %c (%d)\n", 
+                        e->valor, r.v.c, r.v.c);
+                    return r;
+                }
+            }
+            
             printf("[EVALUADOR] Variable '%s' no declarada\n", e->valor);
             return r;
         }
@@ -407,8 +544,6 @@ ValorSimbolo evaluarExpr(NodoAST* e) {
                 return r;
             }
             
-            // Dirigir a la función específica según el tipo de estructura
-            // y verificar los índices para determinar si estamos accediendo a matriz o vector
             if (simbolo->clase == SIMBOLO_MATRIZ) {
                 // Verificar que el acceso a matriz sea válido
                 if (!verificarAccesoMatriz(e)) {
@@ -606,7 +741,6 @@ ValorSimbolo convertirValor(ValorSimbolo origen, TipoDato tipoDestino) {
             break;
             
         case TIPO_STRING:
-            // Conversión a string según el tipo de origen
             switch (origen.tipo) {
                 case TIPO_INT: {
                     char buffer[32];

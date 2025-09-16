@@ -36,7 +36,9 @@ int convertirABooleano(ValorSimbolo valor) {
             return 0;  // Por defecto, falso
     }
 }
+//int max = 10;
 
+//int iteracion = 0;
 ResultadoEjecucion ejecutarSetenciaWhile(NodoAST* nodo) {
     if (!nodo || nodo->tipo != AST_WHILE) {
         printf("[DEBUG WHILE] Nodo inválido para while\n");
@@ -57,7 +59,14 @@ ResultadoEjecucion ejecutarSetenciaWhile(NodoAST* nodo) {
     contexto_continue++;
     while(1) {
         entrarAmbito("while");
-        
+        /*iteracion++;
+        printf("iteracion no:%d\n", iteracion);*/
+        /*
+        if (--max <= 0) {
+            printf("[ERROR WHILE] Límite máximo de iteraciones alcanzado, posible bucle infinito\n");
+            addError("Límite máximo de iteraciones alcanzado, posible bucle infinito", ambitoActual(), nodo->linea, nodo->columna);
+            break;
+        }*/
         // CRÍTICO: Evaluar la condición FRESCA cada vez
         ValorSimbolo vCond = evaluarExpr(condicion);
 

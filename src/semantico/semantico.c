@@ -78,11 +78,15 @@ int verificarSemantica(NodoAST* nodo) {
             return 1;
         }
         case AST_PRINT: {
-            if(nodo->num_hijos==1){
-                imprimirEvaluado(nodo->hijos[0]);
-                return 1;
+            if (nodo->num_hijos != 1) {
+                char msg[128];
+                snprintf(msg, sizeof(msg), "Print debe tener exactamente un argumento");
+                addError(msg, "global", nodo->linea, nodo->columna);
+                error_semantico = 1;
+                return 0;
             }
-            return 0;
+            // Solo verificar la expresión, no ejecutarla
+            return verificarSemantica(nodo->hijos[0]);
         }
         case AST_CAST: {
             TipoDato dest = obtenerTipoDesdeString(nodo->valor);

@@ -24,21 +24,51 @@ static char map_escape(char c){
         case '\\': return '\\';
         case '"': return '"';
         case '\'': return '\'';
+        case 'u': return 'u'; // Para manejar Unicode
         default: return c;
     }
 }
 
-static char* unescape(const char* yytext){
+static char* unescape(const char* yytext) {
     size_t len = strlen(yytext);
     if(len < 2) return strdup("");
-    const char* p = yytext + 1;           // salta comilla inicial
-    const char* end = yytext + len - 1;   // antes de comilla final
+    const char* p = yytext + 1; // salta comilla inicial
+    const char* end = yytext + len - 1; // antes de comilla final
     char* out = (char*)malloc(len + 1);
-    size_t j=0;
-    while(p < end){
-        if(*p == '\\' && p + 1 < end){
-            out[j++] = map_escape(*(p+1));
-            p += 2;
+    size_t j = 0;
+    
+    while(p < end) {
+        if(*p == '\\' && p + 1 < end) {
+            if(*(p+1) == 'u' && p + 2 < end) { // Manejar \u con 1-6 dígitos
+                p += 2; // Saltar \u
+                int digitCount = 0;
+                char dec[7] = {0}; // Máximo 6 dígitos + null terminator
+                
+                // Leer hasta 6 dígitos decimales
+                while(digitCount < 6 && p < end && 
+                      (*p >= '0' && *p <= '9')) {
+                    dec[digitCount++] = *p++;
+                }
+                
+                if(digitCount > 0) {
+                    char* endptr;
+                    long unicode_val = strtol(dec, &endptr, 10); // Base 10 para decimal
+                    if(endptr == dec + digitCount) {
+                        // Truncar a 8 bits si es necesario
+                        if(unicode_val > 255) {
+                            unicode_val = unicode_val & 0xFF;
+                        }
+                        out[j++] = (unsigned char)unicode_val;
+                        continue;
+                    }
+                }
+                // Si falla la conversión, tratar como carácter normal
+                out[j++] = 'u';
+                p -= 2; // Retroceder para reprocesar
+            } else {
+                out[j++] = map_escape(*(p+1));
+                p += 2;
+            }
         } else {
             out[j++] = *p++;
         }
@@ -82,11 +112,8 @@ new                         { yylval.str = strdup("new"); return TOKEN_NEW; }
 void                        { yylval.str = strdup("void"); return TOKEN_VOID; }
 return                      { yylval.str = strdup("return"); return TOKEN_RETURN; }
 public                      { yylval.str = strdup("public"); return TOKEN_PUBLIC; }
-class                       { yylval.str = strdup("class"); return TOKEN_CLASS; }
 static                      { yylval.str = strdup("static"); return TOKEN_STATIC; }
-Main                        { yylval.str = strdup("Main"); return TOKEN_MAIN; }
 main                        { yylval.str = strdup("main"); return TOKEN_main; }
-args                        { yylval.str = strdup("args"); return TOKEN_ARGS;}
 
 [0-9]+                      { yylval.str = strdup(yytext); return TOKEN_NUMERO; }
 [0-9]+\.[0-9]+[fF]          { yylval.str = strdup(yytext); return TOKEN_FLOAT_LITERAL; }
@@ -99,10 +126,10 @@ args                        { yylval.str = strdup("args"); return TOKEN_ARGS;}
 }
 
 
-\'([^\\\'\n]|\\[nrt\"\'\\])\' {
+'([^\\'\n]|\\[nrt\"\'\\]|\\u[0-9a-fA-F]{1,6})' {
     char* tmp = unescape(yytext);
     if(strlen(tmp) != 1){
-        fprintf(stderr, "Carácter inválido en línea %d\n", yylineno);
+        fprintf(stderr, "Carácter inválido en línea %d: debe ser un solo carácter\n", yylineno);
         free(tmp);
         yylval.str = strdup("?");
     } else {

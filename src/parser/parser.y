@@ -19,6 +19,8 @@
     extern int yylex(void);
     extern int yylineno;
     extern int yycolumn;
+
+    extern NodoAST* astGlobal;
     
     /* Función auxiliar para crear asignaciones compuestas */
     NodoAST* crear_asignacion_compuesta(char* id, char* operador, NodoAST* expr, 
@@ -56,7 +58,9 @@
 %token <str> TOKEN_PARSEDOUBLE
 %token <str> TOKEN_PARSEJOIN TOKEN_INDEXOF TOKEN_LENGHT TOKEN_ADD TOKEN_PUNTO
 %token <str> TOKEN_VOID
-%token <str> TOKEN_RETURN TOKEN_PUBLIC TOKEN_CLASS TOKEN_STATIC TOKEN_MAIN TOKEN_main TOKEN_ARGS
+%token <str> TOKEN_RETURN
+%token <str> TOKEN_PUBLIC TOKEN_STATIC TOKEN_main
+
 
 /* Tokens para asignaciones compuestas */
 %token <str> TOKEN_MAS_IGUAL TOKEN_MENOS_IGUAL TOKEN_POR_IGUAL
@@ -65,8 +69,8 @@
 %token <str> TOKEN_DESIZQ_IGUAL TOKEN_DESDER_IGUAL
 
 /* ========== TIPOS DE NODOS ========== */
-%type <nodo> s main_class main_method
-%type <nodo> lista_sentencias sentencia
+%type <nodo> s programa main_class lista_funciones
+%type <nodo> lista_sentencias sentencia expresion_sentencia postfix_incremento
 %type <nodo> declaracion asignacion declaracion_vector declaracion_matriz 
 %type <nodo> declaracion_array_multidimensional Dimensiones lista_bloques lista_filas lista_elementos DimensionesCorchetes lista_elementos_o_bloques
 %type <nodo> acceso DimensionesAcceso acceso_escritura
@@ -105,58 +109,83 @@
 
 /* ========== PROGRAMA PRINCIPAL ========== */
 s:
-    main_class {
-        printf("\n=== ESTRUCTURA DEL AST ===\n");
-        imprimirAST($1, 0);
-        interpretarPrograma($1);
-        printf("ejecutando exportarAST\n");
-        exportarAST($1, "ast.dot", "ast.png");
-        printf("\n=== LIBERANDO MEMORIA ===\n");
-        liberarAST($1);
-        printf("[DEBUG] Procesamiento completado.\n");
+    programa { astGlobal = $1; }
+;
+
+programa:
+      lista_funciones main_class {
+          NodoAST* raiz = crearNodo(AST_PROGRAMA, "Programa");
+          agregarHijo(raiz, $1);
+          agregarHijo(raiz, $2);
+          $$ = raiz;
+      }
+    | main_class {
+          NodoAST* raiz = crearNodo(AST_PROGRAMA, "Programa");
+          agregarHijo(raiz, $1);
+          $$ = raiz;
+      }
+;
+
+lista_funciones:
+      lista_funciones Funcion_void {
+          if ($1->tipo != AST_LISTA) {
+              NodoAST* lista = crearNodo(AST_LISTA, "Funciones");
+              agregarHijo(lista, $1);
+              agregarHijo(lista, $2);
+              $$ = lista;
+          } else {
+              agregarHijo($1, $2);
+              $$ = $1;
+          }
+      }
+    | Funcion_void {
+          NodoAST* lista = crearNodo(AST_LISTA, "Funciones");
+          agregarHijo(lista, $1);
+          $$ = lista;
+      }
+    | Funcion_parametros {
+        NodoAST* lista = crearNodo(AST_LISTA, "Funciones_parametros");
+        agregarHijo(lista, $1);
+        $$ = lista;
     }
-    | error TOKEN_PUNTOCOMA {
-        addErrorSintactico("El código debe estar dentro de 'public class Main { ... }'", "global", @1.first_line, @1.first_column);
-        $$ = NULL;
-        yyerrok;
-    }
+    | /* vacío */ {
+          $$ = crearNodo(AST_LISTA, "Funciones");
+      }
 ;
 
 main_class:
-    TOKEN_PUBLIC TOKEN_CLASS TOKEN_MAIN TOKEN_LLAVEIZQ main_method TOKEN_LLAVEDER {
-        if (strcmp($3, "Main") != 0) {
-            addErrorSintactico("El nombre de la clase debe ser 'Main'", "global", @3.first_line, @3.first_column);
-            $$ = NULL;
-        } else {
-            $$ = crearNodo(AST_CLASE, "public class Main");
-            $$->linea = @2.first_line; $$->columna = @2.first_column;
-            agregarHijo($$, $5);
-        }
-    }
-    | TOKEN_PUBLIC TOKEN_CLASS error TOKEN_LLAVEIZQ main_method TOKEN_LLAVEDER {
-        addErrorSintactico("Error en el nombre de la clase, debe ser 'Main'", "global", @3.first_line, @3.first_column);
-        $$ = crearNodo(AST_CLASE, "public class Main");
-        $$->linea = @2.first_line; $$->columna = @2.first_column;
-        agregarHijo($$, $5);
-    }
-;
-
-main_method:
-    TOKEN_PUBLIC TOKEN_STATIC TOKEN_VOID TOKEN_main TOKEN_PARIZQ TOKEN_DSTRING TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_ARGS TOKEN_PARDER bloque {
+    TOKEN_PUBLIC TOKEN_STATIC TOKEN_VOID TOKEN_main TOKEN_PARIZQ TOKEN_PARDER bloque {
         if (strcmp($4, "main") != 0) {
             addErrorSintactico("El método principal debe llamarse 'main'", "global", @4.first_line, @4.first_column);
             $$ = NULL;
         } else {
             $$ = crearNodo(AST_METODO_MAIN, "public static void main");
-            $$->linea = @2.first_line; $$->columna = @2.first_column;
-            agregarHijo($$, $11);
+            $$->linea = @1.first_line; $$->columna = @1.first_column;
+            agregarHijo($$, $7); // Agregar el bloque como hijo
         }
     }
-    | TOKEN_PUBLIC TOKEN_STATIC TOKEN_VOID error TOKEN_PARIZQ TOKEN_DSTRING TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_ARGS TOKEN_PARDER bloque {
-        addErrorSintactico("El método principal debe llamarse 'main'", "global", @4.first_line, @4.first_column);
+    | TOKEN_PUBLIC TOKEN_STATIC TOKEN_VOID TOKEN_main TOKEN_PARIZQ TOKEN_PARDER error {
+        addErrorSintactico("Error en el bloque del método 'main'", "global", @7.first_line, @7.first_column);
         $$ = crearNodo(AST_METODO_MAIN, "public static void main");
-        $$->linea = @2.first_line; $$->columna = @2.first_column;
-        agregarHijo($$, $11);
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+        NodoAST* bloqueVacio = crearNodo(AST_BLOQUE, "Bloque vacío");
+        agregarHijo($$, bloqueVacio);
+    }
+    | TOKEN_PUBLIC TOKEN_STATIC TOKEN_VOID error {
+        addErrorSintactico("Falta el nombre del método principal 'main'", "global", @4.first_line, @4.first_column);
+        $$ = NULL;
+    }
+    | TOKEN_PUBLIC TOKEN_STATIC error {
+        addErrorSintactico("Falta el tipo de retorno 'void' en el método principal", "global", @3.first_line, @3.first_column);
+        $$ = NULL;
+    }
+    | TOKEN_PUBLIC error {
+        addErrorSintactico("Falta la palabra clave 'static' en el método principal", "global", @2.first_line, @2.first_column);
+        $$ = NULL;
+    }
+    | error {
+        addErrorSintactico("Error en la declaración del método principal", "global", @1.first_line, @1.first_column);
+        $$ = NULL;
     }
 ;
 
@@ -200,6 +229,7 @@ sentencia:
     | instruccion_return TOKEN_PUNTOCOMA { $$ = $1; }
     | Funcion_parametros            { $$ = $1; }
     | instruccion_break TOKEN_PUNTOCOMA {$$ = $1; }
+    | expresion_sentencia TOKEN_PUNTOCOMA     { $$ = $1; }
     | instruccion_continue TOKEN_PUNTOCOMA {$$ = $1; }
 
     | error TOKEN_PUNTOCOMA         { 
@@ -207,6 +237,24 @@ sentencia:
         yyerrok; 
         $$ = NULL;
     }
+;
+
+expresion_sentencia:
+      postfix_incremento
+    | Llamadas
+    ;
+
+postfix_incremento:
+      TOKEN_IDENTIFICADOR TOKEN_INCREMENTO {
+          $$ = crearNodo(AST_INCREMENTO, "++");
+          $$->linea = @2.first_line; $$->columna = @2.first_column;
+          agregarHijo($$, crearNodo(AST_IDENTIFICADOR, $1));
+      }
+    | TOKEN_IDENTIFICADOR TOKEN_DECREMENTO {
+          $$ = crearNodo(AST_DECREMENTO, "--");
+          $$->linea = @2.first_line; $$->columna = @2.first_column;
+          agregarHijo($$, crearNodo(AST_IDENTIFICADOR, $1));
+      }
 ;
 
 /* ========== DECLARACIONES ========== */
@@ -227,7 +275,7 @@ declaracion:
         agregarHijo($$, crearNodo(AST_TIPO, $1));
         NodoAST* id = crearNodo(AST_IDENTIFICADOR, $2);
         id->linea = @2.first_line; id->columna = @2.first_column;
-        NodoAST* def = crearNodo(AST_CADENA, (char*)valorPorDefectoTipo(obtenerTipoDesdeString($1)));
+        NodoAST* def = crearNodo(AST_NUMERO, (char*)valorPorDefectoTipo(obtenerTipoDesdeString($1)));
         agregarHijo($$, id);
         agregarHijo($$, def);
     }
@@ -922,17 +970,16 @@ expresion_unaria:
 postfix:
       primary { $$ = $1; }
     | postfix TOKEN_INCREMENTO {
-          /* transforma (postfix ++) — el hijo es la expresión previa */
-          $$ = crearNodo(AST_OPERACION, "++");
+          $$ = crearNodo(AST_INCREMENTO, "++");
           $$->linea = @2.first_line; $$->columna = @2.first_column;
           agregarHijo($$, $1);
       }
     | postfix TOKEN_DECREMENTO {
-          $$ = crearNodo(AST_OPERACION, "--");
+          $$ = crearNodo(AST_DECREMENTO, "--");
           $$->linea = @2.first_line; $$->columna = @2.first_column;
           agregarHijo($$, $1);
       }
-    ;
+;
 
 
 primary:
@@ -1078,8 +1125,8 @@ instruccion_print:
         $$->linea = @1.first_line; $$->columna = @1.first_column;
         agregarHijo($$, $3);
     }
+    
     | TOKEN_PRINT TOKEN_PARIZQ TOKEN_CADENA TOKEN_MAS expresion TOKEN_PARDER {
-        // Manejo específico para concatenación en print
         NodoAST* concat = crearNodo(AST_OPERACION, "+");
         concat->linea = @4.first_line; concat->columna = @4.first_column;
         NodoAST* cadena = crearNodo(AST_CADENA, $3);
@@ -1091,17 +1138,22 @@ instruccion_print:
         $$->linea = @1.first_line; $$->columna = @1.first_column;
         agregarHijo($$, concat);
     }
+    | TOKEN_PRINT TOKEN_PARIZQ TOKEN_PARDER {
+        $$ = crearNodo(AST_PRINT, "System.out.println");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+        // No hijos, print vacío
+    }
 ;
 
 bloque:
     TOKEN_LLAVEIZQ lista_sentencias TOKEN_LLAVEDER {
-        $$ = crearNodo(AST_BLOQUE, NULL);
+        $$ = crearNodo(AST_BLOQUE, "Bloque");
         $$->linea = @1.first_line; $$->columna = @1.first_column;
         agregarHijo($$, $2);
     }
     | TOKEN_LLAVEIZQ error TOKEN_LLAVEDER {
         addErrorSintactico("Error sintáctico en el bloque", "global", @2.first_line, @2.first_column);
-        $$ = crearNodo(AST_BLOQUE, NULL);
+        $$ = crearNodo(AST_BLOQUE, "Bloque");
         $$->linea = @1.first_line; $$->columna = @1.first_column;
         // Crear un bloque vacío para continuar
         agregarHijo($$, crearNodo(AST_LISTA, "Programa"));
@@ -1248,11 +1300,17 @@ instruccion_for:
         agregarHijo($$, $7);
         agregarHijo($$, $9);
     }
+    | TOKEN_FOR TOKEN_PARIZQ declaracion TOKEN_DOS_PUNTOS expresion TOKEN_PARDER bloque {
+        $$ = crearNodo(AST_FOR_VECTOR, "FOR");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+        agregarHijo($$, $3);
+        agregarHijo($$, $5);
+        agregarHijo($$, $7);
+    }
     | TOKEN_FOR TOKEN_PARIZQ error TOKEN_PUNTOCOMA expresion TOKEN_PUNTOCOMA expresion TOKEN_PARDER bloque {
         addErrorSintactico("Inicialización inválida en bucle for", "global", @3.first_line, @3.first_column);
         $$ = crearNodo(AST_FOR, "FOR");
         $$->linea = @1.first_line; $$->columna = @1.first_column;
-        // Crear una declaración vacía
         NodoAST* decl = crearNodo(AST_DECLARACION, "declaracion");
         agregarHijo($$, decl);
         agregarHijo($$, $5);
@@ -1270,6 +1328,7 @@ instruccion_for:
         agregarHijo($$, $9);
     }
 ;
+
 
 %%
 

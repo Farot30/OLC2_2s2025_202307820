@@ -9,7 +9,7 @@
 #include "../Vectores/acceso_matriz.h"
 #include "../Vectores/acceso_arrays.h"
 #include <stdio.h>
-
+const char* ambitoActual(void);
 const char* nombreTipo(TipoDato tipo);
 
 int verificarDeclaracion(NodoAST* nodo) {
@@ -26,24 +26,27 @@ int verificarDeclaracion(NodoAST* nodo) {
     printf("[DEBUG] Declarando '%s': tipo declarado=%s\n",
            identificador->valor, nombreTipo(tipoDeclarado));
 
-    if (buscarSimbolo(identificador->valor)) {
-        char msg[128];
-        snprintf(msg, sizeof(msg), "Variable '%s' ya declarada", identificador->valor);
-        addError(msg, ambitoActual(), identificador->linea, identificador->columna);
-        printf("[ERROR] %s\n", msg);
-        identificador->valido = 0;
-        nodo->valido = 0;
-        return 0;
+    Simbolo* sims = buscarSimbolo(identificador->valor);
+    if (sims) {
+        // Si ya existe, actualiza tipo y valor (como una redeclaración)
+        printf("[DEBUG] Redeclarando variable '%s', actualizando tipo a %s\n", identificador->valor, nombreTipo(tipoDeclarado));
+        sims->tipo = tipoDeclarado;
+        sims->clase = SIMBOLO_VARIABLE;
+        if (sims->ambito) free(sims->ambito);
+            sims->ambito = strdup(ambitoActual());
+        sims->linea = identificador->linea;
+        sims->columna = identificador->columna;
+    } else {
+        agregarSimboloDetallado(
+            identificador->valor,
+            SIMBOLO_VARIABLE,
+            tipoDeclarado,
+            ambitoActual(),
+            identificador->linea,
+            identificador->columna
+        );
+        sims = buscarSimbolo(identificador->valor);
     }
-
-    agregarSimboloDetallado(
-        identificador->valor,
-        SIMBOLO_VARIABLE,
-        tipoDeclarado,
-        ambitoActual(),
-        identificador->linea,
-        identificador->columna
-    );
 
     Simbolo* sim = buscarSimbolo(identificador->valor);
     
@@ -74,6 +77,7 @@ int verificarDeclaracion(NodoAST* nodo) {
                 printf("[ERROR] %s\n", msg);
                 identificador->valido = 0;
                 nodo->valido = 0;
+                //eliminarSimbolo(identificador->valor);
                 return 0;
             }
             
@@ -82,7 +86,8 @@ int verificarDeclaracion(NodoAST* nodo) {
             // Continuar con la evaluación normal después de verificar el tipo
             ValorSimbolo v = evaluarExpr(valor);
             if(v.inicializado){
-                setValorSimbolo(sim, sim->tipo, v);
+
+                setValorSimbolo(sim, v.tipo, v);
                 
                 // Mostrar valor convertido según el tipo
                 if (tipoParse == TIPO_INT) {
@@ -185,7 +190,7 @@ int verificarDeclaracion(NodoAST* nodo) {
                     }
                     
                     // Asignar el valor obtenido al símbolo
-                    setValorSimbolo(sim, sim->tipo, valorAcceso);
+                    setValorSimbolo(sim, valorAcceso.tipo, valorAcceso); 
                     
                     // Mostrar el valor asignado para depuración
                     printf("[DEBUG] Variable '%s' inicializada con valor de acceso a %s: ", 
@@ -273,7 +278,7 @@ int verificarDeclaracion(NodoAST* nodo) {
                 modificarClaseSimbolo(identificador->valor, SIMBOLO_VECTOR);
                 
                 // Asigna el valor (formato del array como string)
-                setValorSimbolo(sim, sim->tipo, nuevoArray);
+                setValorSimbolo(sim, nuevoArray.tipo, nuevoArray);
                 
                 printf("[DEBUG] Vector '%s' inicializado con el resultado de '%s.add()': %s\n",
                     identificador->valor, idArrayNodo->valor, 
@@ -285,26 +290,38 @@ int verificarDeclaracion(NodoAST* nodo) {
             }
         }else {
             // Caso normal (expresión)
-            ValorSimbolo v = evaluarExpr(valor);
+             ValorSimbolo v = evaluarExpr(valor);
             if(v.inicializado){
                 // Compara el tipo declarado con el tipo evaluado
                 if (sim->tipo != v.tipo && v.tipo != TIPO_DESCONOCIDO) {
                     if (!esWidening(v.tipo, sim->tipo)) {
-                        char msg[160];
-                        snprintf(msg, sizeof(msg), "Tipo incompatible en declaración '%s': %s vs %s",
-                                identificador->valor, nombreTipo(sim->tipo), nombreTipo(v.tipo));
-                        addError(msg, ambitoActual(), identificador->linea, identificador->columna);
-                        printf("[ERROR] %s\n", msg);
-                        valor->valido = 0;
-                        nodo->valido = 0;
-                        return 0;
+                        // Permitir narrowing casting de int a char
+                        if (sim->tipo == TIPO_CHAR && v.tipo == TIPO_INT) {
+                            printf("[DEBUG DECLARACION] Narrowing casting de int a char para '%s': %d -> '%c'\n",
+                                identificador->valor, v.v.i, (char)v.v.i);
+                            // Convertir el valor de int a char
+                            v.tipo = TIPO_CHAR;
+                            v.v.c = (char)v.v.i;
+                        } else {
+                            char msg[160];
+                            snprintf(msg, sizeof(msg), "Tipo incompatible en declaración '%s': %s vs %s",
+                                    identificador->valor, nombreTipo(sim->tipo), nombreTipo(v.tipo));
+                            addError(msg, ambitoActual(), identificador->linea, identificador->columna);
+                            printf("[ERROR] %s\n", msg);
+                            valor->valido = 0;
+                            nodo->valido = 0;
+                            //eliminarSimbolo(identificador->valor);
+                            return 0;
+                        }
+                    } else {
+                        printf("[DEBUG] Conversión implícita en asignación: de %s to %s\n", 
+                            nombreTipo(v.tipo), nombreTipo(sim->tipo));
                     }
-                    
-                    printf("[DEBUG] Conversión implícita en asignación: de %s a %s\n", 
-                           nombreTipo(v.tipo), nombreTipo(sim->tipo));
                 }
-                
-                setValorSimbolo(sim, sim->tipo, v);
+                printf("[DEBUG DECLARACION] Valor para asignar a '%s': tipo=%d, double=%lf, float=%f, int=%d\n",
+                    identificador->valor, v.tipo, v.v.d, v.v.f, v.v.i);
+
+                setValorSimbolo(sim, v.tipo, v);
                 
                 // Mostrar valor según el tipo
                 if (sim->tipo == TIPO_INT) {

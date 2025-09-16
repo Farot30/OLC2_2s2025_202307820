@@ -98,11 +98,9 @@ ResultadoEjecucion ejecutarSentenciaFor(NodoAST* nodo) {
                 break; 
             } else if (res == EJEC_CONTINUE) {
                 printf("[DEBUG FOR] Continue detectado, continuando con incremento\n");
-                // continuar con el incremento
             }
         }
 
-        // Ejecutar incremento - PARTE CRÍTICA CORREGIDA
         if(incremento) {
             printf("[DEBUG FOR] Ejecutando incremento: tipo=%d, valor='%s'\n", 
                    incremento->tipo, incremento->valor ? incremento->valor : "NULL");

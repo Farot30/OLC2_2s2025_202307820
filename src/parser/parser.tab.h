@@ -131,22 +131,19 @@ extern int yydebug;
     TOKEN_VOID = 323,              /* TOKEN_VOID  */
     TOKEN_RETURN = 324,            /* TOKEN_RETURN  */
     TOKEN_PUBLIC = 325,            /* TOKEN_PUBLIC  */
-    TOKEN_CLASS = 326,             /* TOKEN_CLASS  */
-    TOKEN_STATIC = 327,            /* TOKEN_STATIC  */
-    TOKEN_MAIN = 328,              /* TOKEN_MAIN  */
-    TOKEN_main = 329,              /* TOKEN_main  */
-    TOKEN_ARGS = 330,              /* TOKEN_ARGS  */
-    TOKEN_MAS_IGUAL = 331,         /* TOKEN_MAS_IGUAL  */
-    TOKEN_MENOS_IGUAL = 332,       /* TOKEN_MENOS_IGUAL  */
-    TOKEN_POR_IGUAL = 333,         /* TOKEN_POR_IGUAL  */
-    TOKEN_DIV_IGUAL = 334,         /* TOKEN_DIV_IGUAL  */
-    TOKEN_MOD_IGUAL = 335,         /* TOKEN_MOD_IGUAL  */
-    TOKEN_AND_IGUAL = 336,         /* TOKEN_AND_IGUAL  */
-    TOKEN_OR_IGUAL = 337,          /* TOKEN_OR_IGUAL  */
-    TOKEN_XOR_IGUAL = 338,         /* TOKEN_XOR_IGUAL  */
-    TOKEN_DESIZQ_IGUAL = 339,      /* TOKEN_DESIZQ_IGUAL  */
-    TOKEN_DESDER_IGUAL = 340,      /* TOKEN_DESDER_IGUAL  */
-    UMINUS = 341                   /* UMINUS  */
+    TOKEN_STATIC = 326,            /* TOKEN_STATIC  */
+    TOKEN_main = 327,              /* TOKEN_main  */
+    TOKEN_MAS_IGUAL = 328,         /* TOKEN_MAS_IGUAL  */
+    TOKEN_MENOS_IGUAL = 329,       /* TOKEN_MENOS_IGUAL  */
+    TOKEN_POR_IGUAL = 330,         /* TOKEN_POR_IGUAL  */
+    TOKEN_DIV_IGUAL = 331,         /* TOKEN_DIV_IGUAL  */
+    TOKEN_MOD_IGUAL = 332,         /* TOKEN_MOD_IGUAL  */
+    TOKEN_AND_IGUAL = 333,         /* TOKEN_AND_IGUAL  */
+    TOKEN_OR_IGUAL = 334,          /* TOKEN_OR_IGUAL  */
+    TOKEN_XOR_IGUAL = 335,         /* TOKEN_XOR_IGUAL  */
+    TOKEN_DESIZQ_IGUAL = 336,      /* TOKEN_DESIZQ_IGUAL  */
+    TOKEN_DESDER_IGUAL = 337,      /* TOKEN_DESDER_IGUAL  */
+    UMINUS = 338                   /* UMINUS  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -155,12 +152,12 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 28 "src/parser/parser.y"
+#line 30 "src/parser/parser.y"
 
     char* str;
     NodoAST* nodo;
 
-#line 164 "src/parser/parser.tab.h"
+#line 161 "src/parser/parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

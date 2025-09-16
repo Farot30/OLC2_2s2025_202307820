@@ -44,11 +44,12 @@ char* valorToString(ValorSimbolo val) {
     return result;
 }
 double convertirANumero(ValorSimbolo v) {
-        if (v.tipo == TIPO_INT) return v.v.i;
-        if (v.tipo == TIPO_FLOAT) return v.v.f;
-        if (v.tipo == TIPO_DOUBLE) return v.v.d;
-        return 0;  // Si no es numérico, devolver 0
-    }
+    if (v.tipo == TIPO_INT) return v.v.i;
+    if (v.tipo == TIPO_FLOAT) return v.v.f;
+    if (v.tipo == TIPO_DOUBLE) return v.v.d;
+    if (v.tipo == TIPO_CHAR) return (unsigned char)v.v.c;
+    return 0;  // Si no es numérico, devolver 0
+}
 
 // En Operador.c, reemplaza la función evaluarOperacion con esta versión corregida:
 
@@ -224,6 +225,85 @@ ValorSimbolo evaluarOperacion(NodoAST* e, ValorSimbolo a, ValorSimbolo b) {
             return r;
         } else {
             printf("[EVALUADOR] Operación '%s' solo válida para tipos numéricos\n", e->valor);
+            return r;
+        }
+    }
+    if(strcmp(e->valor, ">>") == 0) {
+        if ((a.tipo == TIPO_INT || a.tipo == TIPO_CHAR) && 
+            (b.tipo == TIPO_INT || b.tipo == TIPO_CHAR)) {
+            int valorA = (a.tipo == TIPO_CHAR) ? (int)a.v.c : a.v.i;
+            int valorB = (b.tipo == TIPO_CHAR) ? (int)b.v.c : b.v.i;
+            r.tipo = TIPO_INT;
+            r.inicializado = 1;
+            r.v.i = valorA >> valorB;
+            return r;
+        } else {
+            printf("[EVALUADOR] Operador '>>' solo válido para enteros y char\n");
+            return r;
+        }
+    }
+
+
+
+    if (strcmp(e->valor, "<<") == 0) {
+        if ((a.tipo == TIPO_INT || a.tipo == TIPO_CHAR) && 
+            (b.tipo == TIPO_INT || b.tipo == TIPO_CHAR)) {
+            int valorA = (a.tipo == TIPO_CHAR) ? (int)a.v.c : a.v.i;
+            int valorB = (b.tipo == TIPO_CHAR) ? (int)b.v.c : b.v.i;
+            r.tipo = TIPO_INT;
+            r.inicializado = 1;
+            r.v.i = valorA << valorB;
+            return r;
+        } else {
+            printf("[EVALUADOR] Operador '<<' solo válido para enteros y char\n");
+            return r;
+        }
+    }
+
+    // Operador XOR (^)
+    if (strcmp(e->valor, "^") == 0) {
+        if ((a.tipo == TIPO_INT || a.tipo == TIPO_CHAR) && 
+            (b.tipo == TIPO_INT || b.tipo == TIPO_CHAR)) {
+            int valorA = (a.tipo == TIPO_CHAR) ? (int)a.v.c : a.v.i;
+            int valorB = (b.tipo == TIPO_CHAR) ? (int)b.v.c : b.v.i;
+            r.tipo = TIPO_INT;
+            r.inicializado = 1;
+            r.v.i = valorA ^ valorB;
+            return r;
+        } else {
+            printf("[EVALUADOR] Operador '^' solo válido para enteros y char\n");
+            return r;
+        }
+    }
+
+    // Operador OR (|)
+    if (strcmp(e->valor, "|") == 0) {
+        if ((a.tipo == TIPO_INT || a.tipo == TIPO_CHAR) && 
+            (b.tipo == TIPO_INT || b.tipo == TIPO_CHAR)) {
+            int valorA = (a.tipo == TIPO_CHAR) ? (int)a.v.c : a.v.i;
+            int valorB = (b.tipo == TIPO_CHAR) ? (int)b.v.c : b.v.i;
+            r.tipo = TIPO_INT;
+            r.inicializado = 1;
+            r.v.i = valorA | valorB;
+            return r;
+        } else {
+            printf("[EVALUADOR] Operador '|' solo válido para enteros y char\n");
+            return r;
+        }
+    }
+
+    // Operador AND (&)
+    if (strcmp(e->valor, "&") == 0) {
+        if ((a.tipo == TIPO_INT || a.tipo == TIPO_CHAR) && 
+            (b.tipo == TIPO_INT || b.tipo == TIPO_CHAR)) {
+            int valorA = (a.tipo == TIPO_CHAR) ? (int)a.v.c : a.v.i;
+            int valorB = (b.tipo == TIPO_CHAR) ? (int)b.v.c : b.v.i;
+            r.tipo = TIPO_INT;
+            r.inicializado = 1;
+            r.v.i = valorA & valorB;
+            return r;
+        } else {
+            printf("[EVALUADOR] Operador '&' solo válido para enteros y char\n");
             return r;
         }
     }

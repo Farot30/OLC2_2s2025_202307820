@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "../comun/strutil.h"
 typedef enum {
+    AST_PROGRAMA,
     AST_NUMERO,
     AST_IDENTIFICADOR,
     AST_DECLARACION,
@@ -31,6 +32,7 @@ typedef enum {
     AST_WHILE,
     AST_CONTINUE,
     AST_FOR,
+    AST_FOR_VECTOR,
     AST_INCREMENTO,
     AST_DECREMENTO,
     AST_DECLARACION_VECTOR,
@@ -57,9 +59,7 @@ typedef enum {
     AST_RETURN,
     AST_LISTA_PARAMETROS,
     AST_PARAMETRO,
-    AST_MAIN,
     AST_METODO_MAIN,
-    AST_CLASE,
 
     // Por si se me olvida, aquí es agregar más tipos
 } TipoNodoAST;

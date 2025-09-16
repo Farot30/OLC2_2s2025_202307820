@@ -1,7 +1,7 @@
 
 #include "evaluarString.h"
 #include "../../simbolos/Operador.h"
-
+#include <ctype.h>
 #include "../../AST/ast.h"
 #include "../tabla_simbolo.h"
 #include "../semantico.h"
@@ -161,7 +161,11 @@ ValorSimbolo evaluarValueOf(NodoAST* e) {
             snprintf(buffer, sizeof(buffer), "%f", argVal.v.d);
             break;
         case TIPO_CHAR:
-            snprintf(buffer, sizeof(buffer), "%c", argVal.v.c);
+            if (isprint((unsigned char)argVal.v.c)) {
+                snprintf(buffer, sizeof(buffer), "%c", argVal.v.c);
+            } else {
+                snprintf(buffer, sizeof(buffer), "\\u%04x", (unsigned char)argVal.v.c);
+            }
             break;
         case TIPO_BOOLEAN:
             snprintf(buffer, sizeof(buffer), "%s", argVal.v.b ? "true" : "false");
