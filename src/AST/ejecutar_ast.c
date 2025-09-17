@@ -38,6 +38,22 @@ int hayRetorno = 0;
 int contadorBloques = 0;
 int bloquePrincipalMain = 0;
 int dentroDelMain = 0; // Para trackear si estamos dentro del main
+StackRetorno stackRetorno = { .tope = 0 };
+int nivel_funcion_actual = 0;
+void pushRetorno(ValorSimbolo valor) {
+    if (stackRetorno.tope < 100) {
+        stackRetorno.items[stackRetorno.tope++] = (RetornoInfo){ .valor = valor, .nivel_funcion = nivel_funcion_actual };
+    }
+}
+
+ValorSimbolo popRetorno() {
+    if (stackRetorno.tope > 0) {
+        return stackRetorno.items[--stackRetorno.tope].valor;
+    }
+    ValorSimbolo vacio = {0};
+    return vacio;
+}
+
 
 ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
     // Verificación más robusta de nodos
@@ -52,8 +68,8 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
         return EJEC_OK;
     }
 
-    printf("[DEBUG] Ejecutando nodo tipo: %d, valor: %s\n", 
-           nodo->tipo, nodo->valor ? nodo->valor : "NULL");
+    //printf("[DEBUG] Ejecutando nodo tipo: %d, valor: %s\n", 
+     //      nodo->tipo, nodo->valor ? nodo->valor : "NULL");
     
     switch (nodo->tipo) {
         case AST_METODO_MAIN:
@@ -66,6 +82,7 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
             return EJEC_OK;
             
         case AST_LISTA:
+        
         case AST_BLOQUE: {
             bool crearAmbito = true;
             const char* ambitoActualNombre = ambitoActual();
@@ -76,21 +93,22 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
             if (strcmp(ambitoActualNombre, "global") == 0 && 
                 nodo->valor && (strcmp(nodo->valor, "Funciones") == 0 || strcmp(nodo->valor, "Programa") == 0)) {
                 crearAmbito = false;
-                printf("[DEBUG BLOQUE] Bloque '%s' en ámbito global, no creando nuevo ámbito\n", nodo->valor);
+                //printf("[DEBUG BLOQUE] Bloque '%s' en ámbito global, no creando nuevo ámbito\n", nodo->valor);
             }
-            // 1.5 Si estamos en el ámbito "main" y es un bloque "Programa", NO crear ámbito
+            // 2. Si estamos en el ámbito "main" y es un bloque "Programa", NO crear ámbito
             else if (strcmp(ambitoActualNombre, "main") == 0 && 
                      nodo->valor && strcmp(nodo->valor, "Programa") == 0) {
                 crearAmbito = false;
-                printf("[DEBUG BLOQUE] Bloque 'Programa' en ámbito main, no creando nuevo ámbito\n");
+                //printf("[DEBUG BLOQUE] Bloque 'Programa' en ámbito main, no creando nuevo ámbito\n");
             }
-            // 2. Si estamos en el ámbito "main" y es el primer bloque, NO crear ámbito
-            else if (strcmp(ambitoActualNombre, "main") == 0 && bloquePrincipalMain == 0) {
+            // 3. Si estamos en el ámbito "main" y es el primer bloque, NO crear ámbito
+            else if (strcmp(ambitoActualNombre, "main") == 0 && bloquePrincipalMain == 0 && 
+                     (!nodo->valor || strcmp(nodo->valor, "Bloque") == 0)) {
                 crearAmbito = false;
                 bloquePrincipalMain = 1; // Marcar que ya procesamos el bloque principal
-                printf("[DEBUG BLOQUE] Usando ámbito 'main' para bloque principal\n");
+                //printf("[DEBUG BLOQUE] Usando ámbito 'main' para bloque principal\n");
             }
-            // 3. Si estamos en contextos especiales, NO crear ámbito
+            // 4. Si estamos en contextos especiales, NO crear ámbito
             else if (strcmp(ambitoActualNombre, "funcion") == 0 ||
                      strcmp(ambitoActualNombre, "funcion_void") == 0 ||
                      strcmp(ambitoActualNombre, "for") == 0 ||
@@ -99,8 +117,9 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
                      strcmp(ambitoActualNombre, "if") == 0 ||
                      strcmp(ambitoActualNombre, "else") == 0) {
                 crearAmbito = false;
-                printf("[DEBUG BLOQUE] No creando ámbito, usando contexto actual: %s\n", ambitoActualNombre);
+                //printf("[DEBUG BLOQUE] No creando ámbito, usando contexto actual: %s\n", ambitoActualNombre);
             }
+            // 5. En otros casos, crear un ámbito "bloque_X"
             else {
                 crearAmbito = true;
             }
@@ -108,7 +127,7 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
             char nombreAmbito[32];
             if (crearAmbito) {
                 snprintf(nombreAmbito, sizeof(nombreAmbito), "bloque_%d", ++contadorBloques);
-                printf("[DEBUG BLOQUE] Entrando al ámbito: %s\n", nombreAmbito);
+                //printf("[DEBUG BLOQUE] Entrando al ámbito: %s\n", nombreAmbito);
                 entrarAmbito(nombreAmbito);
             }
 
@@ -124,7 +143,7 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
 
             if (crearAmbito) {
                 salirAmbito();
-                printf("[DEBUG BLOQUE] Saliendo del ámbito: %s\n", nombreAmbito);
+                //printf("[DEBUG BLOQUE] Saliendo del ámbito: %s\n", nombreAmbito);
             }
             return EJEC_OK;
         }
@@ -218,7 +237,7 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
         }
 
         case AST_PRINT:
-            printf("[DEBUG] Procesando print\n");
+            //printf("[DEBUG] Procesando print\n");
             if (nodo->num_hijos > 0 && nodo->hijos[0]) {
                 imprimirEvaluado(nodo->hijos[0]);
             } else {
@@ -227,8 +246,8 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
             }
             return EJEC_OK;
 
-        case AST_INCREMENTO: // Tipo 25
-        case AST_DECREMENTO: // Si tienes decrementos
+        case AST_INCREMENTO:
+        case AST_DECREMENTO:
             printf("[DEBUG] Procesando incremento/decremento\n");
             if (nodo->num_hijos > 0 && nodo->hijos[0] && nodo->hijos[0]->valor) {
                 // Obtener la variable a incrementar
@@ -244,7 +263,7 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
                     printf("[ERROR] Incremento solo soportado para variables int\n");
                     return EJEC_OK;
                 }
-                
+            
                 // Incrementar el valor
                 if (nodo->valor && strcmp(nodo->valor, "++") == 0) {
                     simbolo->valor.v.i++;
@@ -262,6 +281,10 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
 
         case AST_IF:
             return ejecutarNodoIf(nodo);
+
+        case AST_DECLARACION_CONST:
+            verificarDeclaracionConstante(nodo);
+            return EJEC_OK;
             
         case AST_SWITCH:
             contexto_break++;
@@ -445,7 +468,8 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
             // No crear ámbito para el nodo Programa, solo ejecutar hijos
             for (int i = 0; i < nodo->num_hijos; i++) {
                 if (nodo->hijos[i] != NULL) {
-                    ejecutarNodoAST(nodo->hijos[i]);
+                    ResultadoEjecucion res = ejecutarNodoAST(nodo->hijos[i]);
+                    if (res != EJEC_OK) return res; // <-- Detener si hay return/break/etc
                 }
             }
             return EJEC_OK;
@@ -454,7 +478,8 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
             printf("[DEBUG] Nodo tipo %d no manejado específicamente, procesando hijos\n", nodo->tipo);
             for (int i = 0; i < nodo->num_hijos; i++) {
                 if (nodo->hijos[i] != NULL) {
-                    ejecutarNodoAST(nodo->hijos[i]);
+                    ResultadoEjecucion res = ejecutarNodoAST(nodo->hijos[i]);
+                    if (res != EJEC_OK) return res; // <-- Detener si hay return/break/etc
                 }
             }
             break;
@@ -468,31 +493,25 @@ void interpretarPrograma(NodoAST* raiz) {
         printf("[ERROR] AST raíz es NULL\n");
         return;
     }
-    
-    // Inicializar contador de bloques
+
     contadorBloques = 0;
     dentroDelMain = 0;
     bloquePrincipalMain = 0;
-    
-    // IMPORTANTE: Inicializar con ámbito global
-    // Esto asegura que las variables declaradas fuera del main tengan ámbito "global"
+
     entrarAmbito("global");
     
     printf("\n[DEBUG] === INICIANDO INTERPRETACIÓN SECUENCIAL ===\n");
     printf("[DEBUG] Ámbito inicial: %s\n", ambitoActual());
-    mostrarTablaSimbolos();  // Mostrar estado inicial
-    
-    // Ejecutar el programa secuencialmente
+
+
     ejecutarNodoAST(raiz);
-    
-    // Salir del ámbito global al final
+
     salirAmbito();
     
     printf("\n[DEBUG] === INTERPRETACIÓN COMPLETADA ===\n");
-    mostrarTablaSimbolos();  // Mostrar estado final
+    mostrarTablaSimbolos();
 }
 
-// Función auxiliar para verificar la estructura del AST antes de ejecutar
 void verificarEstructuraAST(NodoAST* nodo, int nivel) {
     if (!nodo) return;
     

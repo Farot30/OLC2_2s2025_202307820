@@ -4,4 +4,6 @@
 #include "../../AST/ast.h"
 int verificarDeclaracion(NodoAST* nodo);
 
+int verificarDeclaracionConstante(NodoAST* nodo);
+
 #endif

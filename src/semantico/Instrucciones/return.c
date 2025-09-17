@@ -34,59 +34,81 @@ ResultadoEjecucion ejecutarSentenciaReturn(NodoAST* nodo) {
         return EJEC_OK;
     }
 
-    // Inicializar variables globales de retorno
-    hayRetorno = 0;
-    memset(&valorRetorno, 0, sizeof(ValorSimbolo));
+    // Crear estructura para el retorno
+    RetornoInfo info;
+    memset(&info, 0, sizeof(RetornoInfo));
+    info.nivel_funcion = nivel_funcion_actual;
 
     // Evaluar la expresión de retorno si existe
     if (nodo->num_hijos > 0) {
-        valorRetorno = evaluarExpr(nodo->hijos[0]);
-        if (valorRetorno.inicializado) {
-            printf("[DEBUG RETURN] Return con valor de tipo %s\n", nombreTipo(valorRetorno.tipo));
+        ValorSimbolo nuevoValorRetorno = evaluarExpr(nodo->hijos[0]);
+        
+        if (nuevoValorRetorno.inicializado) {
+            printf("[DEBUG RETURN] Return con valor de tipo %s en nivel %d\n", 
+                   nombreTipo(nuevoValorRetorno.tipo), nivel_funcion_actual);
             
             // Buscar la función actual en la tabla de símbolos
             Simbolo* funcionActual = buscarSimbolo(ambitoActual());
             if (funcionActual && funcionActual->clase == SIMBOLO_FUNCION) {
                 // Verificar compatibilidad de tipos
                 TipoDato tipoFuncion = funcionActual->tipo;
-                if (valorRetorno.tipo != tipoFuncion && !esWidening(valorRetorno.tipo, tipoFuncion)) {
+                if (nuevoValorRetorno.tipo != tipoFuncion && 
+                    !esWidening(nuevoValorRetorno.tipo, tipoFuncion)) {
                     char msg[200];
-                    snprintf(msg, sizeof(msg), "Tipo de retorno incompatible: esperado %s, encontrado %s",
-                            nombreTipo(tipoFuncion), nombreTipo(valorRetorno.tipo));
+                    snprintf(msg, sizeof(msg), 
+                            "Tipo de retorno incompatible: esperado %s, encontrado %s",
+                            nombreTipo(tipoFuncion), nombreTipo(nuevoValorRetorno.tipo));
                     addError(msg, ambitoActual(), nodo->linea, nodo->columna);
                     printf("[ERROR RETURN] %s\n", msg);
-                    
-                    // Podemos decidir si continuar o detener la ejecución
-                    // En este caso continuamos pero con un error reportado
                 }
-                // No hacemos la conversión aquí, la dejamos para cuando se capture el valor
+            }
+            
+            // Guardar el valor en la estructura
+            info.valor = nuevoValorRetorno;
+            
+            // Si el valor es un string, hacer una copia
+            if (info.valor.tipo == TIPO_STRING && info.valor.v.s) {
+                info.valor.v.s = strdup(info.valor.v.s);
+            }
+            
+            // Push al stack
+            if (stackRetorno.tope < 100) {
+                stackRetorno.items[stackRetorno.tope++] = info;
+                printf("[DEBUG RETURN] Valor agregado al stack en posición %d\n", 
+                       stackRetorno.tope - 1);
+            } else {
+                printf("[ERROR RETURN] Stack de retorno lleno\n");
             }
             
             hayRetorno = 1;
-            
-            // Si el valor es un string, necesitamos hacer una copia
-            if (valorRetorno.tipo == TIPO_STRING && valorRetorno.v.s) {
-                char* copia = strdup(valorRetorno.v.s);
-                valorRetorno.v.s = copia;
-            }
         } else {
-            // Código existente...
+            printf("[ERROR] Valor de retorno no inicializado\n");
+            addError("Valor de retorno no inicializado", ambitoActual(), 
+                    nodo->linea, nodo->columna);
         }
     } else {
         // Return sin valor (para funciones void)
-        // Verificar que estemos en una función void
         Simbolo* funcionActual = buscarSimbolo(ambitoActual());
-        if (funcionActual && funcionActual->clase == SIMBOLO_FUNCION && funcionActual->tipo != TIPO_VOID) {
+        if (funcionActual && funcionActual->clase == SIMBOLO_FUNCION && 
+            funcionActual->tipo != TIPO_VOID) {
             char msg[200];
-            snprintf(msg, sizeof(msg), "Función con tipo de retorno %s no puede tener un return vacío", 
-                     nombreTipo(funcionActual->tipo));
+            snprintf(msg, sizeof(msg), 
+                    "Función con tipo de retorno %s no puede tener un return vacío", 
+                    nombreTipo(funcionActual->tipo));
             addError(msg, ambitoActual(), nodo->linea, nodo->columna);
             printf("[ERROR RETURN] %s\n", msg);
         }
         
+        // Inicializar un valor void
+        info.valor.tipo = TIPO_VOID;
+        info.valor.inicializado = 1;
+        
+        // Push al stack
+        if (stackRetorno.tope < 100) {
+            stackRetorno.items[stackRetorno.tope++] = info;
+        }
+        
         printf("[DEBUG RETURN] Return sin valor\n");
-        valorRetorno.tipo = TIPO_VOID;
-        valorRetorno.inicializado = 1;
         hayRetorno = 1;
     }
     

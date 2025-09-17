@@ -31,10 +31,10 @@ static int esNumerico(TipoDato t){
 }
 
 int esWidening(TipoDato origen, TipoDato destino) {
-    printf("[DEBUG esWidening] Verificando widening de %d a %d\n", origen, destino);
+    //printf("[DEBUG esWidening] Verificando widening de %d a %d\n", origen, destino);
     if (!esNumerico(origen) || !esNumerico(destino)) return 0;
     int resultado = rankTipo(origen) <= rankTipo(destino);
-    printf("[DEBUG esWidening] Resultado: %d\n", resultado);
+    //printf("[DEBUG esWidening] Resultado: %d\n", resultado);
     return resultado;
 }
 

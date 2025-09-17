@@ -3,6 +3,7 @@
 #include "../../simbolos/EvaluadorArray.h"
 #include "../semantico.h"
 #include "../Vectores/acceso_vector.h"
+#include "../Vectores/acceso_matriz.h"
 #include "../../AST/err.h"
 #include <string.h>
 #include <stdlib.h>
@@ -209,33 +210,12 @@ void obtenerDimensionesArray(Simbolo* simbolo, int* dimensiones, int* numDimensi
         // Formato matriz: [[val1,val2,...],[val1,val2,...],...]
         char* matrixCopy = strdup(simbolo->valor.v.s);
         if (matrixCopy) {
-            // Contar filas (corchetes internos)
+            // Usar la función de acceso_matriz.c para analizar dimensiones
             int numFilas = 0;
             int numColumnas = 0;
-            char* p = matrixCopy;
             
-            // Contar filas (separadas por ],[)
-            while (*p) {
-                if (*p == '[' && (p == matrixCopy || *(p-1) == ',')) numFilas++;
-                p++;
-            }
-            
-            // Contar columnas en la primera fila
-            if (numFilas > 0) {
-                p = strchr(matrixCopy, '[');
-                if (p) {
-                    p++; // Saltar el primer corchete
-                    char* endRow = strchr(p, ']');
-                    if (endRow) {
-                        // Contar comas dentro de la primera fila + 1
-                        numColumnas = 1; // Al menos un elemento
-                        while (p < endRow) {
-                            if (*p == ',') numColumnas++;
-                            p++;
-                        }
-                    }
-                }
-            }
+            // Llamar a la función correcta
+            analizarDimensionesMatriz(simbolo->valor.v.s, &numFilas, &numColumnas);
             
             printf("[EVALUADOR] Matriz '%s' detectada con formato: %d filas, %d columnas\n", 
                 simbolo->nombre, numFilas, numColumnas);
@@ -278,41 +258,82 @@ ValorSimbolo evaluarLength(NodoAST* e) {
     memset(&r, 0, sizeof(r));
     r.tipo = TIPO_INT;
     r.v.i = 0;
-    
+
     if (e->num_hijos < 1) {
-        printf("[ERROR] Array.length requiere un identificador\n");
+        printf("[ERROR] Array.length requiere un identificador o acceso\n");
         return r;
     }
-    
+
     NodoAST* idNodo = e->hijos[0];
-    if (idNodo->tipo != AST_IDENTIFICADOR) {
-        printf("[ERROR] Array.length solo se puede aplicar a identificadores\n");
+
+    // Caso 1: Identificador directo (vector o matriz)
+    if (idNodo->tipo == AST_IDENTIFICADOR) {
+        Simbolo* simbolo = buscarSimbolo(idNodo->valor);
+        if (!simbolo) {
+            printf("[ERROR] Variable '%s' no declarada\n", idNodo->valor);
+            return r;
+        }
+        if (simbolo->clase != SIMBOLO_VECTOR && simbolo->clase != SIMBOLO_MATRIZ && simbolo->clase != SIMBOLO_ARRAY_MULTIDIMENSIONAL) {
+            printf("[ERROR] Array.length solo se puede aplicar a arreglos\n");
+            return r;
+        }
+        int dimensiones[10] = {0};
+        int numDimensiones = 0;
+        obtenerDimensionesArray(simbolo, dimensiones, &numDimensiones);
+        int len = dimensiones[0];
+        r = makeNum(TIPO_INT, (double)len);
+        r.tipo = TIPO_INT;
+        r.inicializado = 1;
+        printf("[DEBUG] Array.length de '%s' = %d\n", idNodo->valor, len);
         return r;
     }
-    
-    Simbolo* simbolo = buscarSimbolo(idNodo->valor);
-    if (!simbolo) {
-        printf("[ERROR] Variable '%s' no declarada\n", idNodo->valor);
+
+    // Caso 2: Acceso a matriz/vector (ejemplo: matriz[exp].length)
+    else if (idNodo->tipo == AST_ACCESO) {
+        // Obtener el identificador base
+        if (idNodo->num_hijos < 2 || idNodo->hijos[0]->tipo != AST_IDENTIFICADOR) {
+            printf("[ERROR] Acceso inválido para length\n");
+            return r;
+        }
+        NodoAST* idBase = idNodo->hijos[0];
+        Simbolo* simbolo = buscarSimbolo(idBase->valor);
+        if (!simbolo) {
+            printf("[ERROR] Variable '%s' no declarada\n", idBase->valor);
+            return r;
+        }
+        if (simbolo->clase != SIMBOLO_MATRIZ) {
+            printf("[ERROR] Array.length solo se puede aplicar a filas de matrices\n");
+            return r;
+        }
+        // Obtener el índice de fila
+        NodoAST* dims = idNodo->hijos[1];
+        if (!dims || dims->num_hijos < 1 || dims->hijos[0]->num_hijos < 1) {
+            printf("[ERROR] Acceso sin dimensiones\n");
+            return r;
+        }
+        ValorSimbolo idx = evaluarExpr(dims->hijos[0]->hijos[0]);
+        if (!idx.inicializado) {
+            printf("[ERROR] Índice no inicializado en acceso para length\n");
+            return r;
+        }
+        int fila = idx.v.i;
+        // Obtener dimensiones de la matriz
+        int numFilas = 0, numColumnas = 0;
+        analizarDimensionesMatriz(simbolo->valor.v.s, &numFilas, &numColumnas);
+        if (fila < 0 || fila >= numFilas) {
+            printf("[ERROR] Índice de fila fuera de rango en length: %d (rango: 0-%d)\n", fila, numFilas-1);
+            return r;
+        }
+        // Devolver el número de columnas de esa fila (todas las filas tienen igual cantidad en tu modelo)
+        r = makeNum(TIPO_INT, (double)numColumnas);
+        r.tipo = TIPO_INT;
+        r.inicializado = 1;
+        printf("[DEBUG] Array.length de '%s[%d]' = %d\n", idBase->valor, fila, numColumnas);
         return r;
     }
-    
-    if (simbolo->clase != SIMBOLO_VECTOR && simbolo->clase != SIMBOLO_MATRIZ && simbolo->clase != SIMBOLO_ARRAY_MULTIDIMENSIONAL) {
-        printf("[ERROR] Array.length solo se puede aplicar a arreglos\n");
-        return r;
-    }
-    
-    int dimensiones[10] = {0};
-    int numDimensiones = 0;
-    obtenerDimensionesArray(simbolo, dimensiones, &numDimensiones);
-    
-    int len = 1;
-    for (int i = 0; i < numDimensiones; i++) len *= dimensiones[i];
-    
-    r = makeNum(TIPO_INT, (double)len);
-    r.tipo = TIPO_INT;
-    r.inicializado = 1;
-    printf("[DEBUG] Array.length de '%s' = %d\n", idNodo->valor, len);
-    
+
+    // Caso no soportado
+    printf("[ERROR] Array.length solo se puede aplicar a identificadores o accesos\n");
     return r;
 }
 

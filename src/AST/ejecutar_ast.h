@@ -11,6 +11,20 @@ typedef enum {
     EJEC_RETURN,
 } ResultadoEjecucion;
 
+typedef struct {
+    ValorSimbolo valor;
+    int nivel_funcion;
+} RetornoInfo;
+
+typedef struct {
+    RetornoInfo items[100];
+    int tope;
+} StackRetorno;
+
+// Variables globales para manejo de retorno
+extern StackRetorno stackRetorno;
+extern int nivel_funcion_actual;
+
 extern int contexto_break;
 extern int contexto_continue;
 extern int contexto_funcion;

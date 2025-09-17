@@ -52,7 +52,7 @@ static char* unescape(const char* yytext) {
                 
                 if(digitCount > 0) {
                     char* endptr;
-                    long unicode_val = strtol(dec, &endptr, 10); // Base 10 para decimal
+                    long unicode_val = strtol(dec, &endptr, 16); // Base 10 para decimal
                     if(endptr == dec + digitCount) {
                         // Truncar a 8 bits si es necesario
                         if(unicode_val > 255) {
@@ -114,6 +114,8 @@ return                      { yylval.str = strdup("return"); return TOKEN_RETURN
 public                      { yylval.str = strdup("public"); return TOKEN_PUBLIC; }
 static                      { yylval.str = strdup("static"); return TOKEN_STATIC; }
 main                        { yylval.str = strdup("main"); return TOKEN_main; }
+null                        { yylval.str = strdup("null"); return TOKEN_NULL; }
+final                       { yylval.str = strdup("final"); return TOKEN_FINAL; }
 
 [0-9]+                      { yylval.str = strdup(yytext); return TOKEN_NUMERO; }
 [0-9]+\.[0-9]+[fF]          { yylval.str = strdup(yytext); return TOKEN_FLOAT_LITERAL; }

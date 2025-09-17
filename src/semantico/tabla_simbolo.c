@@ -346,6 +346,7 @@ static const char* nombreClase(TipoSimbolo c){
         case SIMBOLO_MATRIZ: return "matriz";
         case SIMBOLO_ARRAY_MULTIDIMENSIONAL: return "array_multidimensional";
         case SIMBOLO_FUNCION_VOID: return "funcion_void";
+        case SIMBOLO_CONST: return "constante";
         default: return "?";
     }
 }

@@ -34,6 +34,11 @@ int verificarAsignacion(NodoAST* nodo) {
             return 0;
         }
     }
+    if (sim->es_constante) {
+        addError("No se puede reasignar una constante", ambitoActual(), identificador->linea, identificador->columna);
+        nodo->valido = 0;
+        return 0;
+    }
 
     /*printf("[DEBUG] Variable '%s' antes de asignar: tipo=%d, valor=%d\n", 
            identificador->valor, sim->valor.tipo, sim->valor.v.i);*/

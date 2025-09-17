@@ -12,6 +12,50 @@
 const char* ambitoActual(void);
 const char* nombreTipo(TipoDato tipo);
 
+
+int verificarDeclaracionConstante(NodoAST* nodo) {
+    if (!nodo || nodo->num_hijos < 3) {
+        printf("[ERROR] Estructura de nodo de declaración de constante inválida\n");
+        return 0;
+    }
+
+    NodoAST* tipoNodo = nodo->hijos[0];
+    NodoAST* identificador = nodo->hijos[1];
+    NodoAST* valor = nodo->hijos[2];
+    TipoDato tipoDeclarado = obtenerTipoDesdeString(tipoNodo->valor);
+
+    if (buscarSimbolo(identificador->valor)) {
+        addError("Constante redeclarada", ambitoActual(), identificador->linea, identificador->columna);
+        nodo->valido = 0;
+        return 0;
+    }
+    if (!valor) {
+        addError("Constante debe inicializarse al declararse", ambitoActual(), identificador->linea, identificador->columna);
+        nodo->valido = 0;
+        return 0;
+    }
+
+    agregarSimboloDetallado(
+        identificador->valor,
+        SIMBOLO_CONST, // O SIMBOLO_CONST si tienes uno
+        tipoDeclarado,
+        ambitoActual(),
+        identificador->linea,
+        identificador->columna
+    );
+    Simbolo* sim = buscarSimbolo(identificador->valor);
+    sim->es_constante = 1; // Marca como constante
+
+    ValorSimbolo v = evaluarExpr(valor);
+    if (!v.inicializado) {
+        addError("No se pudo inicializar la constante", ambitoActual(), identificador->linea, identificador->columna);
+        nodo->valido = 0;
+        return 0;
+    }
+    setValorSimbolo(sim, v.tipo, v);
+    return 1;
+}
+
 int verificarDeclaracion(NodoAST* nodo) {
     if (!nodo || nodo->num_hijos < 2) {
         printf("[ERROR] Estructura de nodo de declaración inválida\n");

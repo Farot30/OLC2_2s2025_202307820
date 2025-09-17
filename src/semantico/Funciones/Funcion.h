@@ -6,5 +6,5 @@
 #include "../../AST/ejecutar_ast.h"
 
 ResultadoEjecucion DeclararFuncion(NodoAST* nodo) ;
-
+int esTipoVector(const char* tipo);
 #endif

@@ -12,6 +12,7 @@ typedef enum {
     SIMBOLO_VECTOR,
     SIMBOLO_MATRIZ,
     SIMBOLO_ARRAY_MULTIDIMENSIONAL,
+    SIMBOLO_CONST,
 } TipoSimbolo;
 typedef struct {
     TipoDato tipo;
@@ -38,9 +39,11 @@ typedef struct Simbolo {
     ValorSimbolo valor; 
     struct Simbolo* siguiente;
     int inicializado;   
+    int longitud; 
     NodoAST* nodo_bloque; 
     NodoAST* nodo_return;
     NodoAST* nodo_params;
+    int es_constante;
 } Simbolo;
 
 extern char* pilaAmbitos[MAX_SCOPES];

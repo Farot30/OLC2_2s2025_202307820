@@ -57,9 +57,9 @@ ResultadoEjecucion ejecutarSentenciaFor(NodoAST* nodo) {
     }
     
     // Establecer un límite de seguridad para evitar bucles infinitos durante desarrollo
-    int max_iteraciones = 10000; // Ajustar según sea necesario
+    int max_iteraciones = 7; // Ajustar según sea necesario
     int contador_iteraciones = 0;
-    
+    entrarAmbito("FOR");
     while (contador_iteraciones < max_iteraciones) {
         contador_iteraciones++;
         
@@ -67,16 +67,22 @@ ResultadoEjecucion ejecutarSentenciaFor(NodoAST* nodo) {
         if (condicion) {
             printf("[DEBUG FOR] Evaluando condición (iteración %d)\n", contador_iteraciones);
             ValorSimbolo vCond = evaluarExpr(condicion);
+            
+            // MODIFICAR ESTA PARTE - Verificar inicialización
             if (!vCond.inicializado) {
-                printf("[ERROR FOR] Condición del FOR no está inicializada\n");
-                addError("Condición del FOR no está inicializada", ambitoActual(), nodo->linea, nodo->columna);
-                break;
+                printf("[ERROR FOR] Condición del FOR no está inicializada o tiene error de acceso a índice\n");
+                addError("Condición del FOR tiene error o accede a índice fuera de rango", 
+                        ambitoActual(), nodo->linea, nodo->columna);
+                break;  // IMPORTANTE: Salir del bucle si hay error
             }
+            
+            // Verificar tipo booleano
             if (vCond.tipo != TIPO_BOOLEAN) {
                 printf("[ERROR FOR] Condición del FOR no es booleana (tipo: %d)\n", vCond.tipo);
                 addError("Condición del FOR no es booleana", ambitoActual(), nodo->linea, nodo->columna);
-                break;
+                break;  // IMPORTANTE: Salir del bucle si hay error de tipo
             }
+            
             printf("[DEBUG FOR] Condición evaluada: %s\n", vCond.v.b ? "true" : "false");
             if (!vCond.v.b) {
                 printf("[DEBUG FOR] Condición falsa, saliendo del bucle\n");
@@ -85,20 +91,23 @@ ResultadoEjecucion ejecutarSentenciaFor(NodoAST* nodo) {
         }
 
         // Ejecutar bloque (si existe)
-        if (bloque) {
+         if (bloque) {
             printf("[DEBUG FOR] Ejecutando bloque de código\n");
-            entrarAmbito("for");
+            
             
             ResultadoEjecucion res = ejecutarNodoAST(bloque);
             
-            salirAmbito();
+            
             
             if (res == EJEC_BREAK) {
                 printf("[DEBUG FOR] Break detectado, saliendo del bucle\n");
                 break; 
             } else if (res == EJEC_CONTINUE) {
                 printf("[DEBUG FOR] Continue detectado, continuando con incremento\n");
-            }
+            } else if (res != EJEC_OK) {
+                printf("[ERROR FOR] Error al ejecutar bloque del FOR\n");
+                return res; 
+            } 
         }
 
         if(incremento) {
@@ -145,6 +154,7 @@ ResultadoEjecucion ejecutarSentenciaFor(NodoAST* nodo) {
             break;
         }
     }
+    salirAmbito();
     
     printf("[DEBUG FOR] === BUCLE FOR COMPLETADO después de %d iteraciones ===\n", contador_iteraciones);
     return EJEC_OK;

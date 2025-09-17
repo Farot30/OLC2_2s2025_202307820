@@ -56,6 +56,11 @@ int verificarCompatibilidadRetorno(TipoDato tipoExpresion, TipoDato tipoRetorno,
     return 0;
 }
 
+// Función auxiliar para verificar si un tipo es vector
+int esTipoVector(const char* tipo) {
+    return tipo && strstr(tipo, "[]") != NULL;
+}
+
 ResultadoEjecucion DeclararFuncion(NodoAST* nodo) {
     if(!nodo || nodo->tipo != AST_FUNCION) {
         printf("[ERROR FUNCION] Nodo inválido o no es tipo FUNCION\n");
@@ -130,8 +135,24 @@ ResultadoEjecucion DeclararFuncion(NodoAST* nodo) {
             // Agregar al conjunto de nombres de parámetros
             nombresParametros[numParametros++] = idParam->valor;
 
-            // Determinar el tipo del parámetro
-            TipoDato tipoParametro = obtenerTipoDesdeString(tipoParam->valor);
+            // Determinar el tipo del parámetro y verificar si es un vector
+            TipoDato tipoParametro;
+            TipoSimbolo claseParametro = SIMBOLO_VARIABLE;
+            
+            if (esTipoVector(tipoParam->valor)) {
+                // Es un tipo vector (ej: "int[]")
+                char tipoBase[50] = {0};
+                strncpy(tipoBase, tipoParam->valor, strlen(tipoParam->valor) - 2); // Quitar los corchetes
+                tipoParametro = obtenerTipoDesdeString(tipoBase);
+                claseParametro = SIMBOLO_VECTOR; // Marcar como vector
+                printf("[DEBUG FUNCION] Parámetro '%s' es vector de tipo %s\n", 
+                       idParam->valor, tipoBase);
+            } else {
+                // Es un tipo normal
+                tipoParametro = obtenerTipoDesdeString(tipoParam->valor);
+            }
+            
+            // Verificar tipo válido
             if (tipoParametro == TIPO_DESCONOCIDO || tipoParametro == TIPO_FUNCION || tipoParametro == TIPO_VOID) {
                 char msg[100];
                 snprintf(msg, sizeof(msg), "Tipo de parámetro desconocido en función '%s'", idNodo->valor);
@@ -141,8 +162,8 @@ ResultadoEjecucion DeclararFuncion(NodoAST* nodo) {
             }
 
             // Agregar el parámetro a la tabla de símbolos en el ámbito de la función
-            agregarSimboloDetallado(idParam->valor, SIMBOLO_VARIABLE, tipoParametro, 
-                                    idNodo->valor, idParam->linea, idParam->columna);
+            agregarSimboloDetallado(idParam->valor, claseParametro, tipoParametro, 
+                                   idNodo->valor, idParam->linea, idParam->columna);
             
             siguiente_parametro:;
         }
@@ -160,7 +181,7 @@ ResultadoEjecucion DeclararFuncion(NodoAST* nodo) {
     simboloFuncion->nodo_bloque = bloqueNodo;
     simboloFuncion->nodo_params = parametros;
     
-    // Verificar el nodo de return (si existe como quinto hijo)
+    // Verificar el nodo de return
     if (nodo->num_hijos > 4 && nodo->hijos[4]->tipo == AST_RETURN) {
         NodoAST* returnNodo = nodo->hijos[4];
         
@@ -182,10 +203,7 @@ ResultadoEjecucion DeclararFuncion(NodoAST* nodo) {
         
         if (tieneReturn) {
             // Buscar el nodo return para guardarlo
-            NodoAST* returnEncontrado = NULL;
-            
-            // Función auxiliar para encontrar el nodo
-            returnEncontrado = encontrarNodoReturn(bloqueNodo);
+            NodoAST* returnEncontrado = encontrarNodoReturn(bloqueNodo);
             
             if (returnEncontrado) {
                 if (returnEncontrado->num_hijos > 0) {
@@ -208,7 +226,6 @@ ResultadoEjecucion DeclararFuncion(NodoAST* nodo) {
     printf("[DEBUG FUNCION] Función '%s' declarada exitosamente\n", idNodo->valor);
     return EJEC_OK;
 }
-
 ResultadoEjecucion EjecutarFuncion(NodoAST* nodo) {
     if (!nodo || nodo->tipo != AST_LLAMADA) {
         printf("[ERROR] Nodo inválido para ejecución de función\n");

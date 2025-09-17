@@ -277,6 +277,7 @@ ValorSimbolo evaluarAccesoVector(NodoAST* nodo) {
         token = strtok(NULL, ",");
     }
     
+    
     // Verificar índice dentro del rango
     if (indice >= 0 && indice < numElementos) {
         // Convertir según el tipo

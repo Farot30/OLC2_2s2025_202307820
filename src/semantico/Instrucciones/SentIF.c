@@ -45,11 +45,13 @@ ResultadoEjecucion ejecutarNodoIf(NodoAST* nodo) {
         entrarAmbito("if");
         ResultadoEjecucion res = ejecutarNodoAST(bloqueVerdadero);
         salirAmbito();
+        if (res == EJEC_RETURN) return EJEC_RETURN; // <-- Propaga el return
         return res;
     } else if (bloqueFalso) {
         entrarAmbito("else");
         ResultadoEjecucion res = ejecutarNodoAST(bloqueFalso);
         salirAmbito();
+        if (res == EJEC_RETURN) return EJEC_RETURN; // <-- Propaga el return
         return res;
     }
     return EJEC_OK;

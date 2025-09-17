@@ -136,6 +136,21 @@ ValorSimbolo evaluarOperaciones(NodoAST* e, ValorSimbolo a, ValorSimbolo b) {
         r.tipo = TIPO_BOOLEAN;
         r.inicializado = 1;
 
+        if ((a.tipo == TIPO_STRING && b.tipo == TIPO_NULL) || (a.tipo == TIPO_NULL && b.tipo == TIPO_STRING)) {
+            int esNull = (a.tipo == TIPO_NULL) ? (b.v.s == NULL) : (a.v.s == NULL);
+            if (strcmp(e->valor, "==") == 0)
+                r.v.b = esNull;
+            else
+                r.v.b = !esNull;
+            printf("[DEBUG OPERADOR] Comparación string %s null: %s\n", e->valor, r.v.b ? "true" : "false");
+            return r;
+        }
+        if ((a.tipo == TIPO_NULL && b.tipo == TIPO_NULL)) {
+            r.v.b = (strcmp(e->valor, "==") == 0);
+            printf("[DEBUG OPERADOR] Comparación null %s null: %s\n", e->valor, r.v.b ? "true" : "false");
+            return r;
+        }
+
         if (a.tipo == b.tipo) {
             switch (a.tipo) {
                 case TIPO_INT:
@@ -419,6 +434,11 @@ ValorSimbolo evaluarExpr(NodoAST* e) {
             r.inicializado = 1;
             return r;
         }
+        case AST_NULL:
+            r.tipo = TIPO_NULL;
+            r.inicializado = 1;
+            r.v.s = NULL;
+            return r;
         // En Evaluador.c, modificar el caso AST_IDENTIFICADOR:
         case AST_IDENTIFICADOR: {
             // Intentar buscar como variable primero

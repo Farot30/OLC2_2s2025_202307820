@@ -60,7 +60,7 @@
 %token <str> TOKEN_VOID
 %token <str> TOKEN_RETURN
 %token <str> TOKEN_PUBLIC TOKEN_STATIC TOKEN_main
-
+%token <str> TOKEN_NULL TOKEN_FINAL
 
 /* Tokens para asignaciones compuestas */
 %token <str> TOKEN_MAS_IGUAL TOKEN_MENOS_IGUAL TOKEN_POR_IGUAL
@@ -290,6 +290,15 @@ declaracion:
         NodoAST* def = crearNodo(AST_NUMERO, (char*)valorPorDefectoTipo(obtenerTipoDesdeString($1)));
         agregarHijo($$, id);
         agregarHijo($$, def);
+    }
+    | TOKEN_FINAL tipo_primitivo TOKEN_IDENTIFICADOR TOKEN_IGUAL expresion {
+        $$ = crearNodo(AST_DECLARACION_CONST, "declaracion_const");
+        $$->linea = @3.first_line; $$->columna = @3.first_column;
+        agregarHijo($$, crearNodo(AST_TIPO, $2));
+        NodoAST* id = crearNodo(AST_IDENTIFICADOR, $3);
+        id->linea = @3.first_line; id->columna = @3.first_column;
+        agregarHijo($$, id);
+        agregarHijo($$, $5);
     }
 ;
 
@@ -763,16 +772,31 @@ parametros:
         
         agregarHijo($$, param);
     }
+    | tipo_primitivo TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_IDENTIFICADOR {
+        // Permitir int [] notas
+        char* buffer = malloc(strlen($1) + 3);
+        sprintf(buffer, "%s[]", $1);
+        NodoAST* param = crearNodo(AST_PARAMETRO, "parametro");
+        NodoAST* tipo = crearNodo(AST_TIPO, buffer);
+        tipo->linea = @1.first_line; tipo->columna = @1.first_column;
+        agregarHijo(param, tipo);
+        NodoAST* id = crearNodo(AST_IDENTIFICADOR, $4);
+        id->linea = @4.first_line; id->columna = @4.first_column;
+        agregarHijo(param, id);
+        $$ = crearNodo(AST_PARAMETROS, "parametros");
+        agregarHijo($$, param);
+        free(buffer);
+    }
 ;
 
 
-tipo_primitivo:
-    TOKEN_DINT      { $$ = $1; }
-    | TOKEN_DCHAR   { $$ = $1; }
-    | TOKEN_DOUBLE  { $$ = $1; }
-    | TOKEN_DFLOAT  { $$ = $1; }
-    | TOKEN_DSTRING { $$ = $1; }
-    | TOKEN_DBOOLEAN { $$ = $1; }
+tipo_primitivo
+    : TOKEN_DINT      { $$ = strdup($1); }
+    | TOKEN_DCHAR     { $$ = strdup($1); }
+    | TOKEN_DOUBLE    { $$ = strdup($1); }
+    | TOKEN_DFLOAT    { $$ = strdup($1); }
+    | TOKEN_DSTRING   { $$ = strdup($1); }
+    | TOKEN_DBOOLEAN  { $$ = strdup($1); }
 ;
     
 /* ========== ASIGNACIONES ========== */
@@ -1100,6 +1124,15 @@ primary:
         NodoAST* lista = crearNodo(AST_LISTA, "Lista Strings");
         agregarHijo(lista, $5);
         agregarHijo($$, lista);
+    }
+    | acceso TOKEN_PUNTO TOKEN_LENGHT {
+        $$ = crearNodo(AST_LENGHT, "Array.length");
+        $$->linea = @2.first_line; $$->columna = @2.first_column;
+        agregarHijo($$, $1);
+    }
+    | TOKEN_NULL {
+        $$ = crearNodo(AST_NULL, "null");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
     }
     | acceso {
           $$ = $1;

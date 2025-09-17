@@ -70,7 +70,7 @@ int verificarSemantica(NodoAST* nodo) {
             if (!buscarSimbolo(nodo->valor)) {
                 char msg[128];
                 snprintf(msg,sizeof(msg),"Variable '%s' no declarada", nodo->valor);
-                addError(msg,"global",nodo->linea,nodo->columna);
+                addError(msg,ambitoActual(),nodo->linea,nodo->columna);
                 error_semantico = 1;
                 nodo->valido = 0;  // Marcar nodo como inválido
                 return 0;
@@ -81,7 +81,7 @@ int verificarSemantica(NodoAST* nodo) {
             if (nodo->num_hijos != 1) {
                 char msg[128];
                 snprintf(msg, sizeof(msg), "Print debe tener exactamente un argumento");
-                addError(msg, "global", nodo->linea, nodo->columna);
+                addError(msg, ambitoActual(), nodo->linea, nodo->columna);
                 error_semantico = 1;
                 return 0;
             }

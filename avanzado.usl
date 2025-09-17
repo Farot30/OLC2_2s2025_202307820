@@ -298,7 +298,7 @@ public static void main() {
     
     // Arreglo tridimensional - Rendimiento académico
     System.out.println("--- ANÁLISIS TRIDIMENSIONAL ---");
-    int[][][] rendimientoAcademico = new int[2][2][2]; // 2 facultades, 2 semestres, 2 materias
+    int rendimientoAcademico[][][] = new int[2][2][2]; // 2 facultades, 2 semestres, 2 materias
     
     // Llenar con datos de ejemplo
     rendimientoAcademico[0][0][0] = 85;  // Facultad 0, Semestre 0, Materia 0

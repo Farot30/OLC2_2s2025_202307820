@@ -3,9 +3,43 @@
 #include "../semantico.h"
 #include "../../AST/err.h"
 #include "Llamadas.h"
+#include "Funcion.h"
 #include "../../simbolos/Evaluador.h"
 #include <stdio.h>
 #include <string.h>
+
+// Función auxiliar para copiar un vector como parámetro
+void copiarVectorComoParametro(Simbolo* destino, Simbolo* origen) {
+    if (!destino || !origen || origen->clase != SIMBOLO_VECTOR) {
+        return;
+    }
+    
+    // Copiar propiedades del vector
+    destino->clase = SIMBOLO_VECTOR;
+    destino->longitud = origen->longitud;
+    
+    // Copiar el contenido del vector
+    if (origen->valor.v.s) {
+        destino->valor.v.s = strdup(origen->valor.v.s);
+    }
+    
+    destino->valor.inicializado = 1;
+    destino->valor.tipo = origen->valor.tipo;
+    
+    printf("[DEBUG] Vector copiado como parámetro: '%s' -> '%s', longitud: %d\n",
+           origen->nombre, destino->nombre, destino->longitud);
+}
+
+ValorSimbolo obtenerRetornoFuncion() {
+    if (stackRetorno.tope > 0) {
+        RetornoInfo info = stackRetorno.items[--stackRetorno.tope];
+        // Aquí podrías comparar info.nivel_funcion si lo necesitas
+        return info.valor;
+    }
+    ValorSimbolo vacio = {0};
+    return vacio;
+}
+
 
 // Función para evaluar la llamada y obtener el valor de retorno
 ValorSimbolo EvaluarLlamadaFuncion(NodoAST* nodo) {
@@ -19,7 +53,8 @@ ValorSimbolo EvaluarLlamadaFuncion(NodoAST* nodo) {
 
     if (nodo->num_hijos < 1 || nodo->hijos[0]->tipo != AST_IDENTIFICADOR) {
         printf("[ERROR] Llamada a función requiere un identificador\n");
-        addError("Llamada a función inválida", ambitoActual(), nodo->linea, nodo->columna);
+        addError("Llamada a función inválida", ambitoActual(), 
+                nodo->linea, nodo->columna);
         return resultadoFuncion;
     }
 
@@ -51,18 +86,31 @@ ValorSimbolo EvaluarLlamadaFuncion(NodoAST* nodo) {
     int numParametros = parametrosDef ? parametrosDef->num_hijos : 0;
 
     // Verificar número de parámetros
-    int numArgs = (parametrosLlamada && parametrosLlamada->tipo == AST_LISTA_PARAMETROS) ? parametrosLlamada->num_hijos : 0;
+    int numArgs = (parametrosLlamada && parametrosLlamada->tipo == AST_LISTA_PARAMETROS) 
+                  ? parametrosLlamada->num_hijos : 0;
     if (numArgs != numParametros) {
         char msg[200];
-        snprintf(msg, sizeof(msg), "Número incorrecto de parámetros: esperados %d, encontrados %d",
+        snprintf(msg, sizeof(msg), 
+                "Número incorrecto de parámetros: esperados %d, encontrados %d",
                 numParametros, numArgs);
         addError(msg, ambitoActual(), idNodo->linea, idNodo->columna);
         printf("[ERROR] %s\n", msg);
         return resultadoFuncion;
     }
 
+    // GUARDAR ESTADO ANTERIOR
+    int hayRetornoAnterior = hayRetorno;
+    int nivelAnterior = nivel_funcion_actual;
+    int topeStackAnterior = stackRetorno.tope;
+    
+    // INCREMENTAR NIVEL Y RESETEAR ESTADO
+    nivel_funcion_actual++;
+    hayRetorno = 0;
+    
+    printf("[DEBUG] Entrando al ámbito de la función '%s' (nivel %d)\n", 
+           idNodo->valor, nivel_funcion_actual);
+    
     // Crear un nuevo ámbito para la ejecución de la función
-    printf("[DEBUG] Entrando al ámbito de la función '%s'\n", idNodo->valor);
     contexto_funcion++;
     entrarAmbito(simboloFuncion->nombre);
 
@@ -72,45 +120,103 @@ ValorSimbolo EvaluarLlamadaFuncion(NodoAST* nodo) {
         NodoAST* tipoParam = param->hijos[0];
         NodoAST* idParam = param->hijos[1];
         const char* nombreParam = idParam->valor;
-        TipoDato tipoParametro = obtenerTipoDesdeString(tipoParam->valor);
-
-        ValorSimbolo valorArg = evaluarExpr(parametrosLlamada->hijos[i]);
-        if (!valorArg.inicializado) {
-            char msg[200];
-            snprintf(msg, sizeof(msg), "Valor no inicializado para parámetro '%s'", nombreParam);
-            addError(msg, ambitoActual(), parametrosLlamada->hijos[i]->linea, parametrosLlamada->hijos[i]->columna);
-            printf("[ERROR] %s\n", msg);
-            continue;
+        
+        // Determinar si es un parámetro vector
+        int esVector = esTipoVector(tipoParam->valor);
+        TipoDato tipoParametro;
+        
+        if (esVector) {
+            char tipoBase[50] = {0};
+            strncpy(tipoBase, tipoParam->valor, strlen(tipoParam->valor) - 2);
+            tipoParametro = obtenerTipoDesdeString(tipoBase);
+        } else {
+            tipoParametro = obtenerTipoDesdeString(tipoParam->valor);
         }
-        if (valorArg.tipo != tipoParametro && !esWidening(valorArg.tipo, tipoParametro)) {
-            char msg[200];
-            snprintf(msg, sizeof(msg), "Tipo incompatible para parámetro '%s': esperado %s, encontrado %s",
-                    nombreParam, nombreTipo(tipoParametro), nombreTipo(valorArg.tipo));
-            addError(msg, ambitoActual(), parametrosLlamada->hijos[i]->linea, parametrosLlamada->hijos[i]->columna);
-            printf("[ERROR] %s\n", msg);
-            continue;
-        }
-        // Declarar el parámetro en el ámbito de la función
-        if (!buscarSimboloEnAmbito(nombreParam, ambitoActual())) {
-            agregarSimboloDetallado(nombreParam, SIMBOLO_VARIABLE, tipoParametro, ambitoActual(), nodo->linea, nodo->columna);
-        }
-        Simbolo* paramSim = buscarSimbolo(nombreParam);
-        if (paramSim) {
-            if (valorArg.tipo != paramSim->tipo && esWidening(valorArg.tipo, paramSim->tipo)) {
-                valorArg = convertirValor(valorArg, paramSim->tipo);
+        
+        // Evaluar y asignar parámetros (código existente)
+        if (!esVector) {
+            ValorSimbolo valorArg = evaluarExpr(parametrosLlamada->hijos[i]);
+            if (!valorArg.inicializado) {
+                char msg[200];
+                snprintf(msg, sizeof(msg), "Valor no inicializado para parámetro '%s'", 
+                        nombreParam);
+                addError(msg, ambitoActual(), parametrosLlamada->hijos[i]->linea, 
+                        parametrosLlamada->hijos[i]->columna);
+                printf("[ERROR] %s\n", msg);
+                continue;
             }
-            paramSim->valor = valorArg;
-            paramSim->inicializado = 1;
-            paramSim->valor.inicializado = 1;
-            printf("[DEBUG] Parámetro '%s' inicializado con valor\n", nombreParam);
+            
+            // Verificar compatibilidad de tipos
+            if (valorArg.tipo != tipoParametro && 
+                !esWidening(valorArg.tipo, tipoParametro)) {
+                char msg[200];
+                snprintf(msg, sizeof(msg), 
+                        "Tipo incompatible para parámetro '%s': esperado %s, encontrado %s",
+                        nombreParam, nombreTipo(tipoParametro), nombreTipo(valorArg.tipo));
+                addError(msg, ambitoActual(), parametrosLlamada->hijos[i]->linea, 
+                        parametrosLlamada->hijos[i]->columna);
+                printf("[ERROR] %s\n", msg);
+                continue;
+            }
+            
+            // Declarar el parámetro en el ámbito de la función
+            if (!buscarSimboloEnAmbito(nombreParam, ambitoActual())) {
+                agregarSimboloDetallado(nombreParam, SIMBOLO_VARIABLE, tipoParametro, 
+                                      ambitoActual(), idParam->linea, idParam->columna);
+            }
+            
+            Simbolo* paramSim = buscarSimboloEnAmbito(nombreParam, ambitoActual());
+            if (paramSim) {
+                if (valorArg.tipo != paramSim->tipo && 
+                    esWidening(valorArg.tipo, paramSim->tipo)) {
+                    valorArg = convertirValor(valorArg, paramSim->tipo);
+                }
+                paramSim->valor = valorArg;
+                paramSim->inicializado = 1;
+                paramSim->valor.inicializado = 1;
+                printf("[DEBUG] Parámetro '%s' inicializado con valor\n", nombreParam);
+            }
+        } else {
+            // Evaluar el argumento (debe ser un identificador de vector)
+            NodoAST* argNodo = parametrosLlamada->hijos[i];
+            if (argNodo->tipo != AST_IDENTIFICADOR) {
+                char msg[200];
+                snprintf(msg, sizeof(msg), "El argumento para el vector '%s' debe ser un identificador", nombreParam);
+                addError(msg, ambitoActual(), argNodo->linea, argNodo->columna);
+                printf("[ERROR] %s\n", msg);
+                continue;
+            }
+            Simbolo* simboloArg = buscarSimbolo(argNodo->valor);
+            if (!simboloArg || simboloArg->clase != SIMBOLO_VECTOR) {
+                char msg[200];
+                snprintf(msg, sizeof(msg), "El argumento '%s' no es un vector válido", argNodo->valor);
+                addError(msg, ambitoActual(), argNodo->linea, argNodo->columna);
+                printf("[ERROR] %s\n", msg);
+                continue;
+            }
+            // Declarar el parámetro vector en el ámbito de la función si no existe
+            if (!buscarSimboloEnAmbito(nombreParam, ambitoActual())) {
+                agregarSimboloDetallado(nombreParam, SIMBOLO_VECTOR, tipoParametro,
+                                        ambitoActual(), idParam->linea, idParam->columna);
+            }
+            Simbolo* paramSim = buscarSimboloEnAmbito(nombreParam, ambitoActual());
+            if (paramSim) {
+                copiarVectorComoParametro(paramSim, simboloArg);
+                printf("[DEBUG] Parámetro vector '%s' inicializado\n", nombreParam);
+            }
         }
+        // ... código para vectores si es necesario ...
     }
 
     // Obtener el bloque de la función
     NodoAST* bloqueNodo = simboloFuncion->nodo_bloque;
     if (!bloqueNodo) {
         printf("[ERROR] La función '%s' no tiene un bloque asociado\n", idNodo->valor);
-        addError("Función sin bloque de código", ambitoActual(), idNodo->linea, idNodo->columna);
+        addError("Función sin bloque de código", ambitoActual(), 
+                idNodo->linea, idNodo->columna);
+        // Restaurar estado
+        hayRetorno = hayRetornoAnterior;
+        nivel_funcion_actual = nivelAnterior;
         contexto_funcion--;
         salirAmbito();
         return resultadoFuncion;
@@ -118,66 +224,102 @@ ValorSimbolo EvaluarLlamadaFuncion(NodoAST* nodo) {
 
     // Ejecutar el bloque de la función
     printf("[DEBUG] Ejecutando bloque de la función '%s'\n", idNodo->valor);
-
-    hayRetorno = 0;
-    memset(&valorRetorno, 0, sizeof(ValorSimbolo));
     ResultadoEjecucion resEjec = ejecutarNodoAST(bloqueNodo);
 
-    // Verificar si hubo un return
-    if (resEjec == EJEC_RETURN) {
+    // OBTENER RESULTADO DEL STACK
+    if (resEjec == EJEC_RETURN && hayRetorno) {
         printf("[DEBUG] Se detectó return en función '%s'\n", idNodo->valor);
-        printf("[DEBUG] Resultado de ejecución: %d\n", resEjec);
-        printf("[DEBUG] hayRetorno: %d, valorRetorno.inicializado: %d\n", hayRetorno, valorRetorno.inicializado);
-
-        if (valorRetorno.inicializado) {
-            if (valorRetorno.tipo == simboloFuncion->tipo || esWidening(valorRetorno.tipo, simboloFuncion->tipo)) {
-                if (valorRetorno.tipo != simboloFuncion->tipo) {
-                    ValorSimbolo valorConvertido = convertirValor(valorRetorno, simboloFuncion->tipo);
-                    if (valorRetorno.tipo == TIPO_STRING && valorRetorno.v.s) {
-                        free(valorRetorno.v.s);
+        
+        // Buscar el valor de retorno correspondiente a este nivel
+        if (stackRetorno.tope > topeStackAnterior) {
+            // Obtener el último valor agregado al stack
+            RetornoInfo info = stackRetorno.items[stackRetorno.tope - 1];
+            
+            // Verificar que corresponda a este nivel
+            if (info.nivel_funcion == nivel_funcion_actual) {
+                stackRetorno.tope--; // Pop del stack
+                
+                // Verificar compatibilidad de tipos
+                if (info.valor.tipo == simboloFuncion->tipo || 
+                    esWidening(info.valor.tipo, simboloFuncion->tipo)) {
+                    
+                    if (info.valor.tipo != simboloFuncion->tipo) {
+                        resultadoFuncion = convertirValor(info.valor, simboloFuncion->tipo);
+                        // Liberar string anterior si existe
+                        if (info.valor.tipo == TIPO_STRING && info.valor.v.s) {
+                            free(info.valor.v.s);
+                        }
+                    } else {
+                        resultadoFuncion = info.valor;
                     }
-                    valorRetorno = valorConvertido;
-                }
-                resultadoFuncion = valorRetorno;
-                printf("[DEBUG] Función '%s' retorna valor de tipo %s\n", idNodo->valor, nombreTipo(resultadoFuncion.tipo));
-                switch (resultadoFuncion.tipo) {
-                    case TIPO_INT: printf("[DEBUG] Valor retornado: %d\n", resultadoFuncion.v.i); break;
-                    case TIPO_FLOAT: printf("[DEBUG] Valor retornado: %f\n", resultadoFuncion.v.f); break;
-                    case TIPO_DOUBLE: printf("[DEBUG] Valor retornado: %lf\n", resultadoFuncion.v.d); break;
-                    case TIPO_CHAR: printf("[DEBUG] Valor retornado: '%c'\n", resultadoFuncion.v.c); break;
-                    case TIPO_BOOLEAN: printf("[DEBUG] Valor retornado: %s\n", resultadoFuncion.v.b ? "true" : "false"); break;
-                    case TIPO_STRING: printf("[DEBUG] Valor retornado: \"%s\"\n", resultadoFuncion.v.s ? resultadoFuncion.v.s : "(null)"); break;
-                    default: printf("[DEBUG] Valor retornado: <tipo desconocido>\n"); break;
+                    
+                    printf("[DEBUG] Función '%s' retorna valor de tipo %s\n", 
+                           idNodo->valor, nombreTipo(resultadoFuncion.tipo));
+                    
+                    // Debug del valor retornado
+                    switch (resultadoFuncion.tipo) {
+                        case TIPO_INT: 
+                            printf("[DEBUG] Valor retornado: %d\n", resultadoFuncion.v.i); 
+                            break;
+                        case TIPO_FLOAT: 
+                            printf("[DEBUG] Valor retornado: %f\n", resultadoFuncion.v.f); 
+                            break;
+                        case TIPO_DOUBLE: 
+                            printf("[DEBUG] Valor retornado: %lf\n", resultadoFuncion.v.d); 
+                            break;
+                        case TIPO_CHAR: 
+                            printf("[DEBUG] Valor retornado: '%c'\n", resultadoFuncion.v.c); 
+                            break;
+                        case TIPO_BOOLEAN: 
+                            printf("[DEBUG] Valor retornado: %s\n", 
+                                   resultadoFuncion.v.b ? "true" : "false"); 
+                            break;
+                        case TIPO_STRING: 
+                            printf("[DEBUG] Valor retornado: \"%s\"\n", 
+                                   resultadoFuncion.v.s ? resultadoFuncion.v.s : "(null)"); 
+                            break;
+                        default: 
+                            printf("[DEBUG] Valor retornado: <tipo desconocido>\n"); 
+                            break;
+                    }
+                } else {
+                    char msg[200];
+                    snprintf(msg, sizeof(msg), 
+                            "Tipo de retorno incompatible: esperado %s, encontrado %s",
+                            nombreTipo(simboloFuncion->tipo), nombreTipo(info.valor.tipo));
+                    addError(msg, ambitoActual(), idNodo->linea, idNodo->columna);
+                    printf("[ERROR] %s\n", msg);
+                    
+                    // Liberar memoria si es string
+                    if (info.valor.tipo == TIPO_STRING && info.valor.v.s) {
+                        free(info.valor.v.s);
+                    }
                 }
             } else {
-                char msg[200];
-                snprintf(msg, sizeof(msg), "Tipo de retorno incompatible: esperado %s, encontrado %s",
-                        nombreTipo(simboloFuncion->tipo), nombreTipo(valorRetorno.tipo));
-                addError(msg, ambitoActual(), idNodo->linea, idNodo->columna);
-                printf("[ERROR] %s\n", msg);
-                if (valorRetorno.tipo == TIPO_STRING && valorRetorno.v.s) {
-                    free(valorRetorno.v.s);
-                    valorRetorno.v.s = NULL;
-                }
+                printf("[ERROR] Nivel de función no coincide: esperado %d, encontrado %d\n",
+                       nivel_funcion_actual, info.nivel_funcion);
             }
-        } else {
-            printf("[ERROR] Valor de retorno no inicializado en función '%s'\n", idNodo->valor);
-            addError("Valor de retorno no inicializado", ambitoActual(), idNodo->linea, idNodo->columna);
         }
     } else {
-        printf("[ADVERTENCIA] No se detectó return en función '%s' con tipo de retorno\n", idNodo->valor);
+        printf("[ADVERTENCIA] No se detectó return en función '%s' con tipo de retorno\n", 
+               idNodo->valor);
         if (simboloFuncion->tipo != TIPO_VOID) {
             char msg[200];
-            snprintf(msg, sizeof(msg), "La función '%s' con tipo de retorno %s debe tener un return",
+            snprintf(msg, sizeof(msg), 
+                    "La función '%s' con tipo de retorno %s debe tener un return",
                     idNodo->valor, nombreTipo(simboloFuncion->tipo));
             addError(msg, ambitoActual(), idNodo->linea, idNodo->columna);
             printf("[ERROR] %s\n", msg);
         }
     }
 
-    printf("[DEBUG] Saliendo del ámbito de la función '%s'\n", idNodo->valor);
-    contexto_funcion--;
+    // RESTAURAR ESTADO ANTERIOR
+    hayRetorno = hayRetornoAnterior;
+    nivel_funcion_actual = nivelAnterior;
     
+    printf("[DEBUG] Saliendo del ámbito de la función '%s' (volviendo a nivel %d)\n", 
+           idNodo->valor, nivel_funcion_actual);
+    contexto_funcion--;
     salirAmbito();
 
     return resultadoFuncion;

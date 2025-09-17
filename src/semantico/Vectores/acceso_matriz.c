@@ -21,10 +21,18 @@ void analizarDimensionesMatriz(const char* matrixStr, int* numFilas, int* numCol
     char* p = matrixCopy;
     
     // Contar filas (separadas por ],[)
+    int nivel = 0;
     while (*p) {
-        if (*p == '[' && (p == matrixCopy || *(p-1) == ',')) (*numFilas)++;
+        if (*p == '[') {
+            nivel++;
+            if (nivel == 2) (*numFilas)++; // Solo contar apertura de segundo nivel
+        }
+        else if (*p == ']') nivel--;
         p++;
     }
+    
+    // Si no se encontraron filas, posiblemente sea una matriz vacía o mal formateada
+    if (*numFilas == 0) *numFilas = 1;
     
     // Contar columnas en la primera fila
     if (*numFilas > 0) {
@@ -237,6 +245,7 @@ ValorSimbolo evaluarAccesoMatriz(NodoAST* nodo) {
     NodoAST* idNodo = NULL;
     NodoAST* dimensionesNodo = NULL;
     
+    
     // Validar estructura básica del nodo
     if (!validarEstructuraNodoMatriz(nodo, &idNodo, &dimensionesNodo)) {
         return r;
@@ -251,6 +260,8 @@ ValorSimbolo evaluarAccesoMatriz(NodoAST* nodo) {
         printf("[ERROR EVAL_MATRIZ] Símbolo '%s' no encontrado\n", idNodo->valor);
         return r;
     }
+    int numFilas = 0, numColumnas = 0;
+    analizarDimensionesMatriz(simbolo->valor.v.s, &numFilas, &numColumnas);
     
     printf("[DEBUG EVAL_MATRIZ] Clase del símbolo: %d (SIMBOLO_MATRIZ=%d)\n", 
            simbolo->clase, SIMBOLO_MATRIZ);
@@ -298,7 +309,17 @@ ValorSimbolo evaluarAccesoMatriz(NodoAST* nodo) {
     }
     
     // Verificar índices válidos
-    if (filaIdx < 0 || colIdx < 0) {
+    if (filaIdx < 0 || filaIdx >= numFilas) {
+        printf("[ERROR] Índice de fila fuera de rango: %d (rango válido: 0-%d)\n", 
+            filaIdx, numFilas - 1);
+        r.inicializado = 0;  // IMPORTANTE: Marcar como no inicializado
+        return r;
+    }
+
+    if (colIdx < 0 || colIdx >= numColumnas) {
+        printf("[ERROR] Índice de columna fuera de rango: %d (rango válido: 0-%d)\n", 
+            colIdx, numColumnas - 1);
+        r.inicializado = 0;  // IMPORTANTE: Marcar como no inicializado
         return r;
     }
     printf("[DEBUG EVAL_MATRIZ] Índices calculados: [%d][%d]\n", filaIdx, colIdx);
@@ -323,7 +344,7 @@ ValorSimbolo evaluarAccesoMatriz(NodoAST* nodo) {
     // Extraer filas de la matriz
     char* matrixCopy = strdup(matrixStr);
     char* filas[50]; // Máximo 50 filas
-    int numFilas = 0;
+    numFilas = 0;
 
     printf("[DEBUG EVAL_MATRIZ] Contenido de la matriz: %s\n", matrixStr);
     
