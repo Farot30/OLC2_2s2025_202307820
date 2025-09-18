@@ -49,9 +49,17 @@ int verificarSemantica(NodoAST* nodo) {
         }
         
         case AST_ASIGNACION: {
-            if (!verificarAsignacion(nodo)) { 
+            if (!verificarAsignacionSimple(nodo)) { 
                 error_semantico = 1; 
                 nodo->valido = 0;  // Marcar asignación completa como inválida
+                return 0; 
+            }
+            return 1;
+        }
+        case AST_ASIGNACION_COMPUESTA: {
+            if (!verificarAsignacionCompuesta(nodo)) { 
+                error_semantico = 1; 
+                nodo->valido = 0;  // Marcar asignación compuesta como inválida
                 return 0; 
             }
             return 1;

@@ -291,12 +291,14 @@ ResultadoEjecucion ejecutarSentenciaForVector(NodoAST* nodo) {
     printf("[DEBUG FOR_VECTOR] Variable de iteración '%s' declarada como %s\n", 
            nombre_var_iter, 
            simboloColeccion->clase == SIMBOLO_MATRIZ ? "vector" : "variable");
+    
+    int limite_iteraciones = 1000;
 
     // BUCLE PRINCIPAL
     if (simboloColeccion->clase == SIMBOLO_MATRIZ) {
         printf("[DEBUG FOR_VECTOR] Iniciando iteraciones sobre %d filas\n", tamanio);
 
-        for (int i = 0; i < tamanio; i++) {
+        for (int i = 0; i < tamanio && i < limite_iteraciones; i++) {
             printf("[DEBUG FOR_VECTOR] === ITERACIÓN %d de %d ===\n", i + 1, tamanio);
 
             if (!filas) {
@@ -307,11 +309,9 @@ ResultadoEjecucion ejecutarSentenciaForVector(NodoAST* nodo) {
                 printf("[ERROR FOR_VECTOR] filas[%d] es NULL\n", i);
                 continue;
             }
-            printf("[DEBUG FOR_VECTOR] filas[%d]: '%s'\n", i, filas[i]);
 
             int tamFila = 0;
             int* elementos = parsearVectorEnteros(filas[i], &tamFila);
-            printf("[DEBUG FOR_VECTOR] parsearVectorEnteros retornó %p, tamFila=%d\n", (void*)elementos, tamFila);
 
             if (!elementos || tamFila == 0) {
                 printf("[ERROR FOR_VECTOR] No se pudo parsear la fila %d: %s\n", i, filas[i]);
@@ -328,14 +328,10 @@ ResultadoEjecucion ejecutarSentenciaForVector(NodoAST* nodo) {
             }
             strcat(vectorStr, "]");
 
-            printf("[DEBUG FOR_VECTOR] vectorStr generado: '%s'\n", vectorStr);
-
             if (var_iter->valor.v.s) {
-                printf("[DEBUG FOR_VECTOR] Liberando var_iter->valor.v.s previa\n");
                 free(var_iter->valor.v.s);
             }
             var_iter->valor.v.s = strdup(vectorStr);
-            printf("[DEBUG FOR_VECTOR] strdup completado, var_iter->valor.v.s=%p\n", (void*)var_iter->valor.v.s);
 
             var_iter->valor.inicializado = 1;
             var_iter->valor.tipo = simboloColeccion->tipo;

@@ -60,6 +60,7 @@ static const char* nombreNodoTipo(TipoNodoAST t){
         case AST_LISTA: return "LISTA";
         case AST_BLOQUE: return "BLOQUE";
         case AST_ASIGNACION: return "ASIG";
+        case AST_ASIGNACION_COMPUESTA: return "ASIG_COMP";
         case AST_CADENA: return "CADENA";
         case AST_CARACTER: return "CARACTER";
         case AST_OPERACION: return "OP";
@@ -112,6 +113,7 @@ static const char* nombreNodoTipo(TipoNodoAST t){
         case AST_NULL: return "NULL";
         case AST_DECLARACION_CONST: return "DECLARACION_CONST";
         case AST_DECLARACION_VECTOR_TEMP: return "DECLARACION_VECTOR_TEMP";
+        
          // Agregar más casos según sea necesario
         default: return "UNK";
     }

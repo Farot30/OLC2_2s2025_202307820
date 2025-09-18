@@ -2,6 +2,7 @@
 #define ASIGNACION_H
 
 #include "../../AST/ast.h"
-int verificarAsignacion(NodoAST* nodo);
+int verificarAsignacionSimple(NodoAST* nodo);
+int verificarAsignacionCompuesta(NodoAST* nodo);
 
 #endif

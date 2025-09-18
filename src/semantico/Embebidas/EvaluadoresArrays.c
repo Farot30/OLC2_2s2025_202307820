@@ -198,6 +198,26 @@ ValorSimbolo evaluarIndexof(NodoAST* e) {
             
     return r;
 }
+void actualizarVector(NodoAST* e, ValorSimbolo resultado) {
+    if (!e || e->num_hijos < 1 || e->hijos[0]->tipo != AST_IDENTIFICADOR) {
+        return;
+    }
+    
+    NodoAST* idNodo = e->hijos[0];
+    Simbolo* simboloArray = buscarSimbolo(idNodo->valor);
+    if (!simboloArray) {
+        return;
+    }
+    
+    // Actualizar el valor del símbolo en la tabla
+    if (simboloArray->valor.v.s) free(simboloArray->valor.v.s);
+    simboloArray->valor.v.s = strdup(resultado.v.s);
+    simboloArray->valor.inicializado = 1;
+    simboloArray->valor.tipo = resultado.tipo;
+    
+    printf("[DEBUG ADD] Vector '%s' actualizado con nuevo valor: %s\n", 
+           idNodo->valor, simboloArray->valor.v.s);
+}
 
 void obtenerDimensionesArray(Simbolo* simbolo, int* dimensiones, int* numDimensiones) {
     if (!simbolo || !simbolo->valor.v.s || !dimensiones || !numDimensiones) return;
@@ -443,6 +463,8 @@ ValorSimbolo evaluarAdd(NodoAST* e) {
     
     printf("[DEBUG] Array.add: %s + %s = %s\n", 
         simboloArray->valor.v.s, elementoStr, nuevoArray);
+
+    actualizarVector(e, r);
     
     free(arrayActual);
     return r;

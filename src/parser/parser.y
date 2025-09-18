@@ -807,7 +807,7 @@ tipo_primitivo
 /* ========== ASIGNACIONES ========== */
 asignacion:
     TOKEN_IDENTIFICADOR TOKEN_IGUAL expresion {
-        $$ = crearNodo(AST_ASIGNACION, "");
+        $$ = crearNodo(AST_ASIGNACION, "=");
         $$->linea = @1.first_line; 
         $$->columna = @1.first_column;
         NodoAST* id = crearNodo(AST_IDENTIFICADOR, $1);
@@ -817,34 +817,34 @@ asignacion:
         agregarHijo($$, $3);
     }
     | TOKEN_IDENTIFICADOR TOKEN_MAS_IGUAL expresion {
-        $$ = crear_asignacion_compuesta($1, "+", $3, @1.first_line, @1.first_column, @2.first_line, @2.first_column);
+        $$ = crear_asignacion_compuesta($1, "+=", $3, @1.first_line, @1.first_column, @2.first_line, @2.first_column);
     }
     | TOKEN_IDENTIFICADOR TOKEN_MENOS_IGUAL expresion {
-        $$ = crear_asignacion_compuesta($1, "-", $3, @1.first_line, @1.first_column, @2.first_line, @2.first_column);
+        $$ = crear_asignacion_compuesta($1, "-=", $3, @1.first_line, @1.first_column, @2.first_line, @2.first_column);
     }
     | TOKEN_IDENTIFICADOR TOKEN_POR_IGUAL expresion {
-        $$ = crear_asignacion_compuesta($1, "*", $3, @1.first_line, @1.first_column, @2.first_line, @2.first_column);
+        $$ = crear_asignacion_compuesta($1, "*=", $3, @1.first_line, @1.first_column, @2.first_line, @2.first_column);
     }
     | TOKEN_IDENTIFICADOR TOKEN_DIV_IGUAL expresion {
-        $$ = crear_asignacion_compuesta($1, "/", $3, @1.first_line, @1.first_column, @2.first_line, @2.first_column);
+        $$ = crear_asignacion_compuesta($1, "/=", $3, @1.first_line, @1.first_column, @2.first_line, @2.first_column);
     }
     | TOKEN_IDENTIFICADOR TOKEN_MOD_IGUAL expresion {
-        $$ = crear_asignacion_compuesta($1, "%", $3, @1.first_line, @1.first_column, @2.first_line, @2.first_column);
+        $$ = crear_asignacion_compuesta($1, "%=", $3, @1.first_line, @1.first_column, @2.first_line, @2.first_column);
     }
     | TOKEN_IDENTIFICADOR TOKEN_AND_IGUAL expresion {
-        $$ = crear_asignacion_compuesta($1, "&", $3, @1.first_line, @1.first_column, @2.first_line, @2.first_column);
+        $$ = crear_asignacion_compuesta($1, "&=", $3, @1.first_line, @1.first_column, @2.first_line, @2.first_column);
     }
     | TOKEN_IDENTIFICADOR TOKEN_OR_IGUAL expresion {
-        $$ = crear_asignacion_compuesta($1, "|", $3, @1.first_line, @1.first_column, @2.first_line, @2.first_column);
+        $$ = crear_asignacion_compuesta($1, "|=", $3, @1.first_line, @1.first_column, @2.first_line, @2.first_column);
     }
     | TOKEN_IDENTIFICADOR TOKEN_XOR_IGUAL expresion {
-        $$ = crear_asignacion_compuesta($1, "^", $3, @1.first_line, @1.first_column, @2.first_line, @2.first_column);
+        $$ = crear_asignacion_compuesta($1, "^=", $3, @1.first_line, @1.first_column, @2.first_line, @2.first_column);
     }
     | TOKEN_IDENTIFICADOR TOKEN_DESIZQ_IGUAL expresion {
-        $$ = crear_asignacion_compuesta($1, "<<", $3, @1.first_line, @1.first_column, @2.first_line, @2.first_column);
+        $$ = crear_asignacion_compuesta($1, "<<=", $3, @1.first_line, @1.first_column, @2.first_line, @2.first_column);
     }
     | TOKEN_IDENTIFICADOR TOKEN_DESDER_IGUAL expresion {
-        $$ = crear_asignacion_compuesta($1, ">>", $3, @1.first_line, @1.first_column, @2.first_line, @2.first_column);
+        $$ = crear_asignacion_compuesta($1, ">>=", $3, @1.first_line, @1.first_column, @2.first_line, @2.first_column);
     }
 ;
 
@@ -1404,28 +1404,18 @@ instruccion_for:
 /* ========== FUNCIONES AUXILIARES ========== */
 
 NodoAST* crear_asignacion_compuesta(char* id, char* operador, NodoAST* expr, 
-                                   int id_linea, int id_columna, int op_linea, int op_columna) {
-    NodoAST* asig = crearNodo(AST_ASIGNACION, "");
-    asig->linea = id_linea; 
+                                  int id_linea, int id_columna, int op_linea, int op_columna) {
+    NodoAST* asig = crearNodo(AST_ASIGNACION_COMPUESTA, operador); // <--- Cambia aquí
+    asig->linea = id_linea;
     asig->columna = id_columna;
-    
-    NodoAST* idRef = crearNodo(AST_IDENTIFICADOR, strdup(id));
-    idRef->linea = id_linea; 
-    idRef->columna = id_columna;
-    
-    NodoAST* op = crearNodo(AST_OPERACION, strdup(operador));
-    op->linea = op_linea; 
-    op->columna = op_columna;
-    
-    NodoAST* idOp = crearNodo(AST_IDENTIFICADOR, strdup(id));
-    idOp->linea = id_linea; 
-    idOp->columna = id_columna;
-    
-    agregarHijo(op, idOp);
-    agregarHijo(op, expr);
-    agregarHijo(asig, idRef);
-    agregarHijo(asig, op);
-    
+
+    NodoAST* idNodo = crearNodo(AST_IDENTIFICADOR, strdup(id));
+    idNodo->linea = id_linea;
+    idNodo->columna = id_columna;
+
+    agregarHijo(asig, idNodo);
+    agregarHijo(asig, expr);
+
     return asig;
 }
 

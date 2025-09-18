@@ -80,5 +80,8 @@ void salirAmbitoConLimpieza(void);
 
 void salirAmbitoForLoop(const char* nombreVariableIteracion);
 
+Simbolo* buscarSimboloConAmbito(const char* nombre);
+void validarSimbolo(Simbolo* simbolo, const char* operacion);
+Simbolo* buscarSimboloConDepuracion(const char* nombre);
 
 #endif

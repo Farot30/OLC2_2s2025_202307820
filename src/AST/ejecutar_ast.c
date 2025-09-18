@@ -30,6 +30,74 @@
 #include "stdbool.h"
 #include <stdlib.h>
 
+typedef struct {
+    char* nombre;
+    TipoDato tipo;
+    int es_constante;
+    int inicializado;
+    char* valor_string;
+} BackupSimbolo;
+
+// Declaraciones de funciones de protección
+BackupSimbolo hacerBackupSimbolo(Simbolo* sim);
+void liberarBackup(BackupSimbolo* backup);
+void verificarSimboloMensajeEnPunto(const char* punto);
+
+void verificarSimboloMensajeEnPunto(const char* punto) {
+    printf("[DEBUG MENSAJE] === VERIFICACIÓN EN: %s ===\n", punto);
+    
+    Simbolo* mensaje = buscarSimbolo("mensaje");
+    if (mensaje) {
+        printf("[DEBUG MENSAJE] Símbolo 'mensaje' encontrado:\n");
+        printf("  - es_constante: %d\n", mensaje->es_constante);
+        printf("  - tipo: %d\n", mensaje->tipo);
+        printf("  - inicializado: %d\n", mensaje->valor.inicializado);
+        printf("  - memoria: 0x%p\n", (void*)mensaje);
+        printf("  - valor: %s\n", mensaje->valor.v.s ? mensaje->valor.v.s : "NULL");
+        
+        // Verificar corrupción
+        if (mensaje->es_constante != 0 && mensaje->es_constante != 1) {
+            printf("[ERROR MENSAJE] ¡¡¡CORRUPCIÓN DETECTADA!!! es_constante=%d\n", mensaje->es_constante);
+            // Intentar reparar
+            mensaje->es_constante = 0;
+            printf("[REPAIR MENSAJE] Reparado a es_constante=0\n");
+        }
+    } else {
+        printf("[DEBUG MENSAJE] Símbolo 'mensaje' NO encontrado\n");
+    }
+}
+// Implementaciones de las funciones de protección
+BackupSimbolo hacerBackupSimbolo(Simbolo* sim) {
+    BackupSimbolo backup;
+    memset(&backup, 0, sizeof(BackupSimbolo));
+    
+    if (sim) {
+        backup.nombre = sim->nombre ? strdup(sim->nombre) : NULL;
+        backup.tipo = sim->tipo;
+        backup.es_constante = sim->es_constante;
+        backup.inicializado = sim->valor.inicializado;
+        if (sim->tipo == TIPO_STRING && sim->valor.v.s) {
+            backup.valor_string = strdup(sim->valor.v.s);
+        }
+        
+        printf("[DEBUG BACKUP] Backup de símbolo '%s': es_constante=%d\n", 
+               backup.nombre ? backup.nombre : "NULL", backup.es_constante);
+    }
+    
+    return backup;
+}
+
+void liberarBackup(BackupSimbolo* backup) {
+    if (backup->nombre) {
+        free(backup->nombre);
+        backup->nombre = NULL;
+    }
+    if (backup->valor_string) {
+        free(backup->valor_string);
+        backup->valor_string = NULL;
+    }
+}
+
 int contexto_break = 0;
 int contexto_continue = 0;
 int contexto_funcion = 0;
@@ -70,45 +138,56 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
 
     //printf("[DEBUG] Ejecutando nodo tipo: %d, valor: %s\n", 
      //      nodo->tipo, nodo->valor ? nodo->valor : "NULL");
+     static int verificacion_contador = 0;
+    char punto_verificacion[100];
+    snprintf(punto_verificacion, sizeof(punto_verificacion), 
+             "ANTES_NODO_%d_TIPO_%d", ++verificacion_contador, nodo->tipo);
+    verificarSimboloMensajeEnPunto(punto_verificacion);
     
     switch (nodo->tipo) {
         case AST_METODO_MAIN:
+            verificarSimboloMensajeEnPunto("ENTRANDO_MAIN");
             entrarAmbito("main");
-            dentroDelMain = 1; // Marcamos que estamos dentro del main
-            bloquePrincipalMain = 0; // Resetear contador para el bloque principal
+            dentroDelMain = 1;
+            bloquePrincipalMain = 0;
             ejecutarNodoAST(nodo->hijos[0]);
-            dentroDelMain = 0; // Salimos del main
+            verificarSimboloMensajeEnPunto("SALIENDO_MAIN");
+            dentroDelMain = 0;
             salirAmbito();
             return EJEC_OK;
             
         case AST_LISTA:
+            verificarSimboloMensajeEnPunto("ANTES_LISTA");
+            // Ejecutar hijos (tu código existente para LISTA)
+            for (int i = 0; i < nodo->num_hijos; i++) {
+                if (nodo->hijos[i] != NULL) {
+                    ResultadoEjecucion res = ejecutarNodoAST(nodo->hijos[i]);
+                    if (res != EJEC_OK) return res;
+                }
+            }
+            verificarSimboloMensajeEnPunto("DESPUÉS_LISTA");
+            return EJEC_OK;
         
         case AST_BLOQUE: {
+            verificarSimboloMensajeEnPunto("ANTES_BLOQUE");
+            
             bool crearAmbito = true;
             const char* ambitoActualNombre = ambitoActual();
 
-            // Lógica corregida para ámbitos:
-            
-            // 1. Si estamos en el ámbito "global" y es un bloque de funciones, NO crear ámbito
+            // Lógica para ámbitos (tu código existente)
             if (strcmp(ambitoActualNombre, "global") == 0 && 
                 nodo->valor && (strcmp(nodo->valor, "Funciones") == 0 || strcmp(nodo->valor, "Programa") == 0)) {
                 crearAmbito = false;
-                //printf("[DEBUG BLOQUE] Bloque '%s' en ámbito global, no creando nuevo ámbito\n", nodo->valor);
             }
-            // 2. Si estamos en el ámbito "main" y es un bloque "Programa", NO crear ámbito
             else if (strcmp(ambitoActualNombre, "main") == 0 && 
                      nodo->valor && strcmp(nodo->valor, "Programa") == 0) {
                 crearAmbito = false;
-                //printf("[DEBUG BLOQUE] Bloque 'Programa' en ámbito main, no creando nuevo ámbito\n");
             }
-            // 3. Si estamos en el ámbito "main" y es el primer bloque, NO crear ámbito
             else if (strcmp(ambitoActualNombre, "main") == 0 && bloquePrincipalMain == 0 && 
                      (!nodo->valor || strcmp(nodo->valor, "Bloque") == 0)) {
                 crearAmbito = false;
-                bloquePrincipalMain = 1; // Marcar que ya procesamos el bloque principal
-                //printf("[DEBUG BLOQUE] Usando ámbito 'main' para bloque principal\n");
+                bloquePrincipalMain = 1;
             }
-            // 4. Si estamos en contextos especiales, NO crear ámbito
             else if (strcmp(ambitoActualNombre, "funcion") == 0 ||
                      strcmp(ambitoActualNombre, "funcion_void") == 0 ||
                      strcmp(ambitoActualNombre, "for") == 0 ||
@@ -118,9 +197,7 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
                      strcmp(ambitoActualNombre, "if") == 0 ||
                      strcmp(ambitoActualNombre, "else") == 0) {
                 crearAmbito = false;
-                //printf("[DEBUG BLOQUE] No creando ámbito, usando contexto actual: %s\n", ambitoActualNombre);
             }
-            // 5. En otros casos, crear un ámbito "bloque_X"
             else {
                 crearAmbito = true;
             }
@@ -128,14 +205,23 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
             char nombreAmbito[32];
             if (crearAmbito) {
                 snprintf(nombreAmbito, sizeof(nombreAmbito), "bloque_%d", ++contadorBloques);
-                //printf("[DEBUG BLOQUE] Entrando al ámbito: %s\n", nombreAmbito);
                 entrarAmbito(nombreAmbito);
+                verificarSimboloMensajeEnPunto("DESPUÉS_ENTRAR_AMBITO");
             }
 
-            // Ejecutar hijos
+            // Ejecutar hijos con verificaciones
             for (int i = 0; i < nodo->num_hijos; i++) {
                 if (nodo->hijos[i] == NULL) continue;
+                
+                char punto_hijo[100];
+                snprintf(punto_hijo, sizeof(punto_hijo), "ANTES_HIJO_%d_TIPO_%d", i, nodo->hijos[i]->tipo);
+                verificarSimboloMensajeEnPunto(punto_hijo);
+                
                 ResultadoEjecucion res = ejecutarNodoAST(nodo->hijos[i]);
+                
+                snprintf(punto_hijo, sizeof(punto_hijo), "DESPUÉS_HIJO_%d_TIPO_%d", i, nodo->hijos[i]->tipo);
+                verificarSimboloMensajeEnPunto(punto_hijo);
+                
                 if (res != EJEC_OK) {
                     if (crearAmbito) salirAmbito();
                     return res;
@@ -143,15 +229,38 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
             }
 
             if (crearAmbito) {
+                verificarSimboloMensajeEnPunto("ANTES_SALIR_AMBITO");
                 salirAmbito();
-                //printf("[DEBUG BLOQUE] Saliendo del ámbito: %s\n", nombreAmbito);
             }
+            
+            verificarSimboloMensajeEnPunto("DESPUÉS_BLOQUE");
             return EJEC_OK;
         }
             
         case AST_DECLARACION:
             printf("[DEBUG] Procesando declaración\n");
-            verificarDeclaracion(nodo);
+            
+            // VERIFICACIÓN ESPECIAL PARA DECLARACIÓN DE 'mensaje'
+            if (nodo->num_hijos >= 2 && nodo->hijos[1] && 
+                nodo->hijos[1]->tipo == AST_IDENTIFICADOR && 
+                strcmp(nodo->hijos[1]->valor, "mensaje") == 0) {
+                
+                verificarSimboloMensajeEnPunto("ANTES_DECLARAR_MENSAJE");
+                
+                // Verificar estado de la tabla de símbolos antes
+                printf("[DEBUG TABLA] Estado tabla antes de declarar 'mensaje':\n");
+                mostrarTablaSimbolos();
+                
+                verificarDeclaracion(nodo);
+                
+                verificarSimboloMensajeEnPunto("DESPUÉS_DECLARAR_MENSAJE");
+                
+                // Verificar estado después
+                printf("[DEBUG TABLA] Estado tabla después de declarar 'mensaje':\n");
+                mostrarTablaSimbolos();
+            } else {
+                verificarDeclaracion(nodo);
+            }
             return EJEC_OK;
             
         case AST_ASIGNACION: {
@@ -166,7 +275,7 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
             // Caso 1: Asignación a variable simple
             if (destino->tipo == AST_IDENTIFICADOR) {
                 printf("[DEBUG] Asignación a variable '%s'\n", destino->valor);
-                verificarAsignacion(nodo);
+                verificarAsignacionSimple(nodo);
             }
             // Caso 2: Asignación a elemento de array
             else if (destino->tipo == AST_ACCESO) {
@@ -281,8 +390,10 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
             return EJEC_OK;
 
         case AST_IF:
-            return ejecutarNodoIf(nodo);
-
+            verificarSimboloMensajeEnPunto("ANTES_IF");
+            ResultadoEjecucion res_if = ejecutarNodoIf(nodo);
+            verificarSimboloMensajeEnPunto("DESPUÉS_IF");
+            return res_if;
         case AST_DECLARACION_CONST:
             verificarDeclaracionConstante(nodo);
             return EJEC_OK;
@@ -460,6 +571,45 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
             contexto_funcion--;
             return res;
         }
+        case AST_ASIGNACION_COMPUESTA: {
+            if (nodo->num_hijos < 2) {
+                printf("[ERROR] Asignación compuesta sin destino o valor\n");
+                return EJEC_OK;
+            }
+            NodoAST* destino = nodo->hijos[0];
+            if (destino->tipo == AST_IDENTIFICADOR) {
+                printf("[DEBUG] Asignación compuesta a variable '%s'\n", destino->valor);
+                
+                // VERIFICACIÓN ESPECIAL PARA ASIGNACIÓN COMPUESTA A 'mensaje'
+                if (strcmp(destino->valor, "mensaje") == 0) {
+                    verificarSimboloMensajeEnPunto("ANTES_ASIGNACION_COMPUESTA_MENSAJE");
+                    
+                    // Hacer backup del símbolo antes de la operación
+                    Simbolo* mensaje = buscarSimbolo("mensaje");
+                    if (mensaje) {
+                        BackupSimbolo backup = hacerBackupSimbolo(mensaje);
+                        
+                        printf("[DEBUG] Ejecutando asignación compuesta...\n");
+                        verificarAsignacionCompuesta(nodo);
+                        
+                        verificarSimboloMensajeEnPunto("DESPUÉS_ASIGNACION_COMPUESTA_MENSAJE");
+                        
+                        // Verificar si cambió inesperadamente
+                        if (mensaje->es_constante != backup.es_constante) {
+                            printf("[ERROR] ¡¡¡es_constante cambió de %d a %d durante asignación compuesta!!!\n",
+                                   backup.es_constante, mensaje->es_constante);
+                        }
+                        
+                        liberarBackup(&backup);
+                    }
+                } else {
+                    verificarAsignacionCompuesta(nodo);
+                }
+            } else {
+                printf("[ERROR] Destino de asignación compuesta inválido\n");
+            }
+            return EJEC_OK;
+        }
         case AST_RETURN:
             printf("[DEBUG] Procesando return\n");
             return ejecutarSentenciaReturn(nodo);
@@ -485,6 +635,10 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
             }
             break;
     }
+
+    snprintf(punto_verificacion, sizeof(punto_verificacion), 
+             "DESPUÉS_NODO_%d_TIPO_%d", verificacion_contador, nodo->tipo);
+    verificarSimboloMensajeEnPunto(punto_verificacion);
     return EJEC_OK;
 }
 

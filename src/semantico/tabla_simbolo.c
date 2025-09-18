@@ -192,6 +192,10 @@ void salirAmbitoConLimpieza(void) {
 static Simbolo* crearSimbolo(const char* nombre, TipoSimbolo clase, TipoDato tipo,
                              const char* ambito, int linea, int columna) {
     Simbolo* nuevo = (Simbolo*)malloc(sizeof(Simbolo));
+    
+    // INICIALIZACIÓN EXPLÍCITA DE TODOS LOS CAMPOS
+    memset(nuevo, 0, sizeof(Simbolo)); // Limpia toda la memoria
+    
     nuevo->id = ++contadorSimbolos;
     nuevo->nombre = strdup(nombre);
     nuevo->clase = clase;
@@ -202,8 +206,14 @@ static Simbolo* crearSimbolo(const char* nombre, TipoSimbolo clase, TipoDato tip
     nuevo->siguiente = NULL;
     nuevo->nodo_bloque = NULL;
     nuevo->nodo_return = NULL;
+    
+    // INICIALIZACIÓN CRÍTICA: es_constante SIEMPRE debe ser 0 por defecto
+    nuevo->es_constante = 0;
+    
+    // Inicializar valor
     nuevo->valor.tipo = tipo;
     nuevo->valor.inicializado = 0;
+    nuevo->valor.es_cast = 0;
 
     switch(tipo){
         case TIPO_INT:    nuevo->valor.v.i = 0; break;
@@ -215,9 +225,37 @@ static Simbolo* crearSimbolo(const char* nombre, TipoSimbolo clase, TipoDato tip
         case TIPO_VOID:  nuevo->valor.v.s = NULL; break;
         case TIPO_FUNCION: nuevo->valor.v.s = NULL; break;
         default: break;
-    
     }
+    
+    printf("[DEBUG crearSimbolo] Creado símbolo '%s': id=%d, es_constante=%d, tipo=%d\n", 
+           nombre, nuevo->id, nuevo->es_constante, tipo);
+    
     return nuevo;
+}
+void marcarComoConstante(Simbolo* simbolo) {
+    if (simbolo) {
+        simbolo->es_constante = 1;
+        printf("[DEBUG marcarComoConstante] Símbolo '%s' marcado como constante\n", simbolo->nombre);
+    }
+}
+
+void validarSimbolo(Simbolo* simbolo, const char* operacion) {
+    if (!simbolo) {
+        printf("[DEBUG validarSimbolo] ERROR: Símbolo NULL en operación '%s'\n", operacion);
+        return;
+    }
+    
+    printf("[DEBUG validarSimbolo] Símbolo '%s' para '%s': es_constante=%d, inicializado=%d\n",
+           simbolo->nombre, operacion, simbolo->es_constante, simbolo->valor.inicializado);
+    
+    // Verificar integridad de memoria
+    if (simbolo->nombre == NULL) {
+        printf("[DEBUG validarSimbolo] ERROR: Nombre del símbolo es NULL\n");
+    }
+    
+    if (simbolo->ambito == NULL) {
+        printf("[DEBUG validarSimbolo] ERROR: Ámbito del símbolo es NULL\n");
+    }
 }
 
 void eliminarSimbolo(const char* nombre) {
@@ -247,6 +285,7 @@ void agregarSimboloDetallado(const char* nombre, TipoSimbolo clase, TipoDato tip
                              const char* ambito, int linea, int columna) {
     Simbolo* nuevo = crearSimbolo(nombre, clase, tipo, ambito, linea, columna);
     nuevo->siguiente = NULL;
+    
     if (!tabla) {
         tabla = nuevo;
     } else {
@@ -256,9 +295,55 @@ void agregarSimboloDetallado(const char* nombre, TipoSimbolo clase, TipoDato tip
         }
         actual->siguiente = nuevo;
     }
+    
+    printf("[DEBUG agregarSimboloDetallado] Símbolo '%s' agregado a tabla con es_constante=%d\n", 
+           nombre, nuevo->es_constante);
 }
 
+void depurarTodosSimbolos(const char* momento) {
+    printf("[DEBUG depurarTodosSimbolos] === ESTADO DE SÍMBOLOS EN: %s ===\n", momento);
+    Simbolo* actual = tabla;
+    int contador = 0;
+    
+    while (actual && contador < 20) { // Limitar para evitar loops infinitos
+        printf("[DEBUG] Símbolo %d: nombre='%s', es_constante=%d, id=%d, memoria=0x%p\n",
+               contador, actual->nombre ? actual->nombre : "NULL", 
+               actual->es_constante, actual->id, (void*)actual);
+        actual = actual->siguiente;
+        contador++;
+    }
+    printf("[DEBUG depurarTodosSimbolos] === FIN DEBUG ===\n");
+}
 
+Simbolo* buscarSimboloConDepuracion(const char* nombre) {
+    printf("[DEBUG buscarSimboloConDepuracion] Buscando símbolo '%s'\n", nombre);
+    
+    Simbolo* resultado = buscarSimboloConAmbito(nombre);
+    
+    if (resultado) {
+        printf("[DEBUG buscarSimboloConDepuracion] Encontrado '%s': es_constante=%d, memoria=0x%p\n", 
+               nombre, resultado->es_constante, (void*)resultado);
+        
+        // Verificación adicional para 'mensaje'
+        if (strcmp(nombre, "mensaje") == 0) {
+            printf("[DEBUG MENSAJE ESPECIAL] es_constante=%d, clase=%d, tipo=%d\n",
+                   resultado->es_constante, resultado->clase, resultado->tipo);
+                   
+            // Verificar si hay corrupción de memoria
+            if (resultado->es_constante != 0 && resultado->es_constante != 1) {
+                printf("[DEBUG MENSAJE ESPECIAL] ¡¡¡MEMORIA CORRUPTA!!! es_constante=%d (no es 0 ni 1)\n",
+                       resultado->es_constante);
+                // Forzar a 0 para corregir
+                resultado->es_constante = 0;
+                printf("[DEBUG MENSAJE ESPECIAL] Corregido a es_constante=0\n");
+            }
+        }
+    } else {
+        printf("[DEBUG buscarSimboloConDepuracion] NO encontrado '%s'\n", nombre);
+    }
+    
+    return resultado;
+}
 
 Simbolo* buscarSimbolo(const char* nombre) {
     Simbolo* actual = tabla;
@@ -357,7 +442,9 @@ void setValorSimbolo(Simbolo* sim, TipoDato tipoValor, ValorSimbolo val) {
         return;
     }
 
+
     printf("[DEBUG setValorSimbolo] === INICIANDO ASIGNACIÓN ===\n");
+    printf("[DEBUG setValorSimbolo] Variable: %s, Ámbito: %s, Nuevo valor: ", sim->nombre, sim->ambito);
     printf("[DEBUG setValorSimbolo] Variable: %s\n", sim->nombre);
     printf("[DEBUG setValorSimbolo] Tipo símbolo: %d, Tipo valor: %d\n", sim->tipo, tipoValor);
     printf("[DEBUG setValorSimbolo] Valor inicializado: %d\n", val.inicializado);
@@ -373,8 +460,8 @@ void setValorSimbolo(Simbolo* sim, TipoDato tipoValor, ValorSimbolo val) {
     }
 
     // Actualizar el ámbito de la asignación
-    if (sim->ambito) free(sim->ambito);
-    sim->ambito = strdup(ambitoActual());
+    //if (sim->ambito) free(sim->ambito);
+    //sim->ambito = strdup(ambitoActual());
 
     // PRIMERO: Verificar widening casting (char -> int -> float -> double)
     if (esWidening(tipoValor, sim->tipo)) {
@@ -495,7 +582,7 @@ void setValorSimbolo(Simbolo* sim, TipoDato tipoValor, ValorSimbolo val) {
 ValorSimbolo getValorSimbolo(Simbolo* sim) {
     ValorSimbolo r;
     memset(&r, 0, sizeof(r));
-    
+    printf("[DEBUG getValorSimbolo] Variable: %s, Ámbito: %s, Valor actual: ", sim->nombre, sim->ambito);
     if (!sim) {
         r.tipo = TIPO_DESCONOCIDO;
         r.inicializado = 0;

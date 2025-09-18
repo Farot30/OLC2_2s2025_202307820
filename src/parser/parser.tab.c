@@ -3019,7 +3019,7 @@ yyreduce:
   case 86: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_IGUAL expresion  */
 #line 809 "src/parser/parser.y"
                                               {
-        (yyval.nodo) = crearNodo(AST_ASIGNACION, "");
+        (yyval.nodo) = crearNodo(AST_ASIGNACION, "=");
         (yyval.nodo)->linea = (yylsp[-2]).first_line; 
         (yyval.nodo)->columna = (yylsp[-2]).first_column;
         NodoAST* id = crearNodo(AST_IDENTIFICADOR, (yyvsp[-2].str));
@@ -3034,7 +3034,7 @@ yyreduce:
   case 87: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_MAS_IGUAL expresion  */
 #line 819 "src/parser/parser.y"
                                                     {
-        (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "+", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
+        (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "+=", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
     }
 #line 3040 "src/parser/parser.tab.c"
     break;
@@ -3042,7 +3042,7 @@ yyreduce:
   case 88: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_MENOS_IGUAL expresion  */
 #line 822 "src/parser/parser.y"
                                                       {
-        (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "-", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
+        (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "-=", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
     }
 #line 3048 "src/parser/parser.tab.c"
     break;
@@ -3050,7 +3050,7 @@ yyreduce:
   case 89: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_POR_IGUAL expresion  */
 #line 825 "src/parser/parser.y"
                                                     {
-        (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "*", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
+        (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "*=", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
     }
 #line 3056 "src/parser/parser.tab.c"
     break;
@@ -3058,7 +3058,7 @@ yyreduce:
   case 90: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_DIV_IGUAL expresion  */
 #line 828 "src/parser/parser.y"
                                                     {
-        (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "/", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
+        (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "/=", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
     }
 #line 3064 "src/parser/parser.tab.c"
     break;
@@ -3066,7 +3066,7 @@ yyreduce:
   case 91: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_MOD_IGUAL expresion  */
 #line 831 "src/parser/parser.y"
                                                     {
-        (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "%", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
+        (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "%=", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
     }
 #line 3072 "src/parser/parser.tab.c"
     break;
@@ -3074,7 +3074,7 @@ yyreduce:
   case 92: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_AND_IGUAL expresion  */
 #line 834 "src/parser/parser.y"
                                                     {
-        (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "&", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
+        (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "&=", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
     }
 #line 3080 "src/parser/parser.tab.c"
     break;
@@ -3082,7 +3082,7 @@ yyreduce:
   case 93: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_OR_IGUAL expresion  */
 #line 837 "src/parser/parser.y"
                                                    {
-        (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "|", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
+        (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "|=", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
     }
 #line 3088 "src/parser/parser.tab.c"
     break;
@@ -3090,7 +3090,7 @@ yyreduce:
   case 94: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_XOR_IGUAL expresion  */
 #line 840 "src/parser/parser.y"
                                                     {
-        (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "^", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
+        (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "^=", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
     }
 #line 3096 "src/parser/parser.tab.c"
     break;
@@ -3098,7 +3098,7 @@ yyreduce:
   case 95: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_DESIZQ_IGUAL expresion  */
 #line 843 "src/parser/parser.y"
                                                        {
-        (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "<<", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
+        (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "<<=", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
     }
 #line 3104 "src/parser/parser.tab.c"
     break;
@@ -3106,7 +3106,7 @@ yyreduce:
   case 96: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_DESDER_IGUAL expresion  */
 #line 846 "src/parser/parser.y"
                                                        {
-        (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), ">>", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
+        (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), ">>=", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
     }
 #line 3112 "src/parser/parser.tab.c"
     break;
@@ -4239,28 +4239,18 @@ yyreturnlab:
 /* ========== FUNCIONES AUXILIARES ========== */
 
 NodoAST* crear_asignacion_compuesta(char* id, char* operador, NodoAST* expr, 
-                                   int id_linea, int id_columna, int op_linea, int op_columna) {
-    NodoAST* asig = crearNodo(AST_ASIGNACION, "");
-    asig->linea = id_linea; 
+                                  int id_linea, int id_columna, int op_linea, int op_columna) {
+    NodoAST* asig = crearNodo(AST_ASIGNACION_COMPUESTA, operador); // <--- Cambia aquí
+    asig->linea = id_linea;
     asig->columna = id_columna;
-    
-    NodoAST* idRef = crearNodo(AST_IDENTIFICADOR, strdup(id));
-    idRef->linea = id_linea; 
-    idRef->columna = id_columna;
-    
-    NodoAST* op = crearNodo(AST_OPERACION, strdup(operador));
-    op->linea = op_linea; 
-    op->columna = op_columna;
-    
-    NodoAST* idOp = crearNodo(AST_IDENTIFICADOR, strdup(id));
-    idOp->linea = id_linea; 
-    idOp->columna = id_columna;
-    
-    agregarHijo(op, idOp);
-    agregarHijo(op, expr);
-    agregarHijo(asig, idRef);
-    agregarHijo(asig, op);
-    
+
+    NodoAST* idNodo = crearNodo(AST_IDENTIFICADOR, strdup(id));
+    idNodo->linea = id_linea;
+    idNodo->columna = id_columna;
+
+    agregarHijo(asig, idNodo);
+    agregarHijo(asig, expr);
+
     return asig;
 }
 

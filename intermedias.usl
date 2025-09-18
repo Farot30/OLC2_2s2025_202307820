@@ -246,7 +246,7 @@ public static void main() {
     System.out.println("\n--- SISTEMA DE EVALUACIÓN ---");
     String estudiante = "Roberto";
     int[] examenes = {85, 92, 78};
-    int sumaNotas = 0;
+    int sumaNotas = 3;
     
     System.out.println("Estudiante: " + estudiante);
     
