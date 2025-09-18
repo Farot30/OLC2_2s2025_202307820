@@ -300,6 +300,11 @@ declaracion:
         agregarHijo($$, id);
         agregarHijo($$, $5);
     }
+    | tipo_primitivo error TOKEN_PUNTOCOMA {
+        addErrorSintactico("Error en declaración", "global", @2.first_line, @2.first_column);
+        yyerrok;
+        $$ = NULL;
+    }
 ;
 
 declaracion_vector:
@@ -1351,6 +1356,25 @@ instruccion_for:
         agregarHijo($$, $3);
         agregarHijo($$, $5);
         agregarHijo($$, $7);
+    }
+    | TOKEN_FOR TOKEN_PARIZQ tipo_primitivo TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_IDENTIFICADOR TOKEN_DOS_PUNTOS expresion TOKEN_PARDER bloque {
+        $$ = crearNodo(AST_FOR_VECTOR, "FOR");
+        $$->linea = @1.first_line; $$->columna = @1.first_column;
+
+        // Crear nodo de declaración de vector temporal: int[] par
+        char* tipo_vec = malloc(strlen($3) + 3);
+        sprintf(tipo_vec, "%s[]", $3);
+        NodoAST* decl_vec = crearNodo(AST_DECLARACION_VECTOR_TEMP, "declaracion_vector_temp");
+        decl_vec->linea = @3.first_line; decl_vec->columna = @3.first_column;
+        agregarHijo(decl_vec, crearNodo(AST_TIPO, tipo_vec));
+        NodoAST* id = crearNodo(AST_IDENTIFICADOR, $6);
+        id->linea = @6.first_line; id->columna = @6.first_column;
+        agregarHijo(decl_vec, id);
+        free(tipo_vec);
+
+        agregarHijo($$, decl_vec);
+        agregarHijo($$, $8); 
+        agregarHijo($$, $10);
     }
     | TOKEN_FOR TOKEN_PARIZQ error TOKEN_PUNTOCOMA expresion TOKEN_PUNTOCOMA expresion TOKEN_PARDER bloque {
         addErrorSintactico("Inicialización inválida en bucle for", "global", @3.first_line, @3.first_column);

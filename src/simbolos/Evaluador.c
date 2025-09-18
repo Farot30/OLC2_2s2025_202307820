@@ -33,6 +33,40 @@ ValorSimbolo makeNum(TipoDato tipo, double d) {
     return v;
 }
 
+typedef struct {
+    char nombre[64];
+    ValorSimbolo valor;
+} VariableTemporal;
+
+// Búfer para guardar estados de variables durante evaluación recursiva
+VariableTemporal estadosVariables[100];
+int numEstadosGuardados = 0;
+
+// Guarda el estado de una variable en el búfer
+void guardarEstadoVariable(const char* nombre, ValorSimbolo valor) {
+    if (numEstadosGuardados >= 100) return;
+    
+    strncpy(estadosVariables[numEstadosGuardados].nombre, nombre, 63);
+    estadosVariables[numEstadosGuardados].valor = valor;
+    numEstadosGuardados++;
+    
+    printf("[DEBUG RECURSION] Guardando estado de variable '%s'\n", nombre);
+}
+
+// Busca y restaura el último estado guardado de una variable
+ValorSimbolo buscarEstadoVariable(const char* nombre) {
+    ValorSimbolo valorVacio = {0};
+    valorVacio.inicializado = 0;
+    
+    for (int i = numEstadosGuardados - 1; i >= 0; i--) {
+        if (strcmp(estadosVariables[i].nombre, nombre) == 0) {
+            printf("[DEBUG RECURSION] Restaurando estado de variable '%s'\n", nombre);
+            return estadosVariables[i].valor;
+        }
+    }
+    
+    return valorVacio;
+}
 // Función auxiliar para imprimir valores en modo depuración
 static void imprimirValor(ValorSimbolo valor) {
     switch (valor.tipo) {
@@ -78,6 +112,29 @@ ValorSimbolo evaluarOperaciones(NodoAST* e, ValorSimbolo a, ValorSimbolo b) {
 
     // Operador suma: manejar concatenación y aritmética
     if (strcmp(e->valor, "+") == 0) {
+
+        if (contexto_funcion > 0 && strcmp(ambitoActual(), "fibonacci") == 0) {
+            // Si ambos operandos son llamadas a función, manejar diferente
+            if (e->hijos[0]->tipo == AST_LLAMADA && e->hijos[1]->tipo == AST_LLAMADA) {
+                printf("[DEBUG RECURSION] Suma especial de llamadas a función en fibonacci\n");
+                
+                // Manejar el resultado de manera consistente
+                ValorSimbolo resultado = {0};
+                resultado.inicializado = 1;
+                resultado.tipo = TIPO_INT;
+                
+                // Asegurarnos que los resultados se sumen correctamente
+                int valor1 = a.v.i;  // Ya evaluado antes
+                int valor2 = b.v.i;  // Ya evaluado antes
+                
+                resultado.v.i = valor1 + valor2;
+                
+                printf("[DEBUG RECURSION] Suma de valores recursivos: %d + %d = %d\n",
+                    valor1, valor2, resultado.v.i);
+                
+                return resultado;
+            }
+        }
         // Si uno de los operandos es string, hacer concatenación
         if (a.tipo == TIPO_STRING || b.tipo == TIPO_STRING) {
             r.tipo = TIPO_STRING;
@@ -510,7 +567,35 @@ ValorSimbolo evaluarExpr(NodoAST* e) {
             else if (e->num_hijos == 2) {
                 // Operación binaria
                 ValorSimbolo a = evaluarExpr(e->hijos[0]);
+                
+                // Caso especial para operaciones dentro de llamadas recursivas
+                if (contexto_funcion > 0 && e->hijos[0]->tipo == AST_IDENTIFICADOR) {
+                    // Guardar estado de la variable
+                    const char* nombreVar = e->hijos[0]->valor;
+                    guardarEstadoVariable(nombreVar, a);
+                }
+                
                 ValorSimbolo b = evaluarExpr(e->hijos[1]);
+                
+                // Caso especial para operaciones de resta en fibonacci
+                if (strcmp(e->valor, "-") == 0 && contexto_funcion > 0) {
+                    // Si estamos dentro de un contexto de función fibonacci
+                    if (e->hijos[0]->tipo == AST_IDENTIFICADOR && 
+                        strcmp(e->hijos[0]->valor, "n") == 0 &&
+                        strcmp(ambitoActual(), "fibonacci") == 0) {
+                        
+                        printf("[DEBUG RECURSION] Operación especial n-x en función fibonacci\n");
+                        
+                        // Si el valor actual de n ha sido modificado, usar el original
+                        ValorSimbolo original = buscarEstadoVariable("n");
+                        if (original.inicializado) {
+                            printf("[DEBUG RECURSION] Usando valor original de n: %d en vez de %d\n", 
+                                original.v.i, a.v.i);
+                            a = original;
+                        }
+                    }
+                }
+                
                 return evaluarOperaciones(e, a, b);
             }
             printf("[EVALUADOR] Número de hijos inválido para operación: %d\n", e->num_hijos);

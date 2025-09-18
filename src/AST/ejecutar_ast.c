@@ -112,6 +112,7 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
             else if (strcmp(ambitoActualNombre, "funcion") == 0 ||
                      strcmp(ambitoActualNombre, "funcion_void") == 0 ||
                      strcmp(ambitoActualNombre, "for") == 0 ||
+                     strcmp(ambitoActualNombre, "for_vector") == 0 ||
                      strcmp(ambitoActualNombre, "while") == 0 ||
                      strcmp(ambitoActualNombre, "switch") == 0 ||
                      strcmp(ambitoActualNombre, "if") == 0 ||

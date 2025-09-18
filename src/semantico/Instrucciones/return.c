@@ -61,6 +61,13 @@ ResultadoEjecucion ejecutarSentenciaReturn(NodoAST* nodo) {
                     addError(msg, ambitoActual(), nodo->linea, nodo->columna);
                     printf("[ERROR RETURN] %s\n", msg);
                 }
+                
+                // Nuevo: Imprimir información de depuración específica para recursión
+                if (strcmp(funcionActual->nombre, "fibonacci") == 0) {
+                    printf("[DEBUG FIBONACCI RETURN] Función fibonacci con n=%d retorna: %d\n", 
+                           buscarSimboloEnAmbito("n", ambitoActual())->valor.v.i, 
+                           nuevoValorRetorno.v.i);
+                }
             }
             
             // Guardar el valor en la estructura

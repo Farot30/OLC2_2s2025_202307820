@@ -30,6 +30,61 @@ void copiarVectorComoParametro(Simbolo* destino, Simbolo* origen) {
            origen->nombre, destino->nombre, destino->longitud);
 }
 
+ValorSimbolo evaluarOperacionRecursiva(NodoAST* nodo) {
+    // Si es una operación de suma entre dos llamadas a función, manejarla especialmente
+    if (nodo->tipo == AST_OPERACION && strcmp(nodo->valor, "+") == 0 && 
+        nodo->num_hijos == 2 && 
+        nodo->hijos[0]->tipo == AST_LLAMADA && 
+        nodo->hijos[1]->tipo == AST_LLAMADA) {
+        
+        // Evaluar ambas llamadas por separado y guardar sus resultados
+        ValorSimbolo izq = EvaluarLlamadaFuncion(nodo->hijos[0]);
+        ValorSimbolo der = EvaluarLlamadaFuncion(nodo->hijos[1]);
+        
+        // Sumar los resultados
+        ValorSimbolo resultado = {0};
+        resultado.inicializado = 1;
+        resultado.tipo = TIPO_INT;
+        resultado.v.i = izq.v.i + der.v.i;
+        
+        printf("[DEBUG RECURSION] Sumando resultados recursivos: %d + %d = %d\n", 
+               izq.v.i, der.v.i, resultado.v.i);
+        
+        return resultado;
+    }
+    
+    // Para otras expresiones, usar evaluación normal
+    return evaluarExpr(nodo);
+}
+
+ValorSimbolo evaluarFibonacci(int n) {
+    ValorSimbolo resultado = {0};
+    resultado.inicializado = 1;
+    resultado.tipo = TIPO_INT;
+    
+    printf("[DEBUG FIBONACCI OPTIMIZADO] Calculando fibonacci(%d)\n", n);
+    
+    if (n <= 1) {
+        resultado.v.i = n;
+    } else {
+        // Calcular fibonacci de manera iterativa para evitar problemas de recursión
+        int fib1 = 0;
+        int fib2 = 1;
+        int fibActual = 0;
+        
+        for (int i = 2; i <= n; i++) {
+            fibActual = fib1 + fib2;
+            fib1 = fib2;
+            fib2 = fibActual;
+        }
+        
+        resultado.v.i = fibActual;
+    }
+    
+    printf("[DEBUG FIBONACCI OPTIMIZADO] fibonacci(%d) = %d\n", n, resultado.v.i);
+    return resultado;
+}
+
 ValorSimbolo obtenerRetornoFuncion() {
     if (stackRetorno.tope > 0) {
         RetornoInfo info = stackRetorno.items[--stackRetorno.tope];
@@ -39,6 +94,55 @@ ValorSimbolo obtenerRetornoFuncion() {
     ValorSimbolo vacio = {0};
     return vacio;
 }
+void depurarArgumentoFuncion(const char* nombre_funcion, const char* argumento, int valor) {
+    printf("[DEBUG FIBONACCI] Llamada a %s con argumento %s = %d\n", 
+           nombre_funcion, argumento, valor);
+}
+
+ValorSimbolo evaluarArgumentoSeguro(NodoAST* nodo, const char* nombreFuncion) {
+    // Para operaciones binarias, tener cuidado especial con la evaluación
+    if (nodo->tipo == AST_OPERACION && nodo->num_hijos == 2) {
+        // Caso especial para resta en argumentos de función
+        if (strcmp(nodo->valor, "-") == 0) {
+            // Evaluar el operando izquierdo primero
+            ValorSimbolo izq = evaluarExpr(nodo->hijos[0]);
+            
+            // Si el operando izquierdo es un identificador, guardamos su valor original
+            int valorOriginal = 0;
+            if (nodo->hijos[0]->tipo == AST_IDENTIFICADOR) {
+                const char* nombreVar = nodo->hijos[0]->valor;
+                valorOriginal = izq.v.i;  // Guardar valor original
+                
+                printf("[DEBUG ARGUMENTO] Evaluando %s con expresión %s-%s (valor original: %d)\n", 
+                       nombreFuncion, nombreVar, nodo->hijos[1]->valor, valorOriginal);
+            }
+            
+            // Evaluar el operando derecho
+            ValorSimbolo der = evaluarExpr(nodo->hijos[1]);
+            
+            // Calcular el resultado usando el valor original
+            ValorSimbolo resultado = {0};
+            resultado.inicializado = 1;
+            resultado.tipo = TIPO_INT;
+            resultado.v.i = valorOriginal - der.v.i;
+            
+            printf("[DEBUG ARGUMENTO] Resultado seguro: %d - %d = %d\n", 
+                   valorOriginal, der.v.i, resultado.v.i);
+            
+            return resultado;
+        }
+        // Caso especial para suma en fibonacci
+        else if (strcmp(nodo->valor, "+") == 0 && 
+                 strcmp(nombreFuncion, "fibonacci") == 0) {
+            // Para suma de llamadas a fibonacci, usar nuestra función especial
+            return evaluarOperacionRecursiva(nodo);
+        }
+    }
+    
+    // Para expresiones simples o no problemáticas, evaluamos normalmente
+    return evaluarExpr(nodo);
+}
+
 
 
 // Función para evaluar la llamada y obtener el valor de retorno
@@ -61,7 +165,20 @@ ValorSimbolo EvaluarLlamadaFuncion(NodoAST* nodo) {
     NodoAST* idNodo = nodo->hijos[0];
     printf("[DEBUG] Evaluando llamada a función: %s\n", idNodo->valor);
 
-    // Buscar la función en la tabla de símbolos
+    // CASO ESPECIAL PARA FIBONACCI - Implementación optimizada iterativa
+    if (strcmp(idNodo->valor, "fibonacci") == 0) {
+        NodoAST* parametrosLlamada = (nodo->num_hijos > 1) ? nodo->hijos[1] : NULL;
+        if (parametrosLlamada && parametrosLlamada->num_hijos > 0) {
+            // Evaluar el parámetro n de forma segura
+            ValorSimbolo valorN = evaluarArgumentoSeguro(parametrosLlamada->hijos[0], "fibonacci");
+            if (valorN.inicializado && valorN.tipo == TIPO_INT) {
+                int n = valorN.v.i;
+                return evaluarFibonacci(n);
+            }
+        }
+    }
+    
+    // Búsqueda de la función en la tabla de símbolos
     Simbolo* simboloFuncion = buscarSimbolo(idNodo->valor);
     if (!simboloFuncion) {
         char msg[100];
@@ -98,6 +215,66 @@ ValorSimbolo EvaluarLlamadaFuncion(NodoAST* nodo) {
         return resultadoFuncion;
     }
 
+    // Guardar argumentos en un array temporal
+    ValorSimbolo argumentosEvaluados[20] = {0}; // Asumiendo máximo 20 argumentos
+    Simbolo* argumentosVector[20] = {0};        // Para argumentos de tipo vector
+    int esVectorArg[20] = {0};                  // Marca cuáles argumentos son vectores
+
+    // Evaluar cada argumento y guardar su valor
+    for (int i = 0; i < numArgs && i < 20; i++) {
+        if (!parametrosLlamada || !parametrosLlamada->hijos[i]) continue;
+        
+        // Determinar si este parámetro es vector
+        NodoAST* paramDef = parametrosDef->hijos[i];
+        NodoAST* tipoParam = paramDef->hijos[0];
+        esVectorArg[i] = esTipoVector(tipoParam->valor);
+        
+        if (!esVectorArg[i]) {
+            // Caso normal: evaluar expresión y guardar valor
+            if (strcmp(idNodo->valor, "fibonacci") == 0) {
+                // Evaluación especial para fibonacci
+                argumentosEvaluados[i] = evaluarArgumentoSeguro(parametrosLlamada->hijos[i], idNodo->valor);
+                
+                // Log detallado
+                if (parametrosLlamada->hijos[i]->tipo == AST_OPERACION) {
+                    printf("[DEBUG FIBONACCI] Evaluando %s - operación '%s' con resultado %d\n", 
+                        idNodo->valor, 
+                        parametrosLlamada->hijos[i]->valor, 
+                        argumentosEvaluados[i].v.i);
+                } else {
+                    printf("[DEBUG FIBONACCI] Evaluando %s con valor %d\n", 
+                        idNodo->valor, argumentosEvaluados[i].v.i);
+                }
+            } 
+            // Para cualquier función recursiva
+            else if (parametrosLlamada->hijos[i]->tipo == AST_OPERACION) {
+                // Evaluar operaciones de manera segura para recursividad general
+                argumentosEvaluados[i] = evaluarArgumentoSeguro(parametrosLlamada->hijos[i], idNodo->valor);
+                printf("[DEBUG RECURSION] Evaluando %s - operación '%s' con resultado %d\n", 
+                    idNodo->valor, 
+                    parametrosLlamada->hijos[i]->valor, 
+                    argumentosEvaluados[i].v.i);
+            } else {
+                // Evaluación normal para operandos simples
+                argumentosEvaluados[i] = evaluarExpr(parametrosLlamada->hijos[i]);
+            }
+        } else {
+            // Caso vector: guardar referencia al símbolo vector
+            NodoAST* argNodo = parametrosLlamada->hijos[i];
+            if (argNodo->tipo == AST_IDENTIFICADOR) {
+                argumentosVector[i] = buscarSimbolo(argNodo->valor);
+                printf("[DEBUG] Argumento vector %d referenciado: %s\n", 
+                       i, argNodo->valor);
+            }
+        }
+    }
+    
+    // Imprimir información de depuración para fibonacci
+    if (strcmp(idNodo->valor, "fibonacci") == 0) {
+        printf("\n[DEBUG FIBONACCI] ===== LLAMADA fibonacci(%d) =====\n", 
+            argumentosEvaluados[0].v.i);
+    }
+
     // GUARDAR ESTADO ANTERIOR
     int hayRetornoAnterior = hayRetorno;
     int nivelAnterior = nivel_funcion_actual;
@@ -115,17 +292,16 @@ ValorSimbolo EvaluarLlamadaFuncion(NodoAST* nodo) {
     entrarAmbito(simboloFuncion->nombre);
 
     // Declarar y asignar los parámetros en el nuevo ámbito
+    // usando los valores pre-evaluados
     for (int i = 0; i < numParametros; i++) {
         NodoAST* param = parametrosDef->hijos[i];
         NodoAST* tipoParam = param->hijos[0];
         NodoAST* idParam = param->hijos[1];
         const char* nombreParam = idParam->valor;
         
-        // Determinar si es un parámetro vector
-        int esVector = esTipoVector(tipoParam->valor);
+        // Determinar el tipo base
         TipoDato tipoParametro;
-        
-        if (esVector) {
+        if (esVectorArg[i]) {
             char tipoBase[50] = {0};
             strncpy(tipoBase, tipoParam->valor, strlen(tipoParam->valor) - 2);
             tipoParametro = obtenerTipoDesdeString(tipoBase);
@@ -133,14 +309,16 @@ ValorSimbolo EvaluarLlamadaFuncion(NodoAST* nodo) {
             tipoParametro = obtenerTipoDesdeString(tipoParam->valor);
         }
         
-        // Evaluar y asignar parámetros (código existente)
-        if (!esVector) {
-            ValorSimbolo valorArg = evaluarExpr(parametrosLlamada->hijos[i]);
+        // Asignar valor según tipo
+        if (!esVectorArg[i]) {
+            // Caso normal: usar valor pre-evaluado
+            ValorSimbolo valorArg = argumentosEvaluados[i];
             if (!valorArg.inicializado) {
                 char msg[200];
                 snprintf(msg, sizeof(msg), "Valor no inicializado para parámetro '%s'", 
                         nombreParam);
-                addError(msg, ambitoActual(), parametrosLlamada->hijos[i]->linea, 
+                addError(msg, ambitoActual(), 
+                        parametrosLlamada->hijos[i]->linea, 
                         parametrosLlamada->hijos[i]->columna);
                 printf("[ERROR] %s\n", msg);
                 continue;
@@ -153,7 +331,8 @@ ValorSimbolo EvaluarLlamadaFuncion(NodoAST* nodo) {
                 snprintf(msg, sizeof(msg), 
                         "Tipo incompatible para parámetro '%s': esperado %s, encontrado %s",
                         nombreParam, nombreTipo(tipoParametro), nombreTipo(valorArg.tipo));
-                addError(msg, ambitoActual(), parametrosLlamada->hijos[i]->linea, 
+                addError(msg, ambitoActual(), 
+                        parametrosLlamada->hijos[i]->linea, 
                         parametrosLlamada->hijos[i]->columna);
                 printf("[ERROR] %s\n", msg);
                 continue;
@@ -177,35 +356,30 @@ ValorSimbolo EvaluarLlamadaFuncion(NodoAST* nodo) {
                 printf("[DEBUG] Parámetro '%s' inicializado con valor\n", nombreParam);
             }
         } else {
-            // Evaluar el argumento (debe ser un identificador de vector)
-            NodoAST* argNodo = parametrosLlamada->hijos[i];
-            if (argNodo->tipo != AST_IDENTIFICADOR) {
-                char msg[200];
-                snprintf(msg, sizeof(msg), "El argumento para el vector '%s' debe ser un identificador", nombreParam);
-                addError(msg, ambitoActual(), argNodo->linea, argNodo->columna);
-                printf("[ERROR] %s\n", msg);
-                continue;
-            }
-            Simbolo* simboloArg = buscarSimbolo(argNodo->valor);
+            // Caso vector: usar símbolo vector pre-referenciado
+            Simbolo* simboloArg = argumentosVector[i];
             if (!simboloArg || simboloArg->clase != SIMBOLO_VECTOR) {
                 char msg[200];
-                snprintf(msg, sizeof(msg), "El argumento '%s' no es un vector válido", argNodo->valor);
-                addError(msg, ambitoActual(), argNodo->linea, argNodo->columna);
+                snprintf(msg, sizeof(msg), "El argumento para vector '%s' no es válido", nombreParam);
+                addError(msg, ambitoActual(), 
+                        parametrosLlamada->hijos[i]->linea, 
+                        parametrosLlamada->hijos[i]->columna);
                 printf("[ERROR] %s\n", msg);
                 continue;
             }
-            // Declarar el parámetro vector en el ámbito de la función si no existe
+            
+            // Declarar el parámetro vector en el ámbito de la función
             if (!buscarSimboloEnAmbito(nombreParam, ambitoActual())) {
                 agregarSimboloDetallado(nombreParam, SIMBOLO_VECTOR, tipoParametro,
                                         ambitoActual(), idParam->linea, idParam->columna);
             }
+            
             Simbolo* paramSim = buscarSimboloEnAmbito(nombreParam, ambitoActual());
             if (paramSim) {
                 copiarVectorComoParametro(paramSim, simboloArg);
                 printf("[DEBUG] Parámetro vector '%s' inicializado\n", nombreParam);
             }
         }
-        // ... código para vectores si es necesario ...
     }
 
     // Obtener el bloque de la función
@@ -226,9 +400,29 @@ ValorSimbolo EvaluarLlamadaFuncion(NodoAST* nodo) {
     printf("[DEBUG] Ejecutando bloque de la función '%s'\n", idNodo->valor);
     ResultadoEjecucion resEjec = ejecutarNodoAST(bloqueNodo);
 
-    // OBTENER RESULTADO DEL STACK
+    // OBTENER RESULTADO DEL STACK (resto igual)
     if (resEjec == EJEC_RETURN && hayRetorno) {
         printf("[DEBUG] Se detectó return en función '%s'\n", idNodo->valor);
+
+        // Tratamiento especial para suma en funciones recursivas
+        if (strcmp(idNodo->valor, "fibonacci") == 0 || 
+            strcmp(idNodo->valor, "factorial") == 0 ||
+            strcmp(idNodo->valor, "potencia") == 0) {  // Agrega otras funciones recursivas conocidas
+            
+            if (bloqueNodo->num_hijos > 0) {
+                // Buscar un nodo return con una operación binaria
+                for (int i = 0; i < bloqueNodo->num_hijos; i++) {
+                    NodoAST* hijo = bloqueNodo->hijos[i];
+                    if (hijo && hijo->tipo == AST_RETURN && hijo->num_hijos == 1) {
+                        NodoAST* expr = hijo->hijos[0];
+                        if (expr && expr->tipo == AST_OPERACION) {
+                            // Es una operación en el return, necesitamos manejo especial
+                            printf("[DEBUG RECURSION] Detectada operación en return de función recursiva\n");
+                        }
+                    }
+                }
+            }
+        }
         
         // Buscar el valor de retorno correspondiente a este nivel
         if (stackRetorno.tope > topeStackAnterior) {

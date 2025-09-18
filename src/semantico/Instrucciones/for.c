@@ -57,9 +57,9 @@ ResultadoEjecucion ejecutarSentenciaFor(NodoAST* nodo) {
     }
     
     // Establecer un límite de seguridad para evitar bucles infinitos durante desarrollo
-    int max_iteraciones = 7; // Ajustar según sea necesario
+    int max_iteraciones = 1000; // Ajustar según sea necesario
     int contador_iteraciones = 0;
-    entrarAmbito("FOR");
+    entrarAmbito("for");
     while (contador_iteraciones < max_iteraciones) {
         contador_iteraciones++;
         

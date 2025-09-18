@@ -62,6 +62,7 @@ typedef enum {
     AST_METODO_MAIN,
     AST_NULL,
     AST_DECLARACION_CONST,
+    AST_DECLARACION_VECTOR_TEMP,
     // Por si se me olvida, aquí es agregar más tipos
 } TipoNodoAST;
 
