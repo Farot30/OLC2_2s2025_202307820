@@ -99,26 +99,29 @@ Simbolo* buscarSimboloEnAmbito(const char* nombre, const char* ambito) {
 Simbolo* buscarSimboloConAmbito(const char* nombre) {
     if (!nombre) return NULL;
     
-    // Primero buscar en el ámbito actual
+    // Primero buscar en el ámbito actual (PRIORIDAD LOCAL)
     const char* ambitoActivo = ambitoActual();
     Simbolo* simboloLocal = buscarSimboloEnAmbito(nombre, ambitoActivo);
     if (simboloLocal) {
-        printf("[DEBUG buscarSimboloConAmbito] Encontrado '%s' en ámbito actual '%s'\n", 
-               nombre, ambitoActivo);
+        printf("[DEBUG buscarSimboloConAmbito] Encontrado '%s' en ámbito actual '%s' con valor %d\n", 
+               nombre, ambitoActivo, simboloLocal->valor.v.i);
         return simboloLocal;
     }
     
-    // Si no se encuentra localmente, buscar globalmente (comportamiento original)
-    Simbolo* simboloGlobal = buscarSimbolo(nombre);
-    if (simboloGlobal) {
-        printf("[DEBUG buscarSimboloConAmbito] Encontrado '%s' en ámbito global '%s'\n", 
-               nombre, simboloGlobal->ambito);
-        return simboloGlobal;
+    // Buscar en ámbitos superiores (pila de ámbitos)
+    for (int i = topeAmbitos - 2; i >= 0; i--) {
+        Simbolo* simboloSuperior = buscarSimboloEnAmbito(nombre, pilaAmbitos[i]);
+        if (simboloSuperior) {
+            printf("[DEBUG buscarSimboloConAmbito] Encontrado '%s' en ámbito superior '%s'\n", 
+                   nombre, pilaAmbitos[i]);
+            return simboloSuperior;
+        }
     }
     
     printf("[DEBUG buscarSimboloConAmbito] Símbolo '%s' no encontrado\n", nombre);
     return NULL;
 }
+
 bool existeSimboloEnAmbitoActual(const char* nombre) {
     return buscarSimboloEnAmbito(nombre, ambitoActual()) != NULL;
 }
@@ -176,18 +179,7 @@ void limpiarSimbolosDeAmbito(const char* ambito) {
         }
     }
 }
-void salirAmbitoConLimpieza(void) {
-    if (topeAmbitos > 0) {
-        const char* ambitoASalir = pilaAmbitos[topeAmbitos - 1];
-        printf("[DEBUG] Saliendo del ámbito: %s\n", ambitoASalir);
-        
-        // Limpiar símbolos de este ámbito
-        limpiarSimbolosDeAmbito(ambitoASalir);
-        
-        // Liberar nombre del ámbito y decrementar tope
-        free(pilaAmbitos[--topeAmbitos]);
-    }
-}
+
 
 static Simbolo* crearSimbolo(const char* nombre, TipoSimbolo clase, TipoDato tipo,
                              const char* ambito, int linea, int columna) {
@@ -623,10 +615,10 @@ ValorSimbolo getValorSimbolo(Simbolo* sim) {
         case TIPO_STRING:
             if (sim->valor.v.s) {
                 r.v.s = strdup(sim->valor.v.s); // Crear una copia
-                printf("[DEBUG] getValorSimbolo: '%s' string = '%s'\n", sim->nombre, r.v.s);
+                printf("[DEBUG] getValorSimbolo: '%s' String = '%s'\n", sim->nombre, r.v.s);
             } else {
                 r.v.s = NULL;
-                printf("[DEBUG] getValorSimbolo: '%s' string = NULL\n", sim->nombre);
+                printf("[DEBUG] getValorSimbolo: '%s' String = NULL\n", sim->nombre);
             }
             break;
         default:
@@ -788,3 +780,109 @@ void modificarClaseSimbolo(const char* nombre, TipoSimbolo nuevaClase) {
     }
 }
 
+
+typedef struct {
+    char nombreLocal[64];
+    char nombreOriginal[64];
+    char ambitoOriginal[64];
+} Referencia;
+
+static Referencia referencias[100];
+static int numReferencias = 0;
+
+int esTipoPorReferencia(TipoDato tipo, TipoSimbolo clase) {
+    // Por referencia: String y arreglos (vectores, matrices, arrays)
+    return (tipo == TIPO_STRING || 
+            clase == SIMBOLO_VECTOR || 
+            clase == SIMBOLO_MATRIZ || 
+            clase == SIMBOLO_ARRAY_MULTIDIMENSIONAL);
+}
+
+void crearReferencia(const char* nombreLocal, Simbolo* simboloOriginal) {
+    if (!nombreLocal || !simboloOriginal || numReferencias >= 100) return;
+    
+    // Registrar la referencia
+    strncpy(referencias[numReferencias].nombreLocal, nombreLocal, 63);
+    strncpy(referencias[numReferencias].nombreOriginal, simboloOriginal->nombre, 63);
+    strncpy(referencias[numReferencias].ambitoOriginal, simboloOriginal->ambito, 63);
+    numReferencias++;
+    
+    printf("[DEBUG REFERENCIA] Creada referencia: '%s' -> '%s' (ámbito: %s)\n", 
+           nombreLocal, simboloOriginal->nombre, simboloOriginal->ambito);
+}
+
+void sincronizarReferencia(const char* nombreLocal) {
+    if (!nombreLocal) return;
+    
+    // Buscar la referencia
+    for (int i = 0; i < numReferencias; i++) {
+        if (strcmp(referencias[i].nombreLocal, nombreLocal) == 0) {
+            // Encontrar símbolos local y original
+            Simbolo* simboloLocal = buscarSimboloEnAmbito(nombreLocal, ambitoActual());
+            Simbolo* simboloOriginal = buscarSimboloEnAmbito(referencias[i].nombreOriginal, 
+                                                           referencias[i].ambitoOriginal);
+            
+            if (simboloLocal && simboloOriginal) {
+                // Sincronizar valor del local al original
+                if (simboloOriginal->valor.inicializado && simboloOriginal->valor.tipo == TIPO_STRING && simboloOriginal->valor.v.s) {
+                    free(simboloOriginal->valor.v.s);
+                }
+                
+                simboloOriginal->valor = simboloLocal->valor;
+                
+                // Para strings, duplicar el puntero
+                if (simboloLocal->valor.tipo == TIPO_STRING && simboloLocal->valor.v.s) {
+                    simboloOriginal->valor.v.s = strdup(simboloLocal->valor.v.s);
+                }
+                
+                printf("[DEBUG REFERENCIA] Sincronizada referencia '%s' -> '%s'\n", 
+                       nombreLocal, referencias[i].nombreOriginal);
+            }
+            break;
+        }
+    }
+}
+
+void limpiarReferenciasDeAmbito(const char* ambito) {
+    if (!ambito) return;
+    
+    // Sincronizar todas las referencias de este ámbito antes de limpiar
+    for (int i = 0; i < numReferencias; i++) {
+        Simbolo* simboloLocal = buscarSimboloEnAmbito(referencias[i].nombreLocal, ambito);
+        if (simboloLocal) {
+            sincronizarReferencia(referencias[i].nombreLocal);
+        }
+    }
+    
+    // Remover referencias del ámbito
+    int j = 0;
+    for (int i = 0; i < numReferencias; i++) {
+        Simbolo* simboloLocal = buscarSimboloEnAmbito(referencias[i].nombreLocal, ambito);
+        if (!simboloLocal) {
+            // Esta referencia no es de este ámbito, mantenerla
+            referencias[j] = referencias[i];
+            j++;
+        } else {
+            printf("[DEBUG REFERENCIA] Removida referencia '%s' del ámbito '%s'\n", 
+                   referencias[i].nombreLocal, ambito);
+        }
+    }
+    numReferencias = j;
+}
+
+
+void salirAmbitoConLimpieza(void) {
+    if (topeAmbitos > 0) {
+        const char* ambitoASalir = pilaAmbitos[topeAmbitos - 1];
+        printf("[DEBUG] Saliendo del ámbito: %s\n", ambitoASalir);
+        
+        // Limpiar referencias antes de limpiar símbolos
+        limpiarReferenciasDeAmbito(ambitoASalir);
+        
+        // Limpiar símbolos de este ámbito
+        limpiarSimbolosDeAmbito(ambitoASalir);
+        
+        // Liberar nombre del ámbito y decrementar tope
+        free(pilaAmbitos[--topeAmbitos]);
+    }
+}

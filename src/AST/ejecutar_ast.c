@@ -44,6 +44,8 @@ void liberarBackup(BackupSimbolo* backup);
 void verificarSimboloMensajeEnPunto(const char* punto);
 
 void verificarSimboloMensajeEnPunto(const char* punto) {
+    (void)punto;
+    /*
     printf("[DEBUG MENSAJE] === VERIFICACIÓN EN: %s ===\n", punto);
     
     Simbolo* mensaje = buscarSimbolo("mensaje");
@@ -64,7 +66,7 @@ void verificarSimboloMensajeEnPunto(const char* punto) {
         }
     } else {
         printf("[DEBUG MENSAJE] Símbolo 'mensaje' NO encontrado\n");
-    }
+    }*/
 }
 // Implementaciones de las funciones de protección
 BackupSimbolo hacerBackupSimbolo(Simbolo* sim) {
@@ -564,12 +566,27 @@ ResultadoEjecucion ejecutarNodoAST(NodoAST* nodo) {
             contexto_funcion--;
             return res;
         }
-        case AST_LLAMADA:{
-            printf("[DEBUG] Procesando llamada a función\n");
-            contexto_funcion++;
-            ResultadoEjecucion res = EjecutarLlamadas(nodo);
-            contexto_funcion--;
-            return res;
+        case AST_LLAMADA: {
+            // Verificar si es una función void o con retorno
+            if (nodo->num_hijos >= 1 && nodo->hijos[0]->tipo == AST_IDENTIFICADOR) {
+                Simbolo* funcionSimbolo = buscarSimbolo(nodo->hijos[0]->valor);
+                if (funcionSimbolo) {
+                    if (funcionSimbolo->clase == SIMBOLO_FUNCION_VOID) {
+                        // Es una función void, ejecutar como tal
+                        printf("[DEBUG ejecutar_ast] Ejecutando llamada void: %s\n", nodo->hijos[0]->valor);
+                        return EjecutarLlamadaVoid(nodo);
+                    } else if (funcionSimbolo->clase == SIMBOLO_FUNCION) {
+                        // Es una función con retorno usada como sentencia, ejecutar pero ignorar retorno
+                        printf("[DEBUG ejecutar_ast] Ejecutando función con retorno como sentencia: %s\n", nodo->hijos[0]->valor);
+                        EvaluarLlamadaFuncion(nodo);
+                        return EJEC_OK;
+                    }
+                }
+            }
+            
+            // Fallback: intentar como función normal
+            printf("[DEBUG ejecutar_ast] Ejecutando llamada genérica\n");
+            return EjecutarLlamadas(nodo);
         }
         case AST_ASIGNACION_COMPUESTA: {
             if (nodo->num_hijos < 2) {

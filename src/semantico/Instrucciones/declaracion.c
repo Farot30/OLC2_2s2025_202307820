@@ -324,18 +324,23 @@ int verificarDeclaracion(NodoAST* nodo) {
                 // Asigna el valor (formato del array como string)
                 setValorSimbolo(sim, nuevoArray.tipo, nuevoArray);
                 
-                printf("[DEBUG] Vector '%s' inicializado con el resultado de '%s.add()': %s\n",
-                    identificador->valor, idArrayNodo->valor, 
-                    nuevoArray.v.s ? nuevoArray.v.s : "(formato inválido)");
             } else {
                 printf("[ERROR] Error al evaluar Array.add para '%s'\n", identificador->valor);
                 nodo->valido = 0;
                 return 0;
             }
         }else {
+            printf("[DEBUG DECLARACION] === EVALUANDO EXPRESIÓN PARA '%s' ===\n", identificador->valor);
             // Caso normal (expresión)
              ValorSimbolo v = evaluarExpr(valor);
+
+             printf("[DEBUG DECLARACION] Expresión evaluada: inicializado=%d, tipo=%d\n", 
+                   v.inicializado, v.tipo);
             if(v.inicializado){
+
+                if (valor->tipo == AST_LLAMADA) {
+
+                }
                 // Compara el tipo declarado con el tipo evaluado
                 if (sim->tipo != v.tipo && v.tipo != TIPO_DESCONOCIDO) {
                     if (!esWidening(v.tipo, sim->tipo)) {
@@ -362,8 +367,6 @@ int verificarDeclaracion(NodoAST* nodo) {
                             nombreTipo(v.tipo), nombreTipo(sim->tipo));
                     }
                 }
-                printf("[DEBUG DECLARACION] Valor para asignar a '%s': tipo=%d, double=%lf, float=%f, int=%d\n",
-                    identificador->valor, v.tipo, v.v.d, v.v.f, v.v.i);
 
                 setValorSimbolo(sim, v.tipo, v);
                 

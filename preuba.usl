@@ -153,3 +153,28 @@ int tam = numeros.length;
 int[] numeros = { 2, 5, 7, 8 };
 int nuevoVal = 11;
 int[] ampliado = numeros.add(nuevoVal);
+
+
+
+// Función recursiva para calcular la potencia
+int potenciaRecursiva(int base, int exponente) {
+    if (exponente == 0) {
+        return 1; // Caso base: cualquier número elevado a 0 es 1
+    }
+    return base * potenciaRecursiva(base, exponente - 1); // Llamada recursiva
+}
+
+// Prueba de la función recursiva
+public static void main() {
+    System.out.println("=== PRUEBA DE FUNCION RECURSIVA DE POTENCIA ===");
+    
+    int base = 2;
+    int exponente = 5;
+    int resultado = potenciaRecursiva(base, exponente);
+    System.out.println(base + " elevado a " + exponente + " = " + resultado);
+    
+    base = 3;
+    exponente = 4;
+    resultado = potenciaRecursiva(base, exponente);
+    System.out.println(base + " elevado a " + exponente + " = " + resultado);
+}

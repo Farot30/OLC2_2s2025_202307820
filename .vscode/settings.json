@@ -12,6 +12,7 @@
         "limits.h": "c",
         "evaluarstring.h": "c",
         "stdio.h": "c",
-        "return.h": "c"
+        "return.h": "c",
+        "errortipos.h": "c"
     }
 }

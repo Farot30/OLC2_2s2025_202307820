@@ -67,6 +67,12 @@ ResultadoEjecucion EjecturarNodoSwitch(NodoAST* nodo) {
                 case TIPO_CHAR:
                     esIgual = (vexp.v.c == vCaso.v.c);
                     break;
+                case TIPO_FLOAT:
+                    esIgual = (vexp.v.f == vCaso.v.f);
+                    break;
+                case TIPO_DOUBLE:
+                    esIgual = (vexp.v.d == vCaso.v.d);
+                    break;
                 case TIPO_STRING:
                     esIgual = (strcmp(vexp.v.s, vCaso.v.s) == 0);
                     break;
