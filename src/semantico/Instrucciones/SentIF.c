@@ -40,7 +40,7 @@ ResultadoEjecucion ejecutarNodoIf(NodoAST* nodo) {
         addError("Condición del IF no es booleana", ambitoActual(), nodo->linea, nodo->columna);
         return EJEC_OK;
     }
-
+    // cambio de if negado
     if (!vCond.v.b) {
         entrarAmbito("if");
         ResultadoEjecucion res = ejecutarNodoAST(bloqueVerdadero);
