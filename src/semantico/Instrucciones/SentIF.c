@@ -41,7 +41,7 @@ ResultadoEjecucion ejecutarNodoIf(NodoAST* nodo) {
         return EJEC_OK;
     }
 
-    if (vCond.v.b) {
+    if (!vCond.v.b) {
         entrarAmbito("if");
         ResultadoEjecucion res = ejecutarNodoAST(bloqueVerdadero);
         salirAmbito();

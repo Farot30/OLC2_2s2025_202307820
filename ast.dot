@@ -1,0 +1,18 @@
+digraph AST {
+  node [shape=record,fontname="Helvetica"];
+  n0x65289a947df0 [label="{Tipo: PROGRAMA|Valor: Programa}"];
+  n0x65289a947df0 -> n0x65289a946320;
+  n0x65289a946320 [label="{Tipo: METODO_MAIN|Valor: public static void main}"];
+  n0x65289a946320 -> n0x65289a8272e0;
+  n0x65289a8272e0 [label="{Tipo: BLOQUE|Valor: Bloque}"];
+  n0x65289a8272e0 -> n0x65289a676850;
+  n0x65289a676850 [label="{Tipo: IF|Valor: if}"];
+  n0x65289a676850 -> n0x65289a92e2d0;
+  n0x65289a92e2d0 [label="{Tipo: BOOLEAN|Valor: false}"];
+  n0x65289a676850 -> n0x65289a94cce0;
+  n0x65289a94cce0 [label="{Tipo: BLOQUE|Valor: Bloque}"];
+  n0x65289a94cce0 -> n0x65289a87acb0;
+  n0x65289a87acb0 [label="{Tipo: PRINT|Imprime: gola}"];
+  n0x65289a87acb0 -> n0x65289a947cd0;
+  n0x65289a947cd0 [label="{Tipo: CADENA|Valor: gola}"];
+}
