@@ -657,22 +657,22 @@ static const yytype_int16 yyrline[] =
      168,   178,   185,   189,   193,   197,   206,   217,   228,   229,
      230,   231,   232,   233,   234,   235,   236,   237,   238,   239,
      240,   241,   242,   243,   244,   245,   247,   255,   256,   260,
-     265,   274,   284,   294,   303,   311,   331,   342,   374,   385,
-     392,   403,   410,   434,   453,   474,   501,   521,   532,   539,
-     545,   554,   573,   579,   583,   593,   605,   621,   631,   641,
-     656,   668,   680,   696,   704,   714,   726,   737,   744,   759,
-     777,   795,   812,   831,   848,   869,   901,   937,   954,   973,
-     976,   981,   986,   994,   995,   996,   997,   998,   999,  1004,
-    1014,  1017,  1020,  1023,  1026,  1029,  1032,  1035,  1038,  1041,
-    1051,  1055,  1056,  1064,  1065,  1073,  1074,  1082,  1083,  1091,
-    1092,  1100,  1101,  1106,  1114,  1115,  1120,  1125,  1130,  1138,
-    1139,  1144,  1152,  1153,  1158,  1166,  1167,  1172,  1177,  1185,
-    1190,  1195,  1203,  1207,  1208,  1213,  1222,  1227,  1232,  1237,
-    1242,  1247,  1251,  1255,  1260,  1265,  1270,  1275,  1281,  1288,
-    1296,  1304,  1312,  1318,  1328,  1333,  1337,  1340,  1343,  1349,
-    1360,  1368,  1374,  1386,  1394,  1399,  1409,  1416,  1423,  1433,
-    1440,  1450,  1459,  1471,  1480,  1491,  1498,  1507,  1515,  1521,
-    1532,  1540,  1548,  1555,  1574,  1584
+     265,   274,   284,   292,   301,   309,   329,   340,   372,   383,
+     390,   401,   408,   432,   451,   472,   499,   519,   530,   537,
+     543,   552,   571,   577,   581,   591,   603,   619,   629,   639,
+     654,   666,   678,   694,   702,   712,   724,   735,   742,   757,
+     775,   793,   810,   829,   846,   867,   899,   935,   952,   971,
+     974,   979,   984,   992,   993,   994,   995,   996,   997,  1002,
+    1012,  1015,  1018,  1021,  1024,  1027,  1030,  1033,  1036,  1039,
+    1049,  1053,  1054,  1062,  1063,  1071,  1072,  1080,  1081,  1089,
+    1090,  1098,  1099,  1104,  1112,  1113,  1118,  1123,  1128,  1136,
+    1137,  1142,  1150,  1151,  1156,  1164,  1165,  1170,  1175,  1183,
+    1188,  1193,  1201,  1205,  1206,  1211,  1220,  1225,  1230,  1235,
+    1240,  1245,  1249,  1253,  1258,  1263,  1268,  1273,  1279,  1286,
+    1294,  1302,  1310,  1316,  1326,  1331,  1335,  1338,  1341,  1347,
+    1358,  1366,  1372,  1384,  1392,  1397,  1407,  1414,  1421,  1431,
+    1438,  1448,  1457,  1469,  1478,  1489,  1496,  1505,  1513,  1519,
+    1530,  1538,  1546,  1553,  1572,  1582
 };
 #endif
 
@@ -2398,15 +2398,13 @@ yyreduce:
         agregarHijo((yyval.nodo), crearNodo(AST_TIPO, (yyvsp[-1].str)));
         NodoAST* id = crearNodo(AST_IDENTIFICADOR, (yyvsp[0].str));
         id->linea = (yylsp[0]).first_line; id->columna = (yylsp[0]).first_column;
-        NodoAST* def = crearNodo(AST_NUMERO, (char*)valorPorDefectoTipo(obtenerTipoDesdeString((yyvsp[-1].str))));
         agregarHijo((yyval.nodo), id);
-        agregarHijo((yyval.nodo), def);
     }
-#line 2406 "src/parser/parser.tab.c"
+#line 2404 "src/parser/parser.tab.c"
     break;
 
   case 43: /* declaracion: TOKEN_FINAL tipo_primitivo TOKEN_IDENTIFICADOR TOKEN_IGUAL expresion  */
-#line 294 "src/parser/parser.y"
+#line 292 "src/parser/parser.y"
                                                                            {
         (yyval.nodo) = crearNodo(AST_DECLARACION_CONST, "declaracion_const");
         (yyval.nodo)->linea = (yylsp[-2]).first_line; (yyval.nodo)->columna = (yylsp[-2]).first_column;
@@ -2416,21 +2414,21 @@ yyreduce:
         agregarHijo((yyval.nodo), id);
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 2420 "src/parser/parser.tab.c"
+#line 2418 "src/parser/parser.tab.c"
     break;
 
   case 44: /* declaracion: tipo_primitivo error TOKEN_PUNTOCOMA  */
-#line 303 "src/parser/parser.y"
+#line 301 "src/parser/parser.y"
                                            {
         addErrorSintactico("Error en declaración", "global", (yylsp[-1]).first_line, (yylsp[-1]).first_column);
         yyerrok;
         (yyval.nodo) = NULL;
     }
-#line 2430 "src/parser/parser.tab.c"
+#line 2428 "src/parser/parser.tab.c"
     break;
 
   case 45: /* declaracion_vector: tipo_primitivo TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_IDENTIFICADOR TOKEN_IGUAL TOKEN_NEW tipo_primitivo TOKEN_CORCHETEIZQ expresion TOKEN_CORCHETEDER  */
-#line 311 "src/parser/parser.y"
+#line 309 "src/parser/parser.y"
                                                                                                                                                               {
         (yyval.nodo) = crearNodo(AST_DECLARACION_VECTOR, "Declaración Vector");
         (yyval.nodo)->linea = (yylsp[-6]).first_line; (yyval.nodo)->columna = (yylsp[-6]).first_column;
@@ -2451,11 +2449,11 @@ yyreduce:
         agregarHijo(dimension, (yyvsp[-1].nodo));
         agregarHijo((yyval.nodo), dimension);
     }
-#line 2455 "src/parser/parser.tab.c"
+#line 2453 "src/parser/parser.tab.c"
     break;
 
   case 46: /* declaracion_vector: tipo_primitivo TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_IDENTIFICADOR TOKEN_IGUAL TOKEN_LLAVEIZQ lista_elementos TOKEN_LLAVEDER  */
-#line 331 "src/parser/parser.y"
+#line 329 "src/parser/parser.y"
                                                                                                                                        {
         (yyval.nodo) = crearNodo(AST_DECLARACION_VECTOR, "Declaración Vector");
         (yyval.nodo)->linea = (yylsp[-4]).first_line; (yyval.nodo)->columna = (yylsp[-4]).first_column;
@@ -2467,11 +2465,11 @@ yyreduce:
         agregarHijo(lista, (yyvsp[-1].nodo));
         agregarHijo((yyval.nodo), lista);
     }
-#line 2471 "src/parser/parser.tab.c"
+#line 2469 "src/parser/parser.tab.c"
     break;
 
   case 47: /* declaracion_vector: tipo_primitivo TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_IDENTIFICADOR TOKEN_IGUAL TOKEN_IDENTIFICADOR TOKEN_PUNTO TOKEN_ADD TOKEN_PARIZQ expresion TOKEN_PARDER  */
-#line 342 "src/parser/parser.y"
+#line 340 "src/parser/parser.y"
                                                                                                                                                                        {
         (yyval.nodo) = crearNodo(AST_DECLARACION_VECTOR, "Declaración Vector");
         (yyval.nodo)->linea = (yylsp[-7]).first_line; (yyval.nodo)->columna = (yylsp[-7]).first_column;
@@ -2501,11 +2499,11 @@ yyreduce:
         agregarHijo(lista, addNode);
         agregarHijo((yyval.nodo), lista);
     }
-#line 2505 "src/parser/parser.tab.c"
+#line 2503 "src/parser/parser.tab.c"
     break;
 
   case 48: /* lista_elementos: lista_elementos TOKEN_COMA expresion  */
-#line 374 "src/parser/parser.y"
+#line 372 "src/parser/parser.y"
                                          {
         if ((yyvsp[-2].nodo)->tipo != AST_INTERNO) {
             NodoAST* lista = crearNodo(AST_INTERNO, "Lista Elementos");
@@ -2517,20 +2515,20 @@ yyreduce:
             (yyval.nodo) = (yyvsp[-2].nodo);
         }
     }
-#line 2521 "src/parser/parser.tab.c"
+#line 2519 "src/parser/parser.tab.c"
     break;
 
   case 49: /* lista_elementos: expresion  */
-#line 385 "src/parser/parser.y"
+#line 383 "src/parser/parser.y"
                 {
         (yyval.nodo) = crearNodo(AST_INTERNO, "Lista Elementos");
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 2530 "src/parser/parser.tab.c"
+#line 2528 "src/parser/parser.tab.c"
     break;
 
   case 50: /* lista_filas: lista_filas TOKEN_COMA TOKEN_LLAVEIZQ lista_elementos TOKEN_LLAVEDER  */
-#line 392 "src/parser/parser.y"
+#line 390 "src/parser/parser.y"
                                                                          {
         if ((yyvsp[-4].nodo)->tipo != AST_LISTA_ELEMENTOS) {
             NodoAST* lista = crearNodo(AST_LISTA_ELEMENTOS, "Lista Filas");
@@ -2542,20 +2540,20 @@ yyreduce:
             (yyval.nodo) = (yyvsp[-4].nodo);
         }
     }
-#line 2546 "src/parser/parser.tab.c"
+#line 2544 "src/parser/parser.tab.c"
     break;
 
   case 51: /* lista_filas: TOKEN_LLAVEIZQ lista_elementos TOKEN_LLAVEDER  */
-#line 403 "src/parser/parser.y"
+#line 401 "src/parser/parser.y"
                                                     {
         (yyval.nodo) = crearNodo(AST_LISTA_ELEMENTOS, "Lista Filas");
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
     }
-#line 2555 "src/parser/parser.tab.c"
+#line 2553 "src/parser/parser.tab.c"
     break;
 
   case 52: /* declaracion_matriz: tipo_primitivo TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_IDENTIFICADOR TOKEN_IGUAL TOKEN_NEW tipo_primitivo TOKEN_CORCHETEIZQ expresion TOKEN_CORCHETEDER TOKEN_CORCHETEIZQ expresion TOKEN_CORCHETEDER  */
-#line 410 "src/parser/parser.y"
+#line 408 "src/parser/parser.y"
                                                                                                                                                                                                                                                 {
         (yyval.nodo) = crearNodo(AST_DECLARACION_MATRIZ, "Declaración Matriz");
         (yyval.nodo)->linea = (yylsp[-9]).first_line; (yyval.nodo)->columna = (yylsp[-9]).first_column;
@@ -2580,11 +2578,11 @@ yyreduce:
         agregarHijo(dimension, (yyvsp[-1].nodo));
         agregarHijo((yyval.nodo), dimension);
     }
-#line 2584 "src/parser/parser.tab.c"
+#line 2582 "src/parser/parser.tab.c"
     break;
 
   case 53: /* declaracion_matriz: tipo_primitivo TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_IDENTIFICADOR TOKEN_IGUAL TOKEN_LLAVEIZQ lista_filas TOKEN_LLAVEDER  */
-#line 434 "src/parser/parser.y"
+#line 432 "src/parser/parser.y"
                                                                                                                                                                        {
         (yyval.nodo) = crearNodo(AST_DECLARACION_MATRIZ, "Declaración Matriz");
         (yyval.nodo)->linea = (yylsp[-4]).first_line; (yyval.nodo)->columna = (yylsp[-4]).first_column;
@@ -2604,11 +2602,11 @@ yyreduce:
         agregarHijo(lista, (yyvsp[-1].nodo));
         agregarHijo((yyval.nodo), lista);
     }
-#line 2608 "src/parser/parser.tab.c"
+#line 2606 "src/parser/parser.tab.c"
     break;
 
   case 54: /* declaracion_matriz: tipo_primitivo TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_IDENTIFICADOR TOKEN_IGUAL Llamadas  */
-#line 453 "src/parser/parser.y"
+#line 451 "src/parser/parser.y"
                                                                                                                                       {
         // ✓ NUEVA REGLA: Declaración de matriz con resultado de función
         (yyval.nodo) = crearNodo(AST_DECLARACION_MATRIZ, "Declaración Matriz");
@@ -2627,11 +2625,11 @@ yyreduce:
         // Llamada a función (resultado de la función)
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 2631 "src/parser/parser.tab.c"
+#line 2629 "src/parser/parser.tab.c"
     break;
 
   case 55: /* declaracion_array_multidimensional: tipo_primitivo TOKEN_IDENTIFICADOR DimensionesCorchetes TOKEN_IGUAL TOKEN_NEW tipo_primitivo Dimensiones  */
-#line 474 "src/parser/parser.y"
+#line 472 "src/parser/parser.y"
                                                                                                              {
         (yyval.nodo) = crearNodo(AST_DECLARACION_ARRAY_MULTIDIMENSIONAL, "Declaración Array Multidimensional");
         (yyval.nodo)->linea = (yylsp[-5]).first_line; (yyval.nodo)->columna = (yylsp[-5]).first_column;
@@ -2659,11 +2657,11 @@ yyreduce:
             addErrorSintactico("El número de corchetes no coincide con las dimensiones especificadas", "global", (yylsp[-5]).first_line, (yylsp[-5]).first_column);
         }
     }
-#line 2663 "src/parser/parser.tab.c"
+#line 2661 "src/parser/parser.tab.c"
     break;
 
   case 56: /* declaracion_array_multidimensional: tipo_primitivo TOKEN_IDENTIFICADOR DimensionesCorchetes TOKEN_IGUAL TOKEN_LLAVEIZQ lista_bloques TOKEN_LLAVEDER  */
-#line 501 "src/parser/parser.y"
+#line 499 "src/parser/parser.y"
                                                                                                                       {
         (yyval.nodo) = crearNodo(AST_DECLARACION_ARRAY_MULTIDIMENSIONAL, "Declaración Array Multidimensional");
         (yyval.nodo)->linea = (yylsp[-5]).first_line; (yyval.nodo)->columna = (yylsp[-5]).first_column;
@@ -2681,11 +2679,11 @@ yyreduce:
         // Lista de bloques anidados
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
     }
-#line 2685 "src/parser/parser.tab.c"
+#line 2683 "src/parser/parser.tab.c"
     break;
 
   case 57: /* lista_bloques: lista_bloques TOKEN_COMA lista_elementos_o_bloques  */
-#line 521 "src/parser/parser.y"
+#line 519 "src/parser/parser.y"
                                                        {
         if ((yyvsp[-2].nodo)->tipo != AST_INTERNO) {
             NodoAST* lista = crearNodo(AST_INTERNO, "Lista Bloques");
@@ -2697,42 +2695,42 @@ yyreduce:
             (yyval.nodo) = (yyvsp[-2].nodo);
         }
     }
-#line 2701 "src/parser/parser.tab.c"
+#line 2699 "src/parser/parser.tab.c"
     break;
 
   case 58: /* lista_bloques: lista_elementos_o_bloques  */
-#line 532 "src/parser/parser.y"
+#line 530 "src/parser/parser.y"
                                 {
         (yyval.nodo) = crearNodo(AST_INTERNO, "Lista Bloques");
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 2710 "src/parser/parser.tab.c"
+#line 2708 "src/parser/parser.tab.c"
     break;
 
   case 59: /* lista_elementos_o_bloques: TOKEN_LLAVEIZQ lista_elementos TOKEN_LLAVEDER  */
-#line 539 "src/parser/parser.y"
+#line 537 "src/parser/parser.y"
                                                   {
         // Caso: lista de elementos
         NodoAST* bloque = crearNodo(AST_INTERNO, "Bloque");
         agregarHijo(bloque, (yyvsp[-1].nodo));
         (yyval.nodo) = bloque;
     }
-#line 2721 "src/parser/parser.tab.c"
+#line 2719 "src/parser/parser.tab.c"
     break;
 
   case 60: /* lista_elementos_o_bloques: TOKEN_LLAVEIZQ lista_bloques TOKEN_LLAVEDER  */
-#line 545 "src/parser/parser.y"
+#line 543 "src/parser/parser.y"
                                                   {
         // Caso: bloques anidados
         NodoAST* bloque = crearNodo(AST_INTERNO, "Bloque");
         agregarHijo(bloque, (yyvsp[-1].nodo));
         (yyval.nodo) = bloque;
     }
-#line 2732 "src/parser/parser.tab.c"
+#line 2730 "src/parser/parser.tab.c"
     break;
 
   case 61: /* DimensionesCorchetes: TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER DimensionesCorchetes  */
-#line 554 "src/parser/parser.y"
+#line 552 "src/parser/parser.y"
                                                              {
         NodoAST* dim = crearNodo(AST_DIMENSIONES, "[]");
         if ((yyvsp[0].nodo) == NULL) {
@@ -2752,37 +2750,37 @@ yyreduce:
             (yyval.nodo) = nueva;
         }
     }
-#line 2756 "src/parser/parser.tab.c"
+#line 2754 "src/parser/parser.tab.c"
     break;
 
   case 62: /* DimensionesCorchetes: TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER  */
-#line 573 "src/parser/parser.y"
+#line 571 "src/parser/parser.y"
                                           {
         (yyval.nodo) = crearNodo(AST_DIMENSIONES, "[]");
     }
-#line 2764 "src/parser/parser.tab.c"
+#line 2762 "src/parser/parser.tab.c"
     break;
 
   case 63: /* Dimensiones: TOKEN_CORCHETEIZQ TOKEN_NUMERO TOKEN_CORCHETEDER  */
-#line 579 "src/parser/parser.y"
+#line 577 "src/parser/parser.y"
                                                      {
         (yyval.nodo) = crearNodo(AST_DIMENSIONES, "[]");
         agregarHijo((yyval.nodo), crearNodo(AST_NUMERO, (yyvsp[-1].str)));
     }
-#line 2773 "src/parser/parser.tab.c"
+#line 2771 "src/parser/parser.tab.c"
     break;
 
   case 64: /* Dimensiones: Dimensiones TOKEN_CORCHETEIZQ TOKEN_NUMERO TOKEN_CORCHETEDER  */
-#line 583 "src/parser/parser.y"
+#line 581 "src/parser/parser.y"
                                                                    {
         agregarHijo((yyvsp[-3].nodo), crearNodo(AST_NUMERO, (yyvsp[-1].str)));
         (yyval.nodo) = (yyvsp[-3].nodo);
     }
-#line 2782 "src/parser/parser.tab.c"
+#line 2780 "src/parser/parser.tab.c"
     break;
 
   case 65: /* acceso: TOKEN_IDENTIFICADOR DimensionesAcceso  */
-#line 593 "src/parser/parser.y"
+#line 591 "src/parser/parser.y"
                                           {
         (yyval.nodo) = crearNodo(AST_ACCESO, "Acceso");
         (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
@@ -2795,11 +2793,11 @@ yyreduce:
         // Nodo para las dimensiones de acceso
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 2799 "src/parser/parser.tab.c"
+#line 2797 "src/parser/parser.tab.c"
     break;
 
   case 66: /* acceso: TOKEN_IDENTIFICADOR error  */
-#line 605 "src/parser/parser.y"
+#line 603 "src/parser/parser.y"
                                 {
         addErrorSintactico("Acceso inválido a array", "global", (yylsp[0]).first_line, (yylsp[0]).first_column);
         (yyval.nodo) = crearNodo(AST_ACCESO, "Acceso");
@@ -2813,11 +2811,11 @@ yyreduce:
         NodoAST* dim = crearNodo(AST_DIMENSIONES, "Dimensiones");
         agregarHijo((yyval.nodo), dim);
     }
-#line 2817 "src/parser/parser.tab.c"
+#line 2815 "src/parser/parser.tab.c"
     break;
 
   case 67: /* DimensionesAcceso: DimensionesAcceso TOKEN_CORCHETEIZQ expresion TOKEN_CORCHETEDER  */
-#line 621 "src/parser/parser.y"
+#line 619 "src/parser/parser.y"
                                                                     {
         if ((yyvsp[-3].nodo) == NULL) {
             (yyval.nodo) = crearNodo(AST_DIMENSIONES, "Dimensiones");
@@ -2828,22 +2826,22 @@ yyreduce:
         agregarHijo(dim, (yyvsp[-1].nodo)); // Agregar la expresión como una dimensión
         agregarHijo((yyval.nodo), dim);
     }
-#line 2832 "src/parser/parser.tab.c"
+#line 2830 "src/parser/parser.tab.c"
     break;
 
   case 68: /* DimensionesAcceso: TOKEN_CORCHETEIZQ expresion TOKEN_CORCHETEDER  */
-#line 631 "src/parser/parser.y"
+#line 629 "src/parser/parser.y"
                                                     {
         (yyval.nodo) = crearNodo(AST_DIMENSIONES, "Dimensiones");
         NodoAST* dim = crearNodo(AST_1DIMENSION, "Dimensión");
         agregarHijo(dim, (yyvsp[-1].nodo)); // Agregar la expresión como una dimensión
         agregarHijo((yyval.nodo), dim);
     }
-#line 2843 "src/parser/parser.tab.c"
+#line 2841 "src/parser/parser.tab.c"
     break;
 
   case 69: /* acceso_escritura: acceso TOKEN_IGUAL expresion  */
-#line 641 "src/parser/parser.y"
+#line 639 "src/parser/parser.y"
                                  {
         (yyval.nodo) = crearNodo(AST_ACCESO_ESCRITURA, "Acceso Escritura");
         (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
@@ -2854,11 +2852,11 @@ yyreduce:
         // Nodo para la expresión (valor a asignar)
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 2858 "src/parser/parser.tab.c"
+#line 2856 "src/parser/parser.tab.c"
     break;
 
   case 70: /* Funcion_void: TOKEN_VOID TOKEN_IDENTIFICADOR TOKEN_PARIZQ TOKEN_PARDER bloque  */
-#line 656 "src/parser/parser.y"
+#line 654 "src/parser/parser.y"
                                                                     {
         (yyval.nodo) = crearNodo(AST_FUNCION_VOID, "Función void");
         (yyval.nodo)->linea = (yylsp[-4]).first_line; (yyval.nodo)->columna = (yylsp[-4]).first_column;
@@ -2871,11 +2869,11 @@ yyreduce:
         agregarHijo((yyval.nodo), crearNodo(AST_PARAMETROS, "parametros"));
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 2875 "src/parser/parser.tab.c"
+#line 2873 "src/parser/parser.tab.c"
     break;
 
   case 71: /* Funcion_void: TOKEN_VOID TOKEN_IDENTIFICADOR TOKEN_PARIZQ parametros TOKEN_PARDER bloque  */
-#line 668 "src/parser/parser.y"
+#line 666 "src/parser/parser.y"
                                                                                  {
         (yyval.nodo) = crearNodo(AST_FUNCION_VOID, "Función void con parámetros");
         (yyval.nodo)->linea = (yylsp[-5]).first_line; (yyval.nodo)->columna = (yylsp[-5]).first_column;
@@ -2888,11 +2886,11 @@ yyreduce:
         agregarHijo((yyval.nodo), (yyvsp[-2].nodo));
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 2892 "src/parser/parser.tab.c"
+#line 2890 "src/parser/parser.tab.c"
     break;
 
   case 72: /* Funcion_void: TOKEN_VOID TOKEN_IDENTIFICADOR TOKEN_PARIZQ error TOKEN_PARDER bloque  */
-#line 680 "src/parser/parser.y"
+#line 678 "src/parser/parser.y"
                                                                             {
         addErrorSintactico("Lista de parámetros inválida en función void", "global", (yylsp[-2]).first_line, (yylsp[-2]).first_column);
         (yyval.nodo) = crearNodo(AST_FUNCION_VOID, "Función void");
@@ -2906,11 +2904,11 @@ yyreduce:
         agregarHijo((yyval.nodo), crearNodo(AST_PARAMETROS, "parametros"));
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 2910 "src/parser/parser.tab.c"
+#line 2908 "src/parser/parser.tab.c"
     break;
 
   case 73: /* Llamadas: TOKEN_IDENTIFICADOR TOKEN_PARIZQ TOKEN_PARDER  */
-#line 696 "src/parser/parser.y"
+#line 694 "src/parser/parser.y"
                                                   {
         (yyval.nodo) = crearNodo(AST_LLAMADA_VOID, "Llamada funcion void");
         (yyval.nodo)->linea = (yylsp[-2]).first_line; (yyval.nodo)->columna = (yylsp[-2]).first_column;
@@ -2919,11 +2917,11 @@ yyreduce:
         id1->linea = (yylsp[-2]).first_line; id1->columna = (yylsp[-2]).first_column;
         agregarHijo((yyval.nodo), id1);
     }
-#line 2923 "src/parser/parser.tab.c"
+#line 2921 "src/parser/parser.tab.c"
     break;
 
   case 74: /* Llamadas: TOKEN_IDENTIFICADOR TOKEN_PARIZQ lista_parametros TOKEN_PARDER  */
-#line 704 "src/parser/parser.y"
+#line 702 "src/parser/parser.y"
                                                                      {
         (yyval.nodo) = crearNodo(AST_LLAMADA, "Llamada funcion");
         (yyval.nodo)->linea = (yylsp[-3]).first_line; (yyval.nodo)->columna = (yylsp[-3]).first_column;
@@ -2934,11 +2932,11 @@ yyreduce:
 
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
     }
-#line 2938 "src/parser/parser.tab.c"
+#line 2936 "src/parser/parser.tab.c"
     break;
 
   case 75: /* Llamadas: TOKEN_IDENTIFICADOR TOKEN_PARIZQ error TOKEN_PARDER  */
-#line 714 "src/parser/parser.y"
+#line 712 "src/parser/parser.y"
                                                           {
         addErrorSintactico("Parámetros inválidos en llamada a función", "global", (yylsp[-1]).first_line, (yylsp[-1]).first_column);
         (yyval.nodo) = crearNodo(AST_LLAMADA_VOID, "Llamada funcion void");
@@ -2948,11 +2946,11 @@ yyreduce:
         id1->linea = (yylsp[-3]).first_line; id1->columna = (yylsp[-3]).first_column;
         agregarHijo((yyval.nodo), id1);
     }
-#line 2952 "src/parser/parser.tab.c"
+#line 2950 "src/parser/parser.tab.c"
     break;
 
   case 76: /* lista_parametros: lista_parametros TOKEN_COMA expresion  */
-#line 726 "src/parser/parser.y"
+#line 724 "src/parser/parser.y"
                                           {
         if ((yyvsp[-2].nodo)->tipo != AST_LISTA_PARAMETROS) {
             NodoAST* lista = crearNodo(AST_LISTA_PARAMETROS, "Lista Parametros");
@@ -2964,20 +2962,20 @@ yyreduce:
             (yyval.nodo) = (yyvsp[-2].nodo);
         }
     }
-#line 2968 "src/parser/parser.tab.c"
+#line 2966 "src/parser/parser.tab.c"
     break;
 
   case 77: /* lista_parametros: expresion  */
-#line 737 "src/parser/parser.y"
+#line 735 "src/parser/parser.y"
                 {
         (yyval.nodo) = crearNodo(AST_LISTA_PARAMETROS, "Lista Parametros");
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 2977 "src/parser/parser.tab.c"
+#line 2975 "src/parser/parser.tab.c"
     break;
 
   case 78: /* Funcion_parametros: tipo_primitivo TOKEN_IDENTIFICADOR TOKEN_PARIZQ parametros TOKEN_PARDER TOKEN_LLAVEIZQ lista_sentencias TOKEN_LLAVEDER  */
-#line 744 "src/parser/parser.y"
+#line 742 "src/parser/parser.y"
                                                                                                                            {
         (yyval.nodo) = crearNodo(AST_FUNCION, "Función con parametros");
         (yyval.nodo)->linea = (yylsp[-7]).first_line; (yyval.nodo)->columna = (yylsp[-7]).first_column;
@@ -2993,11 +2991,11 @@ yyreduce:
         agregarHijo((yyval.nodo), (yyvsp[-4].nodo));
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
     }
-#line 2997 "src/parser/parser.tab.c"
+#line 2995 "src/parser/parser.tab.c"
     break;
 
   case 79: /* Funcion_parametros: TipoConCorchetes TOKEN_IDENTIFICADOR TOKEN_PARIZQ parametros TOKEN_PARDER TOKEN_LLAVEIZQ lista_sentencias TOKEN_LLAVEDER  */
-#line 759 "src/parser/parser.y"
+#line 757 "src/parser/parser.y"
                                                                                                                                {
         (yyval.nodo) = crearNodo(AST_FUNCION, "Función con parametros");
         (yyval.nodo)->linea = (yylsp[-7]).first_line; (yyval.nodo)->columna = (yylsp[-7]).first_column;
@@ -3016,11 +3014,11 @@ yyreduce:
         
         free((yyvsp[-7].str));  // Liberar la memoria del string
     }
-#line 3020 "src/parser/parser.tab.c"
+#line 3018 "src/parser/parser.tab.c"
     break;
 
   case 80: /* Funcion_parametros: tipo_primitivo TOKEN_IDENTIFICADOR TOKEN_PARIZQ parametros TOKEN_PARDER error  */
-#line 777 "src/parser/parser.y"
+#line 775 "src/parser/parser.y"
                                                                                     {
         addErrorSintactico("Error en el cuerpo de la función", "global", (yylsp[0]).first_line, (yylsp[0]).first_column);
         (yyval.nodo) = crearNodo(AST_FUNCION, "Función con parametros");
@@ -3039,11 +3037,11 @@ yyreduce:
         NodoAST* bloqueVacio = crearNodo(AST_LISTA, "Programa");
         agregarHijo((yyval.nodo), bloqueVacio);
     }
-#line 3043 "src/parser/parser.tab.c"
+#line 3041 "src/parser/parser.tab.c"
     break;
 
   case 81: /* Funcion_parametros: tipo_primitivo TOKEN_IDENTIFICADOR TOKEN_PARIZQ error TOKEN_PARDER TOKEN_LLAVEIZQ lista_sentencias TOKEN_LLAVEDER  */
-#line 795 "src/parser/parser.y"
+#line 793 "src/parser/parser.y"
                                                                                                                         {
         addErrorSintactico("Lista de parámetros inválida en definición de función", "global", (yylsp[-4]).first_line, (yylsp[-4]).first_column);
         (yyval.nodo) = crearNodo(AST_FUNCION, "Función con parametros");
@@ -3061,11 +3059,11 @@ yyreduce:
         agregarHijo((yyval.nodo), crearNodo(AST_PARAMETROS, "parametros"));
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
     }
-#line 3065 "src/parser/parser.tab.c"
+#line 3063 "src/parser/parser.tab.c"
     break;
 
   case 82: /* Funcion_parametros: TipoConCorchetes TOKEN_IDENTIFICADOR TOKEN_PARIZQ error TOKEN_PARDER TOKEN_LLAVEIZQ lista_sentencias TOKEN_LLAVEDER  */
-#line 812 "src/parser/parser.y"
+#line 810 "src/parser/parser.y"
                                                                                                                           {
         addErrorSintactico("Lista de parámetros inválida en definición de función", "global", (yylsp[-4]).first_line, (yylsp[-4]).first_column);
         (yyval.nodo) = crearNodo(AST_FUNCION, "Función con parametros");
@@ -3085,11 +3083,11 @@ yyreduce:
         
         free((yyvsp[-7].str));
     }
-#line 3089 "src/parser/parser.tab.c"
+#line 3087 "src/parser/parser.tab.c"
     break;
 
   case 83: /* Funcion_parametros: tipo_primitivo TOKEN_IDENTIFICADOR TOKEN_PARIZQ TOKEN_PARDER TOKEN_LLAVEIZQ lista_sentencias TOKEN_LLAVEDER  */
-#line 831 "src/parser/parser.y"
+#line 829 "src/parser/parser.y"
                                                                                                                   {
         // ✓ NUEVO: Función sin parámetros con tipo primitivo
         (yyval.nodo) = crearNodo(AST_FUNCION, "Función sin parametros");
@@ -3107,11 +3105,11 @@ yyreduce:
         agregarHijo((yyval.nodo), crearNodo(AST_PARAMETROS, "parametros"));
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
     }
-#line 3111 "src/parser/parser.tab.c"
+#line 3109 "src/parser/parser.tab.c"
     break;
 
   case 84: /* Funcion_parametros: TipoConCorchetes TOKEN_IDENTIFICADOR TOKEN_PARIZQ TOKEN_PARDER TOKEN_LLAVEIZQ lista_sentencias TOKEN_LLAVEDER  */
-#line 848 "src/parser/parser.y"
+#line 846 "src/parser/parser.y"
                                                                                                                     {
         // ✓ NUEVO: Función sin parámetros con tipo matriz/vector
         (yyval.nodo) = crearNodo(AST_FUNCION, "Función sin parametros");
@@ -3131,11 +3129,11 @@ yyreduce:
         
         free((yyvsp[-6].str));
     }
-#line 3135 "src/parser/parser.tab.c"
+#line 3133 "src/parser/parser.tab.c"
     break;
 
   case 85: /* parametros: parametros TOKEN_COMA tipo_primitivo TOKEN_IDENTIFICADOR  */
-#line 869 "src/parser/parser.y"
+#line 867 "src/parser/parser.y"
                                                              {
         if((yyvsp[-3].nodo)->tipo != AST_PARAMETROS) {
             NodoAST* lista = crearNodo(AST_PARAMETROS, "parametros");
@@ -3168,11 +3166,11 @@ yyreduce:
             (yyval.nodo) = (yyvsp[-3].nodo);
         }
     }
-#line 3172 "src/parser/parser.tab.c"
+#line 3170 "src/parser/parser.tab.c"
     break;
 
   case 86: /* parametros: parametros TOKEN_COMA TipoConCorchetes TOKEN_IDENTIFICADOR  */
-#line 901 "src/parser/parser.y"
+#line 899 "src/parser/parser.y"
                                                                  {
         if((yyvsp[-3].nodo)->tipo != AST_PARAMETROS) {
             NodoAST* lista = crearNodo(AST_PARAMETROS, "parametros");
@@ -3209,11 +3207,11 @@ yyreduce:
             (yyval.nodo) = (yyvsp[-3].nodo);
         }
     }
-#line 3213 "src/parser/parser.tab.c"
+#line 3211 "src/parser/parser.tab.c"
     break;
 
   case 87: /* parametros: TipoConCorchetes TOKEN_IDENTIFICADOR  */
-#line 937 "src/parser/parser.y"
+#line 935 "src/parser/parser.y"
                                            {
         (yyval.nodo) = crearNodo(AST_PARAMETROS, "parametros");
         
@@ -3231,11 +3229,11 @@ yyreduce:
         agregarHijo((yyval.nodo), param);
         free((yyvsp[-1].str));  // ✓ Liberar la memoria del string
     }
-#line 3235 "src/parser/parser.tab.c"
+#line 3233 "src/parser/parser.tab.c"
     break;
 
   case 88: /* parametros: tipo_primitivo TOKEN_IDENTIFICADOR  */
-#line 954 "src/parser/parser.y"
+#line 952 "src/parser/parser.y"
                                          {
         (yyval.nodo) = crearNodo(AST_PARAMETROS, "parametros");
         
@@ -3251,85 +3249,85 @@ yyreduce:
         
         agregarHijo((yyval.nodo), param);
     }
-#line 3255 "src/parser/parser.tab.c"
+#line 3253 "src/parser/parser.tab.c"
     break;
 
   case 89: /* TipoConCorchetes: tipo_primitivo  */
-#line 973 "src/parser/parser.y"
+#line 971 "src/parser/parser.y"
                    {
         (yyval.str) = strdup((yyvsp[0].str));
     }
-#line 3263 "src/parser/parser.tab.c"
+#line 3261 "src/parser/parser.tab.c"
     break;
 
   case 90: /* TipoConCorchetes: tipo_primitivo TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER  */
-#line 976 "src/parser/parser.y"
+#line 974 "src/parser/parser.y"
                                                          {
         char* buffer = malloc(strlen((yyvsp[-2].str)) + 3);
         sprintf(buffer, "%s[]", (yyvsp[-2].str));
         (yyval.str) = buffer;
     }
-#line 3273 "src/parser/parser.tab.c"
+#line 3271 "src/parser/parser.tab.c"
     break;
 
   case 91: /* TipoConCorchetes: tipo_primitivo TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER  */
-#line 981 "src/parser/parser.y"
+#line 979 "src/parser/parser.y"
                                                                                              {
         char* buffer = malloc(strlen((yyvsp[-4].str)) + 5);
         sprintf(buffer, "%s[][]", (yyvsp[-4].str));
         (yyval.str) = buffer;
     }
-#line 3283 "src/parser/parser.tab.c"
+#line 3281 "src/parser/parser.tab.c"
     break;
 
   case 92: /* TipoConCorchetes: tipo_primitivo TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER  */
-#line 986 "src/parser/parser.y"
+#line 984 "src/parser/parser.y"
                                                                                                                                  {
         char* buffer = malloc(strlen((yyvsp[-6].str)) + 7);
         sprintf(buffer, "%s[][][]", (yyvsp[-6].str));
         (yyval.str) = buffer;
     }
-#line 3293 "src/parser/parser.tab.c"
+#line 3291 "src/parser/parser.tab.c"
     break;
 
   case 93: /* tipo_primitivo: TOKEN_DINT  */
-#line 994 "src/parser/parser.y"
+#line 992 "src/parser/parser.y"
                       { (yyval.str) = strdup((yyvsp[0].str)); }
-#line 3299 "src/parser/parser.tab.c"
+#line 3297 "src/parser/parser.tab.c"
     break;
 
   case 94: /* tipo_primitivo: TOKEN_DCHAR  */
-#line 995 "src/parser/parser.y"
+#line 993 "src/parser/parser.y"
                       { (yyval.str) = strdup((yyvsp[0].str)); }
-#line 3305 "src/parser/parser.tab.c"
+#line 3303 "src/parser/parser.tab.c"
     break;
 
   case 95: /* tipo_primitivo: TOKEN_DOUBLE  */
-#line 996 "src/parser/parser.y"
+#line 994 "src/parser/parser.y"
                       { (yyval.str) = strdup((yyvsp[0].str)); }
-#line 3311 "src/parser/parser.tab.c"
+#line 3309 "src/parser/parser.tab.c"
     break;
 
   case 96: /* tipo_primitivo: TOKEN_DFLOAT  */
-#line 997 "src/parser/parser.y"
+#line 995 "src/parser/parser.y"
                       { (yyval.str) = strdup((yyvsp[0].str)); }
-#line 3317 "src/parser/parser.tab.c"
+#line 3315 "src/parser/parser.tab.c"
     break;
 
   case 97: /* tipo_primitivo: TOKEN_DSTRING  */
-#line 998 "src/parser/parser.y"
+#line 996 "src/parser/parser.y"
                       { (yyval.str) = strdup((yyvsp[0].str)); }
-#line 3323 "src/parser/parser.tab.c"
+#line 3321 "src/parser/parser.tab.c"
     break;
 
   case 98: /* tipo_primitivo: TOKEN_DBOOLEAN  */
-#line 999 "src/parser/parser.y"
+#line 997 "src/parser/parser.y"
                       { (yyval.str) = strdup((yyvsp[0].str)); }
-#line 3329 "src/parser/parser.tab.c"
+#line 3327 "src/parser/parser.tab.c"
     break;
 
   case 99: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_IGUAL expresion  */
-#line 1004 "src/parser/parser.y"
+#line 1002 "src/parser/parser.y"
                                               {
         (yyval.nodo) = crearNodo(AST_ASIGNACION, "=");
         (yyval.nodo)->linea = (yylsp[-2]).first_line; 
@@ -3340,357 +3338,357 @@ yyreduce:
         agregarHijo((yyval.nodo), id);
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 3344 "src/parser/parser.tab.c"
+#line 3342 "src/parser/parser.tab.c"
     break;
 
   case 100: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_MAS_IGUAL expresion  */
-#line 1014 "src/parser/parser.y"
+#line 1012 "src/parser/parser.y"
                                                     {
         (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "+=", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
     }
-#line 3352 "src/parser/parser.tab.c"
+#line 3350 "src/parser/parser.tab.c"
     break;
 
   case 101: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_MENOS_IGUAL expresion  */
-#line 1017 "src/parser/parser.y"
+#line 1015 "src/parser/parser.y"
                                                       {
         (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "-=", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
     }
-#line 3360 "src/parser/parser.tab.c"
+#line 3358 "src/parser/parser.tab.c"
     break;
 
   case 102: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_POR_IGUAL expresion  */
-#line 1020 "src/parser/parser.y"
+#line 1018 "src/parser/parser.y"
                                                     {
         (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "*=", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
     }
-#line 3368 "src/parser/parser.tab.c"
+#line 3366 "src/parser/parser.tab.c"
     break;
 
   case 103: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_DIV_IGUAL expresion  */
-#line 1023 "src/parser/parser.y"
+#line 1021 "src/parser/parser.y"
                                                     {
         (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "/=", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
     }
-#line 3376 "src/parser/parser.tab.c"
+#line 3374 "src/parser/parser.tab.c"
     break;
 
   case 104: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_MOD_IGUAL expresion  */
-#line 1026 "src/parser/parser.y"
+#line 1024 "src/parser/parser.y"
                                                     {
         (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "%=", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
     }
-#line 3384 "src/parser/parser.tab.c"
+#line 3382 "src/parser/parser.tab.c"
     break;
 
   case 105: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_AND_IGUAL expresion  */
-#line 1029 "src/parser/parser.y"
+#line 1027 "src/parser/parser.y"
                                                     {
         (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "&=", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
     }
-#line 3392 "src/parser/parser.tab.c"
+#line 3390 "src/parser/parser.tab.c"
     break;
 
   case 106: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_OR_IGUAL expresion  */
-#line 1032 "src/parser/parser.y"
+#line 1030 "src/parser/parser.y"
                                                    {
         (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "|=", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
     }
-#line 3400 "src/parser/parser.tab.c"
+#line 3398 "src/parser/parser.tab.c"
     break;
 
   case 107: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_XOR_IGUAL expresion  */
-#line 1035 "src/parser/parser.y"
+#line 1033 "src/parser/parser.y"
                                                     {
         (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "^=", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
     }
-#line 3408 "src/parser/parser.tab.c"
+#line 3406 "src/parser/parser.tab.c"
     break;
 
   case 108: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_DESIZQ_IGUAL expresion  */
-#line 1038 "src/parser/parser.y"
+#line 1036 "src/parser/parser.y"
                                                        {
         (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), "<<=", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
     }
-#line 3416 "src/parser/parser.tab.c"
+#line 3414 "src/parser/parser.tab.c"
     break;
 
   case 109: /* asignacion: TOKEN_IDENTIFICADOR TOKEN_DESDER_IGUAL expresion  */
-#line 1041 "src/parser/parser.y"
+#line 1039 "src/parser/parser.y"
                                                        {
         (yyval.nodo) = crear_asignacion_compuesta((yyvsp[-2].str), ">>=", (yyvsp[0].nodo), (yylsp[-2]).first_line, (yylsp[-2]).first_column, (yylsp[-1]).first_line, (yylsp[-1]).first_column);
     }
-#line 3424 "src/parser/parser.tab.c"
+#line 3422 "src/parser/parser.tab.c"
     break;
 
   case 110: /* expresion: expresion_or  */
-#line 1051 "src/parser/parser.y"
+#line 1049 "src/parser/parser.y"
                    { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 3430 "src/parser/parser.tab.c"
+#line 3428 "src/parser/parser.tab.c"
     break;
 
   case 111: /* expresion_or: expresion_and  */
-#line 1055 "src/parser/parser.y"
+#line 1053 "src/parser/parser.y"
                     { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 3436 "src/parser/parser.tab.c"
+#line 3434 "src/parser/parser.tab.c"
     break;
 
   case 112: /* expresion_or: expresion_or TOKEN_OR expresion_and  */
-#line 1056 "src/parser/parser.y"
+#line 1054 "src/parser/parser.y"
                                           {
           (yyval.nodo) = crearNodo(AST_OPERACION, "||");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 3446 "src/parser/parser.tab.c"
+#line 3444 "src/parser/parser.tab.c"
     break;
 
   case 113: /* expresion_and: expresion_bit_or  */
-#line 1064 "src/parser/parser.y"
+#line 1062 "src/parser/parser.y"
                        { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 3452 "src/parser/parser.tab.c"
+#line 3450 "src/parser/parser.tab.c"
     break;
 
   case 114: /* expresion_and: expresion_and TOKEN_AND expresion_bit_or  */
-#line 1065 "src/parser/parser.y"
+#line 1063 "src/parser/parser.y"
                                                {
           (yyval.nodo) = crearNodo(AST_OPERACION, "&&");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 3462 "src/parser/parser.tab.c"
+#line 3460 "src/parser/parser.tab.c"
     break;
 
   case 115: /* expresion_bit_or: expresion_bit_xor  */
-#line 1073 "src/parser/parser.y"
+#line 1071 "src/parser/parser.y"
                         { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 3468 "src/parser/parser.tab.c"
+#line 3466 "src/parser/parser.tab.c"
     break;
 
   case 116: /* expresion_bit_or: expresion_bit_or TOKEN_BIT_OR expresion_bit_xor  */
-#line 1074 "src/parser/parser.y"
+#line 1072 "src/parser/parser.y"
                                                       {
           (yyval.nodo) = crearNodo(AST_OPERACION, "|");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 3478 "src/parser/parser.tab.c"
+#line 3476 "src/parser/parser.tab.c"
     break;
 
   case 117: /* expresion_bit_xor: expresion_bit_and  */
-#line 1082 "src/parser/parser.y"
+#line 1080 "src/parser/parser.y"
                         { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 3484 "src/parser/parser.tab.c"
+#line 3482 "src/parser/parser.tab.c"
     break;
 
   case 118: /* expresion_bit_xor: expresion_bit_xor TOKEN_XOR expresion_bit_and  */
-#line 1083 "src/parser/parser.y"
+#line 1081 "src/parser/parser.y"
                                                     {
           (yyval.nodo) = crearNodo(AST_OPERACION, "^");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 3494 "src/parser/parser.tab.c"
+#line 3492 "src/parser/parser.tab.c"
     break;
 
   case 119: /* expresion_bit_and: expresion_equality  */
-#line 1091 "src/parser/parser.y"
+#line 1089 "src/parser/parser.y"
                          { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 3500 "src/parser/parser.tab.c"
+#line 3498 "src/parser/parser.tab.c"
     break;
 
   case 120: /* expresion_bit_and: expresion_bit_and TOKEN_BIT_AND expresion_equality  */
-#line 1092 "src/parser/parser.y"
+#line 1090 "src/parser/parser.y"
                                                          {
           (yyval.nodo) = crearNodo(AST_OPERACION, "&");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 3510 "src/parser/parser.tab.c"
+#line 3508 "src/parser/parser.tab.c"
     break;
 
   case 121: /* expresion_equality: expresion_relacional  */
-#line 1100 "src/parser/parser.y"
+#line 1098 "src/parser/parser.y"
                            { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 3516 "src/parser/parser.tab.c"
+#line 3514 "src/parser/parser.tab.c"
     break;
 
   case 122: /* expresion_equality: expresion_equality TOKEN_IGUAL_IGUAL expresion_relacional  */
-#line 1101 "src/parser/parser.y"
+#line 1099 "src/parser/parser.y"
                                                                 {
           (yyval.nodo) = crearNodo(AST_OPERACION, "==");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 3526 "src/parser/parser.tab.c"
+#line 3524 "src/parser/parser.tab.c"
     break;
 
   case 123: /* expresion_equality: expresion_equality TOKEN_NO_IGUAL expresion_relacional  */
-#line 1106 "src/parser/parser.y"
+#line 1104 "src/parser/parser.y"
                                                              {
           (yyval.nodo) = crearNodo(AST_OPERACION, "!=");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 3536 "src/parser/parser.tab.c"
+#line 3534 "src/parser/parser.tab.c"
     break;
 
   case 124: /* expresion_relacional: expresion_shift  */
-#line 1114 "src/parser/parser.y"
+#line 1112 "src/parser/parser.y"
                       { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 3542 "src/parser/parser.tab.c"
+#line 3540 "src/parser/parser.tab.c"
     break;
 
   case 125: /* expresion_relacional: expresion_relacional TOKEN_MENOR expresion_shift  */
-#line 1115 "src/parser/parser.y"
+#line 1113 "src/parser/parser.y"
                                                        {
           (yyval.nodo) = crearNodo(AST_OPERACION, "<");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 3552 "src/parser/parser.tab.c"
+#line 3550 "src/parser/parser.tab.c"
     break;
 
   case 126: /* expresion_relacional: expresion_relacional TOKEN_MENOR_IGUAL expresion_shift  */
-#line 1120 "src/parser/parser.y"
+#line 1118 "src/parser/parser.y"
                                                              {
           (yyval.nodo) = crearNodo(AST_OPERACION, "<=");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 3562 "src/parser/parser.tab.c"
+#line 3560 "src/parser/parser.tab.c"
     break;
 
   case 127: /* expresion_relacional: expresion_relacional TOKEN_MAYOR expresion_shift  */
-#line 1125 "src/parser/parser.y"
+#line 1123 "src/parser/parser.y"
                                                        {
           (yyval.nodo) = crearNodo(AST_OPERACION, ">");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 3572 "src/parser/parser.tab.c"
+#line 3570 "src/parser/parser.tab.c"
     break;
 
   case 128: /* expresion_relacional: expresion_relacional TOKEN_MAYOR_IGUAL expresion_shift  */
-#line 1130 "src/parser/parser.y"
+#line 1128 "src/parser/parser.y"
                                                              {
           (yyval.nodo) = crearNodo(AST_OPERACION, ">=");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 3582 "src/parser/parser.tab.c"
+#line 3580 "src/parser/parser.tab.c"
     break;
 
   case 129: /* expresion_shift: expresion_aditiva  */
-#line 1138 "src/parser/parser.y"
+#line 1136 "src/parser/parser.y"
                         { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 3588 "src/parser/parser.tab.c"
+#line 3586 "src/parser/parser.tab.c"
     break;
 
   case 130: /* expresion_shift: expresion_shift TOKEN_DESIZQ expresion_aditiva  */
-#line 1139 "src/parser/parser.y"
+#line 1137 "src/parser/parser.y"
                                                      {
           (yyval.nodo) = crearNodo(AST_OPERACION, "<<");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 3598 "src/parser/parser.tab.c"
+#line 3596 "src/parser/parser.tab.c"
     break;
 
   case 131: /* expresion_shift: expresion_shift TOKEN_DESDER expresion_aditiva  */
-#line 1144 "src/parser/parser.y"
+#line 1142 "src/parser/parser.y"
                                                      {
           (yyval.nodo) = crearNodo(AST_OPERACION, ">>");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 3608 "src/parser/parser.tab.c"
+#line 3606 "src/parser/parser.tab.c"
     break;
 
   case 132: /* expresion_aditiva: expresion_multiplicativa  */
-#line 1152 "src/parser/parser.y"
+#line 1150 "src/parser/parser.y"
                                { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 3614 "src/parser/parser.tab.c"
+#line 3612 "src/parser/parser.tab.c"
     break;
 
   case 133: /* expresion_aditiva: expresion_aditiva TOKEN_MAS expresion_multiplicativa  */
-#line 1153 "src/parser/parser.y"
+#line 1151 "src/parser/parser.y"
                                                            {
           (yyval.nodo) = crearNodo(AST_OPERACION, "+");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 3624 "src/parser/parser.tab.c"
+#line 3622 "src/parser/parser.tab.c"
     break;
 
   case 134: /* expresion_aditiva: expresion_aditiva TOKEN_MENOS expresion_multiplicativa  */
-#line 1158 "src/parser/parser.y"
+#line 1156 "src/parser/parser.y"
                                                              {
           (yyval.nodo) = crearNodo(AST_OPERACION, "-");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 3634 "src/parser/parser.tab.c"
+#line 3632 "src/parser/parser.tab.c"
     break;
 
   case 135: /* expresion_multiplicativa: expresion_unaria  */
-#line 1166 "src/parser/parser.y"
+#line 1164 "src/parser/parser.y"
                        { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 3640 "src/parser/parser.tab.c"
+#line 3638 "src/parser/parser.tab.c"
     break;
 
   case 136: /* expresion_multiplicativa: expresion_multiplicativa TOKEN_MULTI expresion_unaria  */
-#line 1167 "src/parser/parser.y"
+#line 1165 "src/parser/parser.y"
                                                             {
           (yyval.nodo) = crearNodo(AST_OPERACION, "*");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 3650 "src/parser/parser.tab.c"
+#line 3648 "src/parser/parser.tab.c"
     break;
 
   case 137: /* expresion_multiplicativa: expresion_multiplicativa TOKEN_DIV expresion_unaria  */
-#line 1172 "src/parser/parser.y"
+#line 1170 "src/parser/parser.y"
                                                           {
           (yyval.nodo) = crearNodo(AST_OPERACION, "/");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 3660 "src/parser/parser.tab.c"
+#line 3658 "src/parser/parser.tab.c"
     break;
 
   case 138: /* expresion_multiplicativa: expresion_multiplicativa TOKEN_MODULO expresion_unaria  */
-#line 1177 "src/parser/parser.y"
+#line 1175 "src/parser/parser.y"
                                                              {
           (yyval.nodo) = crearNodo(AST_OPERACION, "%");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 3670 "src/parser/parser.tab.c"
+#line 3668 "src/parser/parser.tab.c"
     break;
 
   case 139: /* expresion_unaria: TOKEN_NOT expresion_unaria  */
-#line 1185 "src/parser/parser.y"
+#line 1183 "src/parser/parser.y"
                                  {
           (yyval.nodo) = crearNodo(AST_OPERACION, "!");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 3680 "src/parser/parser.tab.c"
+#line 3678 "src/parser/parser.tab.c"
     break;
 
   case 140: /* expresion_unaria: TOKEN_MENOS expresion_unaria  */
-#line 1190 "src/parser/parser.y"
+#line 1188 "src/parser/parser.y"
                                                 {
           (yyval.nodo) = crearNodo(AST_OPERACION, "uminus");
           (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[0].nodo));
       }
-#line 3690 "src/parser/parser.tab.c"
+#line 3688 "src/parser/parser.tab.c"
     break;
 
   case 141: /* expresion_unaria: TOKEN_PARIZQ tipo_primitivo TOKEN_PARDER expresion_unaria  */
-#line 1195 "src/parser/parser.y"
+#line 1193 "src/parser/parser.y"
                                                                 {
           /* crear un nodo específico para cast; guardamos el tipo en ->valor */
           (yyval.nodo) = crearNodo(AST_CAST, "cast");
@@ -3699,162 +3697,162 @@ yyreduce:
           agregarHijo((yyval.nodo), (yyvsp[0].nodo));
           free((yyvsp[-2].str)); 
       }
-#line 3703 "src/parser/parser.tab.c"
+#line 3701 "src/parser/parser.tab.c"
     break;
 
   case 142: /* expresion_unaria: postfix  */
-#line 1203 "src/parser/parser.y"
+#line 1201 "src/parser/parser.y"
               { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 3709 "src/parser/parser.tab.c"
+#line 3707 "src/parser/parser.tab.c"
     break;
 
   case 143: /* postfix: primary  */
-#line 1207 "src/parser/parser.y"
+#line 1205 "src/parser/parser.y"
               { (yyval.nodo) = (yyvsp[0].nodo); }
-#line 3715 "src/parser/parser.tab.c"
+#line 3713 "src/parser/parser.tab.c"
     break;
 
   case 144: /* postfix: postfix TOKEN_INCREMENTO  */
-#line 1208 "src/parser/parser.y"
+#line 1206 "src/parser/parser.y"
                                {
           (yyval.nodo) = crearNodo(AST_INCREMENTO, "++");
           (yyval.nodo)->linea = (yylsp[0]).first_line; (yyval.nodo)->columna = (yylsp[0]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
       }
-#line 3725 "src/parser/parser.tab.c"
+#line 3723 "src/parser/parser.tab.c"
     break;
 
   case 145: /* postfix: postfix TOKEN_DECREMENTO  */
-#line 1213 "src/parser/parser.y"
+#line 1211 "src/parser/parser.y"
                                {
           (yyval.nodo) = crearNodo(AST_DECREMENTO, "--");
           (yyval.nodo)->linea = (yylsp[0]).first_line; (yyval.nodo)->columna = (yylsp[0]).first_column;
           agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
       }
-#line 3735 "src/parser/parser.tab.c"
+#line 3733 "src/parser/parser.tab.c"
     break;
 
   case 146: /* primary: TOKEN_NUMERO  */
-#line 1222 "src/parser/parser.y"
+#line 1220 "src/parser/parser.y"
                    {
           (yyval.nodo) = crearNodo(AST_NUMERO, NULL);
           (yyval.nodo)->valor = strdup((yyvsp[0].str));
           (yyval.nodo)->linea = (yylsp[0]).first_line; (yyval.nodo)->columna = (yylsp[0]).first_column;
       }
-#line 3745 "src/parser/parser.tab.c"
+#line 3743 "src/parser/parser.tab.c"
     break;
 
   case 147: /* primary: TOKEN_DOUBLE_LITERAL  */
-#line 1227 "src/parser/parser.y"
+#line 1225 "src/parser/parser.y"
                            {
           (yyval.nodo) = crearNodo(AST_NUMERO, NULL);
           (yyval.nodo)->valor = strdup((yyvsp[0].str));
           (yyval.nodo)->linea = (yylsp[0]).first_line; (yyval.nodo)->columna = (yylsp[0]).first_column;
       }
-#line 3755 "src/parser/parser.tab.c"
+#line 3753 "src/parser/parser.tab.c"
     break;
 
   case 148: /* primary: TOKEN_FLOAT_LITERAL  */
-#line 1232 "src/parser/parser.y"
+#line 1230 "src/parser/parser.y"
                           {
           (yyval.nodo) = crearNodo(AST_NUMERO, NULL);
           (yyval.nodo)->valor = strdup((yyvsp[0].str));
           (yyval.nodo)->linea = (yylsp[0]).first_line; (yyval.nodo)->columna = (yylsp[0]).first_column;
       }
-#line 3765 "src/parser/parser.tab.c"
+#line 3763 "src/parser/parser.tab.c"
     break;
 
   case 149: /* primary: TOKEN_CADENA  */
-#line 1237 "src/parser/parser.y"
+#line 1235 "src/parser/parser.y"
                    {
           (yyval.nodo) = crearNodo(AST_CADENA, NULL);
           (yyval.nodo)->valor = strdup((yyvsp[0].str));
           (yyval.nodo)->linea = (yylsp[0]).first_line; (yyval.nodo)->columna = (yylsp[0]).first_column;
       }
-#line 3775 "src/parser/parser.tab.c"
+#line 3773 "src/parser/parser.tab.c"
     break;
 
   case 150: /* primary: TOKEN_CARACTER  */
-#line 1242 "src/parser/parser.y"
+#line 1240 "src/parser/parser.y"
                      {
           (yyval.nodo) = crearNodo(AST_CARACTER, NULL);
           (yyval.nodo)->valor = strdup((yyvsp[0].str));
           (yyval.nodo)->linea = (yylsp[0]).first_line; (yyval.nodo)->columna = (yylsp[0]).first_column;
       }
-#line 3785 "src/parser/parser.tab.c"
+#line 3783 "src/parser/parser.tab.c"
     break;
 
   case 151: /* primary: TOKEN_IDENTIFICADOR  */
-#line 1247 "src/parser/parser.y"
+#line 1245 "src/parser/parser.y"
                           {
           (yyval.nodo) = crearNodo(AST_IDENTIFICADOR, (yyvsp[0].str));
           (yyval.nodo)->linea = (yylsp[0]).first_line; (yyval.nodo)->columna = (yylsp[0]).first_column;
       }
-#line 3794 "src/parser/parser.tab.c"
+#line 3792 "src/parser/parser.tab.c"
     break;
 
   case 152: /* primary: TOKEN_BOOLEANO  */
-#line 1251 "src/parser/parser.y"
+#line 1249 "src/parser/parser.y"
                      {
         (yyval.nodo) = crearNodo(AST_BOOLEAN, (yyvsp[0].str));
         (yyval.nodo)->linea = (yylsp[0]).first_line; (yyval.nodo)->columna = (yylsp[0]).first_column;
     }
-#line 3803 "src/parser/parser.tab.c"
+#line 3801 "src/parser/parser.tab.c"
     break;
 
   case 153: /* primary: TOKEN_PARSEINT TOKEN_PARIZQ expresion TOKEN_PARDER  */
-#line 1255 "src/parser/parser.y"
+#line 1253 "src/parser/parser.y"
                                                          {
         (yyval.nodo) = crearNodo(AST_PARSEINT, "Integer.parseInt");
         (yyval.nodo)->linea = (yylsp[-3]).first_line; (yyval.nodo)->columna = (yylsp[-3]).first_column;
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
     }
-#line 3813 "src/parser/parser.tab.c"
+#line 3811 "src/parser/parser.tab.c"
     break;
 
   case 154: /* primary: TOKEN_PARSEDOUBLE TOKEN_PARIZQ expresion TOKEN_PARDER  */
-#line 1260 "src/parser/parser.y"
+#line 1258 "src/parser/parser.y"
                                                             {
         (yyval.nodo) = crearNodo(AST_PARSEDOUBLE, "Double.parseDouble");
         (yyval.nodo)->linea = (yylsp[-3]).first_line; (yyval.nodo)->columna = (yylsp[-3]).first_column;
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
     }
-#line 3823 "src/parser/parser.tab.c"
+#line 3821 "src/parser/parser.tab.c"
     break;
 
   case 155: /* primary: TOKEN_PARSEFLOAT TOKEN_PARIZQ expresion TOKEN_PARDER  */
-#line 1265 "src/parser/parser.y"
+#line 1263 "src/parser/parser.y"
                                                            {
         (yyval.nodo) = crearNodo(AST_PARSEFLOAT, "Float.parseFloat");
         (yyval.nodo)->linea = (yylsp[-3]).first_line; (yyval.nodo)->columna = (yylsp[-3]).first_column;
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
     }
-#line 3833 "src/parser/parser.tab.c"
+#line 3831 "src/parser/parser.tab.c"
     break;
 
   case 156: /* primary: TOKEN_STRING_VALUEOF TOKEN_PARIZQ expresion TOKEN_PARDER  */
-#line 1270 "src/parser/parser.y"
+#line 1268 "src/parser/parser.y"
                                                                {
         (yyval.nodo) = crearNodo(AST_VALUEOF, "String.valueOf");
         (yyval.nodo)->linea = (yylsp[-3]).first_line; (yyval.nodo)->columna = (yylsp[-3]).first_column;
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
     }
-#line 3843 "src/parser/parser.tab.c"
+#line 3841 "src/parser/parser.tab.c"
     break;
 
   case 157: /* primary: TOKEN_INDEXOF TOKEN_PARIZQ expresion TOKEN_COMA expresion TOKEN_PARDER  */
-#line 1275 "src/parser/parser.y"
+#line 1273 "src/parser/parser.y"
                                                                              {
         (yyval.nodo) = crearNodo(AST_INDEXOF, "Arrays.indexOf");
         (yyval.nodo)->linea = (yylsp[-5]).first_line; (yyval.nodo)->columna = (yylsp[-5]).first_column;
         agregarHijo((yyval.nodo), (yyvsp[-3].nodo));  // El array/vector
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));  // La clave a buscar
     }
-#line 3854 "src/parser/parser.tab.c"
+#line 3852 "src/parser/parser.tab.c"
     break;
 
   case 158: /* primary: TOKEN_IDENTIFICADOR TOKEN_PUNTO TOKEN_LENGHT  */
-#line 1281 "src/parser/parser.y"
+#line 1279 "src/parser/parser.y"
                                                    {
         (yyval.nodo) = crearNodo(AST_LENGHT, "Array.length");
         (yyval.nodo)->linea = (yylsp[-2]).first_line; (yyval.nodo)->columna = (yylsp[-2]).first_column;
@@ -3862,11 +3860,11 @@ yyreduce:
         id->linea = (yylsp[-2]).first_line; id->columna = (yylsp[-2]).first_column;
         agregarHijo((yyval.nodo), id);
     }
-#line 3866 "src/parser/parser.tab.c"
+#line 3864 "src/parser/parser.tab.c"
     break;
 
   case 159: /* primary: TOKEN_IDENTIFICADOR TOKEN_PUNTO TOKEN_ADD TOKEN_PARIZQ expresion TOKEN_PARDER  */
-#line 1288 "src/parser/parser.y"
+#line 1286 "src/parser/parser.y"
                                                                                     {
         (yyval.nodo) = crearNodo(AST_ADD, "Array.add");
         (yyval.nodo)->linea = (yylsp[-5]).first_line; (yyval.nodo)->columna = (yylsp[-5]).first_column;
@@ -3875,11 +3873,11 @@ yyreduce:
         agregarHijo((yyval.nodo), id);
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));  // El elemento a añadir
     }
-#line 3879 "src/parser/parser.tab.c"
+#line 3877 "src/parser/parser.tab.c"
     break;
 
   case 160: /* primary: TOKEN_CADENA TOKEN_EQUAL TOKEN_PARIZQ expresion TOKEN_PARDER  */
-#line 1296 "src/parser/parser.y"
+#line 1294 "src/parser/parser.y"
                                                                    {
         (yyval.nodo) = crearNodo(AST_EQUAL, ".equals");
         (yyval.nodo)->linea = (yylsp[-3]).first_line; (yyval.nodo)->columna = (yylsp[-3]).first_column;
@@ -3888,11 +3886,11 @@ yyreduce:
         agregarHijo((yyval.nodo), cadena);
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
     }
-#line 3892 "src/parser/parser.tab.c"
+#line 3890 "src/parser/parser.tab.c"
     break;
 
   case 161: /* primary: TOKEN_IDENTIFICADOR TOKEN_EQUAL TOKEN_PARIZQ expresion TOKEN_PARDER  */
-#line 1304 "src/parser/parser.y"
+#line 1302 "src/parser/parser.y"
                                                                           {
         (yyval.nodo) = crearNodo(AST_EQUAL, ".equals");
         (yyval.nodo)->linea = (yylsp[-3]).first_line; (yyval.nodo)->columna = (yylsp[-3]).first_column;
@@ -3901,22 +3899,22 @@ yyreduce:
         agregarHijo((yyval.nodo), id);
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
     }
-#line 3905 "src/parser/parser.tab.c"
+#line 3903 "src/parser/parser.tab.c"
     break;
 
   case 162: /* primary: TOKEN_PARSEJOIN TOKEN_PARIZQ expresion TOKEN_COMA lista_expresiones_join TOKEN_PARDER  */
-#line 1312 "src/parser/parser.y"
+#line 1310 "src/parser/parser.y"
                                                                                             {
         (yyval.nodo) = crearNodo(AST_PARSEJOIN, "Strings.join");
         (yyval.nodo)->linea = (yylsp[-5]).first_line; (yyval.nodo)->columna = (yylsp[-5]).first_column;
         agregarHijo((yyval.nodo), (yyvsp[-3].nodo));  // El delimitador
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));  // Lista de expresiones a unir
     }
-#line 3916 "src/parser/parser.tab.c"
+#line 3914 "src/parser/parser.tab.c"
     break;
 
   case 163: /* primary: TOKEN_PARSEJOIN TOKEN_PARIZQ expresion TOKEN_COMA expresion TOKEN_PARDER  */
-#line 1318 "src/parser/parser.y"
+#line 1316 "src/parser/parser.y"
                                                                                {
         (yyval.nodo) = crearNodo(AST_PARSEJOIN, "Strings.join");
         (yyval.nodo)->linea = (yylsp[-5]).first_line; (yyval.nodo)->columna = (yylsp[-5]).first_column;
@@ -3927,54 +3925,54 @@ yyreduce:
         agregarHijo(lista, (yyvsp[-1].nodo));
         agregarHijo((yyval.nodo), lista);
     }
-#line 3931 "src/parser/parser.tab.c"
+#line 3929 "src/parser/parser.tab.c"
     break;
 
   case 164: /* primary: acceso TOKEN_PUNTO TOKEN_LENGHT  */
-#line 1328 "src/parser/parser.y"
+#line 1326 "src/parser/parser.y"
                                       {
         (yyval.nodo) = crearNodo(AST_LENGHT, "Array.length");
         (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
         agregarHijo((yyval.nodo), (yyvsp[-2].nodo));
     }
-#line 3941 "src/parser/parser.tab.c"
+#line 3939 "src/parser/parser.tab.c"
     break;
 
   case 165: /* primary: TOKEN_NULL  */
-#line 1333 "src/parser/parser.y"
+#line 1331 "src/parser/parser.y"
                  {
         (yyval.nodo) = crearNodo(AST_NULL, "null");
         (yyval.nodo)->linea = (yylsp[0]).first_line; (yyval.nodo)->columna = (yylsp[0]).first_column;
     }
-#line 3950 "src/parser/parser.tab.c"
+#line 3948 "src/parser/parser.tab.c"
     break;
 
   case 166: /* primary: acceso  */
-#line 1337 "src/parser/parser.y"
+#line 1335 "src/parser/parser.y"
              {
           (yyval.nodo) = (yyvsp[0].nodo);
       }
-#line 3958 "src/parser/parser.tab.c"
+#line 3956 "src/parser/parser.tab.c"
     break;
 
   case 167: /* primary: Llamadas  */
-#line 1340 "src/parser/parser.y"
+#line 1338 "src/parser/parser.y"
               {
         (yyval.nodo) = (yyvsp[0].nodo);
     }
-#line 3966 "src/parser/parser.tab.c"
+#line 3964 "src/parser/parser.tab.c"
     break;
 
   case 168: /* primary: TOKEN_PARIZQ expresion TOKEN_PARDER  */
-#line 1343 "src/parser/parser.y"
+#line 1341 "src/parser/parser.y"
                                           {
           (yyval.nodo) = (yyvsp[-1].nodo);
       }
-#line 3974 "src/parser/parser.tab.c"
+#line 3972 "src/parser/parser.tab.c"
     break;
 
   case 169: /* lista_expresiones_join: lista_expresiones_join TOKEN_COMA expresion  */
-#line 1349 "src/parser/parser.y"
+#line 1347 "src/parser/parser.y"
                                                 {
         if ((yyvsp[-2].nodo)->tipo != AST_LISTA) {
             NodoAST* lista = crearNodo(AST_LISTA, "Lista Strings");
@@ -3986,30 +3984,30 @@ yyreduce:
             (yyval.nodo) = (yyvsp[-2].nodo);
         }
     }
-#line 3990 "src/parser/parser.tab.c"
+#line 3988 "src/parser/parser.tab.c"
     break;
 
   case 170: /* lista_expresiones_join: expresion  */
-#line 1360 "src/parser/parser.y"
+#line 1358 "src/parser/parser.y"
                 {
         (yyval.nodo) = crearNodo(AST_LISTA, "Lista Strings");
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 3999 "src/parser/parser.tab.c"
+#line 3997 "src/parser/parser.tab.c"
     break;
 
   case 171: /* instruccion_print: TOKEN_PRINT TOKEN_PARIZQ expresion TOKEN_PARDER  */
-#line 1368 "src/parser/parser.y"
+#line 1366 "src/parser/parser.y"
                                                     {
         (yyval.nodo) = crearNodo(AST_PRINT, "System.out.println");
         (yyval.nodo)->linea = (yylsp[-3]).first_line; (yyval.nodo)->columna = (yylsp[-3]).first_column;
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
     }
-#line 4009 "src/parser/parser.tab.c"
+#line 4007 "src/parser/parser.tab.c"
     break;
 
   case 172: /* instruccion_print: TOKEN_PRINT TOKEN_PARIZQ TOKEN_CADENA TOKEN_MAS expresion TOKEN_PARDER  */
-#line 1374 "src/parser/parser.y"
+#line 1372 "src/parser/parser.y"
                                                                              {
         NodoAST* concat = crearNodo(AST_OPERACION, "+");
         concat->linea = (yylsp[-2]).first_line; concat->columna = (yylsp[-2]).first_column;
@@ -4022,31 +4020,31 @@ yyreduce:
         (yyval.nodo)->linea = (yylsp[-5]).first_line; (yyval.nodo)->columna = (yylsp[-5]).first_column;
         agregarHijo((yyval.nodo), concat);
     }
-#line 4026 "src/parser/parser.tab.c"
+#line 4024 "src/parser/parser.tab.c"
     break;
 
   case 173: /* instruccion_print: TOKEN_PRINT TOKEN_PARIZQ TOKEN_PARDER  */
-#line 1386 "src/parser/parser.y"
+#line 1384 "src/parser/parser.y"
                                             {
         (yyval.nodo) = crearNodo(AST_PRINT, "System.out.println");
         (yyval.nodo)->linea = (yylsp[-2]).first_line; (yyval.nodo)->columna = (yylsp[-2]).first_column;
         // No hijos, print vacío
     }
-#line 4036 "src/parser/parser.tab.c"
+#line 4034 "src/parser/parser.tab.c"
     break;
 
   case 174: /* bloque: TOKEN_LLAVEIZQ lista_sentencias TOKEN_LLAVEDER  */
-#line 1394 "src/parser/parser.y"
+#line 1392 "src/parser/parser.y"
                                                    {
         (yyval.nodo) = crearNodo(AST_BLOQUE, "Bloque");
         (yyval.nodo)->linea = (yylsp[-2]).first_line; (yyval.nodo)->columna = (yylsp[-2]).first_column;
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
     }
-#line 4046 "src/parser/parser.tab.c"
+#line 4044 "src/parser/parser.tab.c"
     break;
 
   case 175: /* bloque: TOKEN_LLAVEIZQ error TOKEN_LLAVEDER  */
-#line 1399 "src/parser/parser.y"
+#line 1397 "src/parser/parser.y"
                                           {
         addErrorSintactico("Error sintáctico en el bloque", "global", (yylsp[-1]).first_line, (yylsp[-1]).first_column);
         (yyval.nodo) = crearNodo(AST_BLOQUE, "Bloque");
@@ -4054,39 +4052,39 @@ yyreduce:
         // Crear un bloque vacío para continuar
         agregarHijo((yyval.nodo), crearNodo(AST_LISTA, "Programa"));
     }
-#line 4058 "src/parser/parser.tab.c"
+#line 4056 "src/parser/parser.tab.c"
     break;
 
   case 176: /* instruccion_break: TOKEN_BREAK  */
-#line 1409 "src/parser/parser.y"
+#line 1407 "src/parser/parser.y"
                 {
         (yyval.nodo) = crearNodo(AST_BREAK, "break");
         (yyval.nodo)->linea = (yylsp[0]).first_line; (yyval.nodo)->columna = (yylsp[0]).first_column;
     }
-#line 4067 "src/parser/parser.tab.c"
+#line 4065 "src/parser/parser.tab.c"
     break;
 
   case 177: /* instruccion_continue: TOKEN_CONTINUE  */
-#line 1416 "src/parser/parser.y"
+#line 1414 "src/parser/parser.y"
                    {
         (yyval.nodo) = crearNodo(AST_CONTINUE, "continue");
         (yyval.nodo)->linea = (yylsp[0]).first_line; (yyval.nodo)->columna = (yylsp[0]).first_column;
     }
-#line 4076 "src/parser/parser.tab.c"
+#line 4074 "src/parser/parser.tab.c"
     break;
 
   case 178: /* instruccion_return: TOKEN_RETURN expresion  */
-#line 1423 "src/parser/parser.y"
+#line 1421 "src/parser/parser.y"
                            {
         (yyval.nodo) = crearNodo(AST_RETURN, "return");
         (yyval.nodo)->linea = (yylsp[-1]).first_line; (yyval.nodo)->columna = (yylsp[-1]).first_column;
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 4086 "src/parser/parser.tab.c"
+#line 4084 "src/parser/parser.tab.c"
     break;
 
   case 179: /* instruccion_if: TOKEN_IF TOKEN_PARIZQ expresion TOKEN_PARDER bloque  */
-#line 1433 "src/parser/parser.y"
+#line 1431 "src/parser/parser.y"
                                                                        {
         printf("[DEBUG] Procesando if en línea %d, columna %d\n", (yylsp[-4]).first_line, (yylsp[-4]).first_column);
         (yyval.nodo) = crearNodo(AST_IF, "if");
@@ -4094,11 +4092,11 @@ yyreduce:
         agregarHijo((yyval.nodo), (yyvsp[-2].nodo));   // condición
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));   // bloque if
     }
-#line 4098 "src/parser/parser.tab.c"
+#line 4096 "src/parser/parser.tab.c"
     break;
 
   case 180: /* instruccion_if: TOKEN_IF TOKEN_PARIZQ expresion TOKEN_PARDER bloque TOKEN_ELSE bloque  */
-#line 1440 "src/parser/parser.y"
+#line 1438 "src/parser/parser.y"
                                                                             {
         printf("[DEBUG] Procesando if-else en línea %d, columna %d\n", (yylsp[-6]).first_line, (yylsp[-6]).first_column);
         (yyval.nodo) = crearNodo(AST_IF, "if");
@@ -4109,11 +4107,11 @@ yyreduce:
         agregarHijo(else_node, (yyvsp[0].nodo));
         agregarHijo((yyval.nodo), else_node);
     }
-#line 4113 "src/parser/parser.tab.c"
+#line 4111 "src/parser/parser.tab.c"
     break;
 
   case 181: /* instruccion_if: TOKEN_IF TOKEN_PARIZQ expresion TOKEN_PARDER bloque TOKEN_ELSE instruccion_if  */
-#line 1450 "src/parser/parser.y"
+#line 1448 "src/parser/parser.y"
                                                                                     {
         (yyval.nodo) = crearNodo(AST_IF, "if");
         (yyval.nodo)->linea = (yylsp[-6]).first_line; (yyval.nodo)->columna = (yylsp[-6]).first_column;
@@ -4123,11 +4121,11 @@ yyreduce:
         agregarHijo(elseif_node, (yyvsp[0].nodo));
         agregarHijo((yyval.nodo), elseif_node);
     }
-#line 4127 "src/parser/parser.tab.c"
+#line 4125 "src/parser/parser.tab.c"
     break;
 
   case 182: /* instruccion_if: TOKEN_IF TOKEN_PARIZQ error TOKEN_PARDER bloque  */
-#line 1459 "src/parser/parser.y"
+#line 1457 "src/parser/parser.y"
                                                                      {
         printf("[DEBUG] Error en condición del if en línea %d, columna %d\n", (yylsp[-2]).first_line, (yylsp[-2]).first_column);
         addErrorSintactico("Expresión inválida en condición if", "global", (yylsp[-2]).first_line, (yylsp[-2]).first_column);
@@ -4136,22 +4134,22 @@ yyreduce:
         agregarHijo((yyval.nodo), crearNodo(AST_BOOLEAN, "false"));  // condición predeterminada
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));  // bloque if
     }
-#line 4140 "src/parser/parser.tab.c"
+#line 4138 "src/parser/parser.tab.c"
     break;
 
   case 183: /* intruccion_switch: TOKEN_SWITCH TOKEN_PARIZQ expresion TOKEN_PARDER TOKEN_LLAVEIZQ lista_casos TOKEN_LLAVEDER  */
-#line 1471 "src/parser/parser.y"
+#line 1469 "src/parser/parser.y"
                                                                                                {
         (yyval.nodo) = crearNodo(AST_SWITCH, "switch");
         (yyval.nodo)->linea = (yylsp[-6]).first_line; (yyval.nodo)->columna = (yylsp[-6]).first_column;
         agregarHijo((yyval.nodo), (yyvsp[-4].nodo));
         agregarHijo((yyval.nodo), (yyvsp[-1].nodo));
     }
-#line 4151 "src/parser/parser.tab.c"
+#line 4149 "src/parser/parser.tab.c"
     break;
 
   case 184: /* lista_casos: lista_casos caso  */
-#line 1480 "src/parser/parser.y"
+#line 1478 "src/parser/parser.y"
                      {
         if ((yyvsp[-1].nodo)->tipo != AST_LISTA) {
             NodoAST* lista = crearNodo(AST_LISTA, "Casos");
@@ -4163,20 +4161,20 @@ yyreduce:
             (yyval.nodo) = (yyvsp[-1].nodo);
         }
     }
-#line 4167 "src/parser/parser.tab.c"
+#line 4165 "src/parser/parser.tab.c"
     break;
 
   case 185: /* lista_casos: caso  */
-#line 1491 "src/parser/parser.y"
+#line 1489 "src/parser/parser.y"
            {
         (yyval.nodo) = crearNodo(AST_LISTA, "Casos");
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 4176 "src/parser/parser.tab.c"
+#line 4174 "src/parser/parser.tab.c"
     break;
 
   case 186: /* caso: TOKEN_CASE expresion TOKEN_DOS_PUNTOS lista_sentencias TOKEN_BREAK TOKEN_PUNTOCOMA  */
-#line 1498 "src/parser/parser.y"
+#line 1496 "src/parser/parser.y"
                                                                                       {
         (yyval.nodo) = crearNodo(AST_CASE, "CASE");
         (yyval.nodo)->linea = (yylsp[-5]).first_line; (yyval.nodo)->columna = (yylsp[-5]).first_column;
@@ -4186,32 +4184,32 @@ yyreduce:
         nodoBreak->linea = (yylsp[-1]).first_line; nodoBreak->columna = (yylsp[-1]).first_column;
         agregarHijo((yyval.nodo), nodoBreak);
     }
-#line 4190 "src/parser/parser.tab.c"
+#line 4188 "src/parser/parser.tab.c"
     break;
 
   case 187: /* caso: TOKEN_DEFAULT TOKEN_DOS_PUNTOS lista_sentencias  */
-#line 1507 "src/parser/parser.y"
+#line 1505 "src/parser/parser.y"
                                                       {
         (yyval.nodo) = crearNodo(AST_DEFAULT, "DEFAULT");
         (yyval.nodo)->linea = (yylsp[-2]).first_line; (yyval.nodo)->columna = (yylsp[-2]).first_column;
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 4200 "src/parser/parser.tab.c"
+#line 4198 "src/parser/parser.tab.c"
     break;
 
   case 188: /* instruccion_while: TOKEN_WHILE TOKEN_PARIZQ expresion TOKEN_PARDER bloque  */
-#line 1515 "src/parser/parser.y"
+#line 1513 "src/parser/parser.y"
                                                            {
         (yyval.nodo) = crearNodo(AST_WHILE, "while");
         (yyval.nodo)->linea = (yylsp[-4]).first_line; (yyval.nodo)->columna = (yylsp[-4]).first_column;
         agregarHijo((yyval.nodo), (yyvsp[-2].nodo));
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 4211 "src/parser/parser.tab.c"
+#line 4209 "src/parser/parser.tab.c"
     break;
 
   case 189: /* instruccion_while: TOKEN_WHILE TOKEN_PARIZQ error TOKEN_PARDER bloque  */
-#line 1521 "src/parser/parser.y"
+#line 1519 "src/parser/parser.y"
                                                          {
         addErrorSintactico("Expresión inválida en condición while", "global", (yylsp[-2]).first_line, (yylsp[-2]).first_column);
         (yyval.nodo) = crearNodo(AST_WHILE, "while");
@@ -4220,11 +4218,11 @@ yyreduce:
         agregarHijo((yyval.nodo), crearNodo(AST_BOOLEAN, "false"));
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));  // bloque while
     }
-#line 4224 "src/parser/parser.tab.c"
+#line 4222 "src/parser/parser.tab.c"
     break;
 
   case 190: /* instruccion_for: TOKEN_FOR TOKEN_PARIZQ declaracion TOKEN_PUNTOCOMA expresion TOKEN_PUNTOCOMA expresion TOKEN_PARDER bloque  */
-#line 1532 "src/parser/parser.y"
+#line 1530 "src/parser/parser.y"
                                                                                                               {
         (yyval.nodo) = crearNodo(AST_FOR, "FOR");
         (yyval.nodo)->linea = (yylsp[-8]).first_line; (yyval.nodo)->columna = (yylsp[-8]).first_column;
@@ -4233,11 +4231,11 @@ yyreduce:
         agregarHijo((yyval.nodo), (yyvsp[-2].nodo));
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 4237 "src/parser/parser.tab.c"
+#line 4235 "src/parser/parser.tab.c"
     break;
 
   case 191: /* instruccion_for: TOKEN_FOR TOKEN_PARIZQ asignacion TOKEN_PUNTOCOMA expresion TOKEN_PUNTOCOMA expresion TOKEN_PARDER bloque  */
-#line 1540 "src/parser/parser.y"
+#line 1538 "src/parser/parser.y"
                                                                                                                {
         (yyval.nodo) = crearNodo(AST_FOR, "FOR");
         (yyval.nodo)->linea = (yylsp[-8]).first_line; (yyval.nodo)->columna = (yylsp[-8]).first_column;
@@ -4246,11 +4244,11 @@ yyreduce:
         agregarHijo((yyval.nodo), (yyvsp[-2].nodo));
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 4250 "src/parser/parser.tab.c"
+#line 4248 "src/parser/parser.tab.c"
     break;
 
   case 192: /* instruccion_for: TOKEN_FOR TOKEN_PARIZQ declaracion TOKEN_DOS_PUNTOS expresion TOKEN_PARDER bloque  */
-#line 1548 "src/parser/parser.y"
+#line 1546 "src/parser/parser.y"
                                                                                         {
         (yyval.nodo) = crearNodo(AST_FOR_VECTOR, "FOR");
         (yyval.nodo)->linea = (yylsp[-6]).first_line; (yyval.nodo)->columna = (yylsp[-6]).first_column;
@@ -4258,11 +4256,11 @@ yyreduce:
         agregarHijo((yyval.nodo), (yyvsp[-2].nodo));
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 4262 "src/parser/parser.tab.c"
+#line 4260 "src/parser/parser.tab.c"
     break;
 
   case 193: /* instruccion_for: TOKEN_FOR TOKEN_PARIZQ tipo_primitivo TOKEN_CORCHETEIZQ TOKEN_CORCHETEDER TOKEN_IDENTIFICADOR TOKEN_DOS_PUNTOS expresion TOKEN_PARDER bloque  */
-#line 1555 "src/parser/parser.y"
+#line 1553 "src/parser/parser.y"
                                                                                                                                                    {
         (yyval.nodo) = crearNodo(AST_FOR_VECTOR, "FOR");
         (yyval.nodo)->linea = (yylsp[-9]).first_line; (yyval.nodo)->columna = (yylsp[-9]).first_column;
@@ -4282,11 +4280,11 @@ yyreduce:
         agregarHijo((yyval.nodo), (yyvsp[-2].nodo)); 
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 4286 "src/parser/parser.tab.c"
+#line 4284 "src/parser/parser.tab.c"
     break;
 
   case 194: /* instruccion_for: TOKEN_FOR TOKEN_PARIZQ error TOKEN_PUNTOCOMA expresion TOKEN_PUNTOCOMA expresion TOKEN_PARDER bloque  */
-#line 1574 "src/parser/parser.y"
+#line 1572 "src/parser/parser.y"
                                                                                                            {
         addErrorSintactico("Inicialización inválida en bucle for", "global", (yylsp[-6]).first_line, (yylsp[-6]).first_column);
         (yyval.nodo) = crearNodo(AST_FOR, "FOR");
@@ -4297,11 +4295,11 @@ yyreduce:
         agregarHijo((yyval.nodo), (yyvsp[-2].nodo));
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 4301 "src/parser/parser.tab.c"
+#line 4299 "src/parser/parser.tab.c"
     break;
 
   case 195: /* instruccion_for: TOKEN_FOR TOKEN_PARIZQ declaracion TOKEN_PUNTOCOMA error TOKEN_PUNTOCOMA expresion TOKEN_PARDER bloque  */
-#line 1584 "src/parser/parser.y"
+#line 1582 "src/parser/parser.y"
                                                                                                              {
         addErrorSintactico("Condición inválida en bucle for", "global", (yylsp[-4]).first_line, (yylsp[-4]).first_column);
         (yyval.nodo) = crearNodo(AST_FOR, "FOR");
@@ -4312,11 +4310,11 @@ yyreduce:
         agregarHijo((yyval.nodo), (yyvsp[-2].nodo));
         agregarHijo((yyval.nodo), (yyvsp[0].nodo));
     }
-#line 4316 "src/parser/parser.tab.c"
+#line 4314 "src/parser/parser.tab.c"
     break;
 
 
-#line 4320 "src/parser/parser.tab.c"
+#line 4318 "src/parser/parser.tab.c"
 
       default: break;
     }
@@ -4545,7 +4543,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 1597 "src/parser/parser.y"
+#line 1595 "src/parser/parser.y"
 
 
 /* ========== FUNCIONES AUXILIARES ========== */

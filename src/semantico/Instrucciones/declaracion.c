@@ -92,7 +92,31 @@ int verificarDeclaracion(NodoAST* nodo) {
         sims = buscarSimbolo(identificador->valor);
     }
 
-    Simbolo* sim = buscarSimbolo(identificador->valor);
+    Simbolo* sim = buscarSimbolo(identificador->valor); 
+    
+    if (valor && valor->valor) {
+        // Usar valor inicial
+        ValorSimbolo v = evaluarExpr(valor);
+        setValorSimbolo(sim, v.tipo, v);
+    } else {
+        // Usar valor por defecto solo en la tabla de símbolos
+        const char* def = valorPorDefectoTipo(tipoDeclarado);
+        ValorSimbolo v;
+        v.inicializado = 1;
+        v.tipo = tipoDeclarado;
+        
+        // Asignar según tipo...
+        if (tipoDeclarado == TIPO_INT) v.v.i = atoi(def);
+        else if (tipoDeclarado == TIPO_FLOAT) v.v.f = atof(def);
+        else if (tipoDeclarado == TIPO_DOUBLE) v.v.d = atof(def);
+        else if (tipoDeclarado == TIPO_BOOLEAN) v.v.b = (strcmp(def, "true") == 0) ? 1 : 0;
+        else if (tipoDeclarado == TIPO_CHAR) v.v.c = '\0';
+        else if (tipoDeclarado == TIPO_STRING) v.v.s = NULL;
+        
+        setValorSimbolo(sim, tipoDeclarado, v);
+        printf("[DEBUG] Variable '%s' inicializada con valor por defecto\n", identificador->valor);
+        return 1; // Terminar aquí para declaraciones sin inicializador
+    }
     
     if (sim && nodo->num_hijos > 1) {
         // Verificación para métodos de parseo

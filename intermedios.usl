@@ -305,7 +305,7 @@ public static void main() {
             System.out.println(estudiante1 + " - Categoria: Muy joven");
             break;
         case 20:
-            System.out.println("");
+            System.out.println(estudiante1 + " - Categoria: Joven adulto");
             break;
         case 21:
             System.out.println(estudiante1 + " - Categoria: Joven adulto");
